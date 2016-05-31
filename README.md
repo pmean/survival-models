@@ -1,4 +1,4 @@
-# hierarchical-prior
+# repository-title-goes-here
 
 This is a single file stand-alone application using R Markdown.
 
