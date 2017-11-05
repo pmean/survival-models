@@ -6,4 +6,4 @@ PLoS Comput Biol 13(6): e1005510.
 Data files go in this directory. This includes the original data files
 and any intermediate data files that are created.
 
-Intermediate and final results of data analyses go in this folder.
+Program code (typically R and R Markdown for me) go in this folder.
