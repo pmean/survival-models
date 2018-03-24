@@ -2,3 +2,5 @@
 .Rhistory
 *.RData
 *.Rproj
+data/wiley/*.txt
+data/wiley/*.dat
