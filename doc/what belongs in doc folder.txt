@@ -1,7 +1,0 @@
-This directory structure is based loosely on the recommendations in
-
-Wilson et al. Good Enough Practices in Statistical Computing. 
-PLoS Comput Biol 13(6): e1005510.
-
-Documentation goes in this folder. This includes the original research
-protocol, any amendments, and any email communications about the project.

@@ -1,6 +1,0 @@
-This directory structure is based loosely on the recommendations in
-
-Wilson et al. Good Enough Practices in Statistical Computing. 
-PLoS Comput Biol 13(6): e1005510.
-
-Program code goes in this directory. For me, that typically means R files and Rmd (R Markdown) files.

@@ -1,0 +1,28 @@
+---
+title: "survival lecture 1"
+author: "Steve Simon"
+date: "March 24, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below.
+
+```{r load-libraries}
+library(dplyr)
+library(magrittr)
+library(survival)
+```
+
+
+```{r read-table21}
+fn <- "~/survival-models/data/table21.txt"
+table21 <- read.csv(fn, header=TRUE)
+print(table21)
+table21 %<>% arrange(Time)
+print(table21)
+table21_surv <- Surv(table21$Time, table21$Censor)
+print(table21_surv)
+table21_fit <- survfit(table21_surv~1)
+print(table21_fit)
+plot(table21_fit)
+```
