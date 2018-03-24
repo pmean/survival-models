@@ -1,0 +1,31 @@
+~/survival-models/doc/data-dictionary-table21.txt
+
+This data comes from Table 2.1 of 
+
+Hosmer DW, Lemeshow S, May S. Applied Survival Analysis. 2008. John Wiley and Sons: Hoboken, NJ.
+
+This data set is copyrighted, but is available for free download at
+
+ftp://ftp.wiley.com/public/sci_tech_med/survival/
+
+and in SAS format at
+
+https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_sas.zip
+
+and in SPSS format at
+
+https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_spss.zip
+
+It represents survival times for a 100 patient subset of data from the Worcester Heart Attack Study. You can find more information about this data set in Chapter 1 of Hosmer, Lemeshow, and May.
+
+This is a tab delimited file with 100 rows and 9 columns of data.
+
+id, a sequential code from 1 to 100
+admitdate, Admission Date, formatted as mm/dd/yyyy
+foldate, Follow Up Date, formatted as mm/dd/yyyy
+los, Length of Hospital Stay in Days
+lenfol, Follow Up Time in Days
+fstat, Vital Satus, 1 = Dead, 0 = Alive
+age, Age at Admission in years
+gender, 0 = Male, 1 = Female
+bmi, Body Mass Index, kg/m^2

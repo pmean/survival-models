@@ -13,16 +13,61 @@ library(magrittr)
 library(survival)
 ```
 
+The fly1 data set is intended to illustrate easy it would be for you to estimate a survival curve if you had no censoring.
+
+```{r read-fly1}
+fn <- "~/survival-models/data/fly1.txt"
+fly1 <- read.table(fn, header=FALSE)
+print(fly1)
+```
+
+To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
+
+```{r plot-fly1}
+n <- dim(fly1)[1]
+fly1$Censor <- 1
+fly1_surv <- Surv(fly1$V1, fly1$Censor)
+fly1_km <- survfit(fly1_surv~1)
+plot(fly1_km)
+```
 
 ```{r read-table21}
 fn <- "~/survival-models/data/table21.txt"
 table21 <- read.csv(fn, header=TRUE)
 print(table21)
-table21 %<>% arrange(Time)
-print(table21)
+```
+
+In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
+
+```{r display-table21}
 table21_surv <- Surv(table21$Time, table21$Censor)
 print(table21_surv)
+```
+
+The survfit function takes a survival object and produces information needed to draw one or more Kaplan-Meier curve. Using ~1 tells R that you want a single curve for all of the data.
+
+```{r graph-table21}
 table21_fit <- survfit(table21_surv~1)
 print(table21_fit)
+summary(table21_fit)
 plot(table21_fit)
+```
+
+This is a rather trivial example. Let's look at a larger data set. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
+
+Out of respect for the book's copyright, I am not reproducing the whas100.txt file in the git repository. See README.md in the main folder or the data dictionary file mentioned above for details about how to download this file.
+
+```{r read-whas100}
+fn <- "~/survival-models/data/wiley/whas100.dat" 
+whas100 <- read.table(fn, header = FALSE) 
+names(whas100) <- c("id", "admitdate", "foldate",
+                    "los", "lenfol", "fstat",
+                    "age", "gender", "bmi")
+head(whas100)
+```
+
+Save everything for possible re-use.
+
+```{r save-everything}
+save.image("~/survival-models/data/survival-lecture-1.RData")
 ```
