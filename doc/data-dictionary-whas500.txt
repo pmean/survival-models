@@ -1,0 +1,29 @@
+~/survival-models/doc/data-dictionary-whas100.txt
+
+This data set is very similar to whas100. It is a larger subset with more variables. For a description of the context of this file and where you can find it, please refer to data-dictionary-whas100.txt.
+
+This data set has 500 rows and 22 columns.
+
+id, a sequential code from 1 to 500
+age, Age at Admission in years
+gender, 0 = Male, 1 = Female
+hr, Initial Heart Rate, Beats per minute
+sysbp, Initial Systolic Blood, mmHg Pressure
+diasbp, Initial Diastolic Blood, mmHg Pressure
+bmi, Body Mass Index, kg/m^2
+cvd, History of Cardiovascular Disease, 0 = No, 1 = Yes
+afb, Atrial Fibrillation, 0 = No, 1 = Yes
+sho, Cardiogenic Shock, 0 = No, 1 = Yes
+chf, Congestive Heart Complications, 0 = No, 1 = Yes
+av3, Complete Heart Block, 0 = No, 1 = Yes
+miord, MI Order, 0 = First, 1 = Recurrent
+mitype, MI Type, 0 = non Q-wave, 1 = Q-wave
+year, Cohort Year, 1 = 1997, 2 = 1999, 3 = 2001
+admitdate, Admission Date, formatted as mm/dd/yyyy
+disdate, Hospital Discharge Date, formatted as mm/dd/yyyy
+fdate, Date of last Follow Up, formatted as mm/dd/yyyy
+los, Length of Hospital Stay in days
+dstat, Discharge Status from Hospital, 0 = Alive, 1 = Dead
+lenfol, Follow Up Time in Days
+fstat, Vital Satus, 1 = Dead, 0 = Alive
+

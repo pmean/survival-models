@@ -1,4 +1,4 @@
-~/survival-models/doc/data-dictionary-table21.txt
+~/survival-models/doc/data-dictionary-whas100.txt
 
 This data comes from Table 2.1 of 
 

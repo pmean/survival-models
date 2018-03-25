@@ -1,4 +1,4 @@
-"Subject","Time","Censor"
+"subject","time","censor"
 1,6,1
 2,44,1
 3,21,0

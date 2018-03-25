@@ -5,11 +5,9 @@ date: "March 24, 2018"
 output: html_document
 ---
 
-This file does not need any special libraries other than the ones listed below.
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}
-library(dplyr)
-library(magrittr)
 library(survival)
 ```
 
@@ -18,18 +16,44 @@ The fly1 data set is intended to illustrate easy it would be for you to estimate
 ```{r read-fly1}
 fn <- "~/survival-models/data/fly1.txt"
 fly1 <- read.table(fn, header=FALSE)
+names(fly1) <- "time"
 print(fly1)
 ```
 
 To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
 
 ```{r plot-fly1}
-n <- dim(fly1)[1]
-fly1$Censor <- 1
-fly1_surv <- Surv(fly1$V1, fly1$Censor)
+fly1$censor <- 1
+fly1_surv <- Surv(fly1$time, fly1$censor)
 fly1_km <- survfit(fly1_surv~1)
-plot(fly1_km)
+plot(fly1_km, conf.int=FALSE)
 ```
+
+The fly2 data set illustrates what happens to the data if a scientist accidentally let all the flies still alive at day 70 escape.
+
+```{r read-fly2}
+fn <- "~/survival-models/data/fly2.txt"
+fly2 <- read.table(fn, header=FALSE)
+names(fly2) <- c("time", "censor")
+print(fly2)
+fly2_surv <- Surv(fly2$time, fly2$censor)
+fly2_km <- survfit(fly2_surv~1)
+plot(fly2_km, conf.int=FALSE)
+```
+
+The fly3 data set illustrates what happens to the data if a scientist accidentally let some (but not all) of the flies escape at day 70.
+
+```{r read-fly3}
+fn <- "~/survival-models/data/fly3.txt"
+fly3 <- read.table(fn, header=FALSE)
+names(fly3) <- c("time", "censor")
+print(fly3)
+fly3_surv <- Surv(fly3$time, fly3$censor)
+fly3_km <- survfit(fly3_surv~1)
+plot(fly3_km, conf.int=FALSE)
+```
+
+Table 2.1 of Hosmer, Lemeshow, and May has a very small data set that you can use to calculate the Kaplan-Meier curve by hand. This code shows how R software would generate the graph, just so you can double check your work.
 
 ```{r read-table21}
 fn <- "~/survival-models/data/table21.txt"
@@ -40,7 +64,7 @@ print(table21)
 In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
 
 ```{r display-table21}
-table21_surv <- Surv(table21$Time, table21$Censor)
+table21_surv <- Surv(table21$time, table21$censor)
 print(table21_surv)
 ```
 
@@ -50,7 +74,7 @@ The survfit function takes a survival object and produces information needed to 
 table21_fit <- survfit(table21_surv~1)
 print(table21_fit)
 summary(table21_fit)
-plot(table21_fit)
+plot(table21_fit, conf.int=FALSE)
 ```
 
 This is a rather trivial example. Let's look at a larger data set. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
@@ -60,10 +84,60 @@ Out of respect for the book's copyright, I am not reproducing the whas100.txt fi
 ```{r read-whas100}
 fn <- "~/survival-models/data/wiley/whas100.dat" 
 whas100 <- read.table(fn, header = FALSE) 
-names(whas100) <- c("id", "admitdate", "foldate",
-                    "los", "lenfol", "fstat",
-                    "age", "gender", "bmi")
+names(whas100) <- 
+  c("id", "admitdate", "foldate",
+    "los", "lenfol", "fstat",
+    "age", "gender", "bmi")
+whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
+```
+
+Use the same functions, Surv and survfit to create a Kaplan-Meier curve.
+
+```{r plot-overall-whas100}
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+whas100_km <- survfit(whas100_surv~1)
+plot(whas100_km, conf.int=FALSE)
+```
+
+You can get confidence intervals and quantile estimates for the Kaplan-Meier curve easily. The mean is not easily computed in R, but there are many reasons why you should not rely on the mean as a summary statistic for survival data.
+
+```{r plot-overall-whas100-with-cis}
+plot(whas100_km, conf.int=TRUE)
+quantile(whas100_km)
+```
+
+You can get Kaplan-Meier curves for two or more groups by changing the ~1 in the survfit function. Here's how you would plot survival curves for males and females for the whas100 data set.
+
+As a general recommendation, try to avoid ploting confidence intervals when you have two or more Kaplan-Meier curves because they become very confusing.
+
+```{r plot-whas100-by-gender}
+whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+plot(whas100_km_by_gender, conf.int=FALSE)
+```
+
+The standard test for comparing two or more Kaplan-Meier curves is the log rank test. You use the survdiff function to get this. The option rho=1 gives you the Peto & Peto modification of the Gehan-Wilcoxon test. In most settings, there is little reason to choose the latter test.
+
+```{r logrank-test}
+survdiff(whas100_surv~whas100$gender)
+```
+
+You cannot use a continuous variable like age with the log rank test. When you need to see how a continuous variable affects survival, split the continuous variable into discrete intervals.
+
+```{r age-groups}
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas100$age_group <- cut(whas100$age, age_breaks, age_labels)
+table(whas100$age_group, whas100$fstat)
+plot(survfit(whas100_surv~whas100$age_group))
+survdiff(whas100_surv~whas100$age_group)
+```
+
+```{r read-bpd}
+fn <- "~/survival-models/data/wiley/bpd.dat" 
+bpd <- read.table(fn, header = FALSE) 
+names(bpd) <- c("id", "surfact", "ondays", "censor")
+head(bpd)
 ```
 
 Save everything for possible re-use.
