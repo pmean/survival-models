@@ -1,6 +1,10 @@
 ~/survival-models/doc/data-dictionary-whas100.txt
 
-This data set is very similar to whas100. It is a larger subset with more variables. For a description of the context of this file and where you can find it, please refer to data-dictionary-whas100.txt.
+This data set is very similar to whas100. It is a
+larger subset with more variables. For a 
+description of the context of this file and where
+you can find it, please refer to data-dictionary-
+whas100.txt.
 
 This data set has 500 rows and 22 columns.
 

@@ -2,13 +2,23 @@
 
 This data comes from Table 2.1 of 
 
-Hosmer DW, Lemeshow S, May S. Applied Survival Analysis. 2008. John Wiley and Sons: Hoboken, NJ.
+Hosmer DW, Lemeshow S, May S. Applied Survival
+Analysis. 2008. John Wiley and Sons: Hoboken, NJ.
 
-This data set is copyrighted, but is reproduced here under the fair use provisions of copyright law.
+This data set is copyrighted, but is reproduced
+here under the fair use provisions of copyright
+law.
 
-It is used in ~/survival-models/src/survival-lecture-1.Rmd to illustrate computation of the Kaplan-Meier curve. It represents survival times for a very small subset of data from the Worcester Heart Attack Study.
+It is used in ~/survival-models/src/survival-
+lecture-1.Rmd to illustrate computation of the 
+Kaplan-Meier curve. It represents survival times
+for a very small subset of data from the 
+Worcester Heart Attack Study.
 
-This is a comma-delimited text file with a header for the variables names. There are five rows and three columns of data. I converted the variable names to initial caps to all lower case.
+This is a comma-delimited text file with a header
+for the variables names. There are five rows and
+three columns of data. I converted the variable 
+names to initial caps to all lower case.
 
 subject, a sequential number from 1 to 5
 time, the time to event (either death or censor) in days.
