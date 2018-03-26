@@ -128,7 +128,7 @@ $(document).ready(function () {
 
 <p>This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.</p>
 <pre class="r"><code>library(survival)</code></pre>
-<p>The fly1 data set is intended to illustrate easy it would be for you to estimate a survival curve if you had no censoring.</p>
+<p>The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/fly1.txt&quot;
 fly1 &lt;- read.table(fn, header=FALSE)
 names(fly1) &lt;- &quot;time&quot;
@@ -354,7 +354,7 @@ head(bpd)</code></pre>
 ## 5  5       0    107      1
 ## 6  6       0     71      1</code></pre>
 <p>Save everything for possible re-use.</p>
-<pre class="r"><code>save.image(&quot;~/survival-models/data/survival-lecture-1.RData&quot;)</code></pre>
+<pre class="r"><code>save.image(&quot;~/survival-models/bin/survival-lecture-1.RData&quot;)</code></pre>
 
 
 

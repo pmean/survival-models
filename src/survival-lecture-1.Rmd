@@ -143,5 +143,5 @@ head(bpd)
 Save everything for possible re-use.
 
 ```{r save-everything}
-save.image("~/survival-models/data/survival-lecture-1.RData")
+save.image("~/survival-models/bin/survival-lecture-1.RData")
 ```
