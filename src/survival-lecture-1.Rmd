@@ -11,7 +11,7 @@ This file does not need any special libraries other than the ones listed below. 
 library(survival)
 ```
 
-The fly1 data set is intended to illustrate easy it would be for you to estimate a survival curve if you had no censoring.
+The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring.
 
 ```{r read-fly1}
 fn <- "~/survival-models/data/fly1.txt"
