@@ -1,0 +1,7 @@
+~/survival-models/bin/what-goes-in-the-bin-folder.txt
+
+This folder will contain any binary data files created by SAS (.sas7bdat)
+or by R (.RData). You do not need to add any files to this folder. Files
+will be added automatically be the R and SAS programs. Because the binary
+data files created by SAS and R are large, I am not storing them in my
+github repository.

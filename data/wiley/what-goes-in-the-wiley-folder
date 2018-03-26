@@ -1,0 +1,11 @@
+~/survival-models/data/wiley/what-goes-in-the-wiley-folder
+
+This folder holds data files used in the Hosmer, Lemeshow, and May book.
+Because of copyright concerns, I am not storing these files in my
+github repository. You will need to go to
+
+ftp://ftp.wiley.com/public/sci_tech_med/survival/
+
+and copy those files into the data/wiley folder. Look for the files
+associated with the second edition of this book. You can download these
+files for your own private use at no charge.
