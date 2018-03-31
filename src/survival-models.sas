@@ -2,6 +2,10 @@
   written by Steve Simon
   March 24, 2018;
 
+ods html
+  body='c:/Users/simons/My Documents/survival-models/results/b.html'
+  contents='c:/Users/simons/My Documents/survival-models/results/c.html'
+  frame='c:/Users/simons/My Documents/survival-models/results/a.html';
 libname survival
   "c:/Users/simons/My Documents/survival-models/bin";
 filename fly1
@@ -116,4 +120,9 @@ proc lifetest
   plots=survival(atrisk)
   data=survival.whas100;
   time time_yrs*fstat(0);
+  title "Kaplan-Meier curve forWHAS100 data";
+run;
+ods graphics off;
+run;
+ods html off;
 run;

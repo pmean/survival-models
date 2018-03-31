@@ -1,0 +1,67 @@
+---
+title: "survival lecture 1"
+author: "Steve Simon"
+date: "March 24, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(survival)
+library(SASmarkdown)
+
+saslog_hookset("source")
+
+sasexe <- "C:/Program Files/SASHome/SASFoundation/9.4/sas.exe"
+sasopts <- "-nosplash -ls 75"
+```
+
+```{r, engine="sashtml", engine.path=sasexe, engine.opts=sasopts, SASecho=TRUE}
+libname survival
+  "c:/Users/simons/My Documents/survival-models/bin";
+filename fly1
+  "c:/Users/simons/My Documents/survival-models/data/fly1.txt";
+* The  fly1 data set is intended to illustrate how easy it would    
+  be for you to estimate a survival curve if you had no censoring. ;
+data survival.fly1;
+  infile fly1;
+  input time;
+  censor=1;
+run;
+* To get the program to work properly, you need a variable that    
+  equals one for every observation, since every observation        
+  represents a time at death rather than a censoring time.         ;
+proc print data=survival.fly1;
+  title "Fruit fly survival data, no censoring";
+run;
+proc lifetest
+    notable
+    plots=survival
+    data=survival.fly1;
+  time time*censor(0);
+run;
+```
+
+```{r, engine="sashtml", engine.path=sasexe, engine.opts=sasopts, SASecho=TRUE}
+libname survival
+  "c:/Users/simons/My Documents/survival-models/bin";
+filename fly2
+  "c:/Users/simons/My Documents/survival-models/data/fly2.txt";
+* The fly2 data set illustrates what happens to the data if a      
+  scientist accidentally let all the flies still alive at day 70   
+  escape.                                                          ; 
+data survival.fly2;
+  infile fly2 delimiter=" ";
+  input time censor;
+run;
+proc print data=survival.fly2;
+  title "Fruit fly survival data, censoring all values > 70";
+run;
+proc lifetest
+    not
+    plots=survival
+    data=survival.fly2;
+  time time*censor(0);
+run;
+```
