@@ -13,19 +13,17 @@ library(survival)
 
 The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring.
 
+To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
+
 ```{r read-fly1}
 fn <- "~/survival-models/data/fly1.txt"
 fly1 <- read.table(fn, header=FALSE)
 names(fly1) <- "time"
 print(fly1)
-```
-
-To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
-
-```{r plot-fly1}
 fly1$censor <- 1
 fly1_surv <- Surv(fly1$time, fly1$censor)
 fly1_km <- survfit(fly1_surv~1)
+print(fly1_km)
 plot(fly1_km, conf.int=FALSE)
 ```
 
@@ -38,6 +36,7 @@ names(fly2) <- c("time", "censor")
 print(fly2)
 fly2_surv <- Surv(fly2$time, fly2$censor)
 fly2_km <- survfit(fly2_surv~1)
+print(fly2_km)
 plot(fly2_km, conf.int=FALSE)
 ```
 
@@ -50,6 +49,7 @@ names(fly3) <- c("time", "censor")
 print(fly3)
 fly3_surv <- Surv(fly3$time, fly3$censor)
 fly3_km <- survfit(fly3_surv~1)
+print(fly3_km)
 plot(fly3_km, conf.int=FALSE)
 ```
 
