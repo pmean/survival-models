@@ -103,8 +103,15 @@ plot(whas100_km, conf.int=FALSE)
 You can get confidence intervals and quantile estimates for the Kaplan-Meier curve easily. The mean is not easily computed in R, but there are many reasons why you should not rely on the mean as a summary statistic for survival data.
 
 ```{r plot-overall-whas100-with-cis}
-plot(whas100_km, conf.int=TRUE)
-quantile(whas100_km)
+q <- quantile(whas100_km)
+print(q)
+plot(whas100_km, conf.int=TRUE, axes=FALSE)
+axis(side=1)
+axis(side=2, at=c(0, 0.25, 0.5, 0.75, 1))
+segments(q$quantile[1], 0, q$quantile[1], 0.75)
+segments(q$lower[1], 0, q$lower[1], 0.75, lty="dotted")
+segments(q$upper[1], 0, q$upper[1], 0.75, lty="dotted")
+segments(q$upper[1], 0.75, 0, 0.75, lty="dotted")
 ```
 
 You can get Kaplan-Meier curves for two or more groups by changing the ~1 in the survfit function. Here's how you would plot survival curves for males and females for the whas100 data set.
