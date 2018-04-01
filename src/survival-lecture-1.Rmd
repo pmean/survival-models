@@ -125,6 +125,8 @@ plot(whas100_km_by_gender, conf.int=FALSE)
 
 The standard test for comparing two or more Kaplan-Meier curves is the log rank test. You use the survdiff function to get this. The option rho=1 gives you the Peto & Peto modification of the Gehan-Wilcoxon test. In most settings, there is little reason to choose the latter test.
 
+$e_i=\frac{n_{1i}d_i}{n_i}$
+
 ```{r logrank-test}
 survdiff(whas100_surv~whas100$gender)
 ```
