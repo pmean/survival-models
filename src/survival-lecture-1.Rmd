@@ -8,10 +8,17 @@ output: html_document
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
 library(survival)
+library(tidyr)
 ```
 
-The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring.
+## Fruit fly data (round 1)
+
+The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring. For a brief overview of this data, refer to data-dictionary-fly1in the doc folder.
 
 To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
 
@@ -27,6 +34,8 @@ print(fly1_km)
 plot(fly1_km, conf.int=FALSE)
 ```
 
+## Fruit fly data (round 2)
+
 The fly2 data set illustrates what happens to the data if a scientist accidentally let all the flies still alive at day 70 escape.
 
 ```{r read-fly2}
@@ -39,6 +48,8 @@ fly2_km <- survfit(fly2_surv~1)
 print(fly2_km)
 plot(fly2_km, conf.int=FALSE)
 ```
+
+## Fruit fly data (round 3)
 
 The fly3 data set illustrates what happens to the data if a scientist accidentally let some (but not all) of the flies escape at day 70.
 
@@ -53,31 +64,29 @@ print(fly3_km)
 plot(fly3_km, conf.int=FALSE)
 ```
 
+## Hand calculation of Kaplan-Meier curve
+
 Table 2.1 of Hosmer, Lemeshow, and May has a very small data set that you can use to calculate the Kaplan-Meier curve by hand. This code shows how R software would generate the graph, just so you can double check your work.
+
+In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
+
+The survfit function takes a survival object and produces information needed to draw one or more Kaplan-Meier curve. Using ~1 tells R that you want a single curve for all of the data.
 
 ```{r read-table21}
 fn <- "~/survival-models/data/table21.txt"
 table21 <- read.csv(fn, header=TRUE)
 print(table21)
-```
-
-In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
-
-```{r display-table21}
 table21_surv <- Surv(table21$time, table21$censor)
 print(table21_surv)
-```
-
-The survfit function takes a survival object and produces information needed to draw one or more Kaplan-Meier curve. Using ~1 tells R that you want a single curve for all of the data.
-
-```{r graph-table21}
 table21_fit <- survfit(table21_surv~1)
 print(table21_fit)
 summary(table21_fit)
 plot(table21_fit, conf.int=FALSE)
 ```
 
-This is a rather trivial example. Let's look at a larger data set. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
+## Kaplan-Meier curve using WHAS100 data
+
+Let's look at a larger data set. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
 
 Out of respect for the book's copyright, I am not reproducing the whas100.txt file in the git repository. See README.md in the main folder or the data dictionary file mentioned above for details about how to download this file.
 
@@ -92,17 +101,34 @@ whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
 ```
 
-Use the same functions, Surv and survfit to create a Kaplan-Meier curve.
+Use the same functions, Surv and survfit to create a Kaplan-Meier curve. This plot is the same as Figure 2.2 in Hosmer, Lemeshow, and May.
 
-```{r plot-overall-whas100}
+```{r plot-overall-whas100, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
 whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
 whas100_km <- survfit(whas100_surv~1)
 plot(whas100_km, conf.int=FALSE)
 ```
 
-You can get confidence intervals and quantile estimates for the Kaplan-Meier curve easily. The mean is not easily computed in R, but there are many reasons why you should not rely on the mean as a summary statistic for survival data.
+You can easily get confidence intervals (like the ones shown in Figure 2.5 of Hosmer, Lemeshow, and May) and quantile estimates for the Kaplan-Meier curve (like the ones shown in Table 2.5) easily. The mean is not easily computed in R, but there are many reasons why you should not rely on the mean as a summary statistic for survival data. See https://cran.r-project.org/web/packages/survRM2/vignettes/survRM2-vignette3-2.html if you are interested in calculating a mean.
 
-```{r plot-overall-whas100-with-cis}
+The formula for the estimated variance of a survival curve is
+
+$Var(S(t_i))=S(t_i)^2\sum_{j \leq i}{\frac{d_j}{n_j(n_j-d_j)}}$
+
+```{r plot-with-cis, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+q <- quantile(whas100_km)
+print(q)
+plot(whas100_km, conf.int=TRUE, axes=FALSE)
+axis(side=1)
+axis(side=2, at=c(0, 0.25, 0.5, 0.75, 1))
+```
+
+The dotted lines in this graph show how to calculated the confidence limits for one of the quantiles.
+
+```{r plot-with-quartile, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
 q <- quantile(whas100_km)
 print(q)
 plot(whas100_km, conf.int=TRUE, axes=FALSE)
@@ -114,18 +140,77 @@ segments(q$upper[1], 0, q$upper[1], 0.75, lty="dotted")
 segments(q$upper[1], 0.75, 0, 0.75, lty="dotted")
 ```
 
+## Kaplan-Meier curves for two or more groups
+
 You can get Kaplan-Meier curves for two or more groups by changing the ~1 in the survfit function. Here's how you would plot survival curves for males and females for the whas100 data set.
 
 As a general recommendation, try to avoid ploting confidence intervals when you have two or more Kaplan-Meier curves because they become very confusing.
 
-```{r plot-whas100-by-gender}
+Compare the plot shown below with Figure 2.9 of Hosmer, Lemeshow, and May.
+
+```{r plot-by-gender, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
 whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
 plot(whas100_km_by_gender, conf.int=FALSE)
 ```
 
-The standard test for comparing two or more Kaplan-Meier curves is the log rank test. You use the survdiff function to get this. The option rho=1 gives you the Peto & Peto modification of the Gehan-Wilcoxon test. In most settings, there is little reason to choose the latter test.
+There is no legend by default in R. While you can put in a legend, I generally recommend that you place labels directly on the graph instead. It's a bit more work, but it makes the graph look nicer.
 
-$e_i=\frac{n_{1i}d_i}{n_i}$
+```{r plot-with-labels, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+whas100_km_by_gender %>%
+  tidy               %>%
+  group_by(strata)   %>%
+  slice(n())         -> km_labels
+print(km_labels)
+plot(whas100_km_by_gender, conf.int=FALSE, xlim=c(0,12))
+text(
+  km_labels$time, 
+  km_labels$estimate, 
+  km_labels$strata, adj=0)
+```
+
+You should also consider plotting with the ggplot2 library.
+
+```{r plot-with-ggplot2, fig.width=4.5, fig.height=2}
+whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+whas100_km_by_gender %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+```
+
+
+
+
+## The log rank test
+
+Note: put the data from Table 2.9 in here.
+
+The standard test for comparing two or more Kaplan-Meier curves is the log rank test. You use the survdiff function to get this.
+
+The formulas given in Hosmer, Lemeshow, and May are a bit confusling
+
+$e_{1i}=\frac{n_{1i}d_i}{n_i}$
+
+$v_{1i}=\frac{n_{1i}n_{0i}d_i(n_i-d_i)}{n_i^2(n_i-1)}$
+
+$Q=\frac{(\sum_i{(d_{1i}-e_i)})^2}{\sum_i{V_i}}$
+
+It helps if you compute the estimated probability of death at time i, under the assumption that the two groups are comparable, you get
+
+$p_i=\frac{d_i}{n_i}$
+
+Then $e_{1i}$ becomes the expected number of deaths in the first group at time i, 
+
+$e_{1i}=n_{1i}p_i$
+
+and $v_{1i}$ becomes the estimated binomial variance with a finite population correction factor.
+
+$v_{1i}=n_{1i}p_i(1-p_i)\frac{n_i-n_{1i}}{n_i-1}$
+
+You can also think of this as the variance of a hypergeometric random variable. See https://en.wikipedia.org/wiki/Hypergeometric_distribution.
 
 ```{r logrank-test}
 survdiff(whas100_surv~whas100$gender)
