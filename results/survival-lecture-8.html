@@ -133,20 +133,27 @@ library(ggplot2)
 library(magrittr)
 library(survival)
 library(tidyr)</code></pre>
-<p>Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. Youâ€™ll compute power for hypothetical studies and compare power across different research designs. Then youâ€™ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.</p>
 <div id="recurrent-events-model" class="section level2">
 <h2>Recurrent events model</h2>
 <p>Hosmer, Lemeshow, and May describe a recurrent events model on page 293 that uses the Psoriasis data.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/recur.dat&quot; 
 psoriasis &lt;- read.table(fn, header = FALSE) 
+names(psoriasis) &lt;- c(
+  &quot;id&quot;,
+  &quot;age&quot;,
+  &quot;treat&quot;,
+  &quot;time0&quot;,
+  &quot;time1&quot;,
+  &quot;censor&quot;,
+  &quot;event&quot;)
 head(psoriasis)</code></pre>
-<pre><code>##   V1 V2 V3 V4 V5 V6 V7
-## 1  1 43  0  9 56  1  3
-## 2  1 43  0 56 88  1  4
-## 3  1 43  0  0  6  1  1
-## 4  1 43  0  6  9  1  2
-## 5  2 43  0  0 42  1  1
-## 6  2 43  0 87 91  0  3</code></pre>
+<pre><code>##   id age treat time0 time1 censor event
+## 1  1  43     0     9    56      1     3
+## 2  1  43     0    56    88      1     4
+## 3  1  43     0     0     6      1     1
+## 4  1  43     0     6     9      1     2
+## 5  2  43     0     0    42      1     1
+## 6  2  43     0    87    91      0     3</code></pre>
 </div>
 <div id="frailty-model" class="section level2">
 <h2>Frailty model</h2>
@@ -168,7 +175,7 @@ head(ncc)</code></pre>
 </div>
 <div id="competing-risk-models" class="section level2">
 <h2>Competing risk models</h2>
-<p>Also not on the syllabus is the competing risk model. But</p>
+<p>Also not on the syllabus is the competing risk model. But the examples presented in Hosmer, Lemeshow, and May (pages 329-339) are hypothetical. The data management looks daunting, as in Table 9.9.</p>
 <p>Save everything for possible later re-use.</p>
 <pre class="r"><code>save.image(&quot;~/survival-models/bin/survival-lecture-8.RData&quot;)</code></pre>
 </div>

@@ -8,3 +8,8 @@ Lecture 1.
 Lecture 2.
 
 * Find or recreate code for graphs in first example.
+  Looks like shape=2, scale=40 is close.
+  
+Lecture 3.
+
+* Put in power calculation formulas.

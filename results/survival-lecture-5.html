@@ -138,35 +138,77 @@ library(tidyr)</code></pre>
 <p>Page 211 of Hosmer, Lemeshow, and May shows how to fit a stratified model by quartile of CD4 cell count using the ACTG320 data set.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/actg320.dat&quot; 
 actg320 &lt;- read.table(fn, header = FALSE) 
+names(actg320) &lt;- c(
+  &quot;id&quot;,
+  &quot;time&quot;, 
+  &quot;censor&quot;,
+  &quot;time_d&quot;,
+  &quot;censor_d&quot;,
+  &quot;tx&quot;,
+  &quot;txgrp&quot;,
+  &quot;strat2&quot;,
+  &quot;sex&quot;,
+  &quot;raceth&quot;,
+  &quot;ivdrug&quot;,
+  &quot;hemophil&quot;,
+  &quot;karnof&quot;,
+  &quot;cd4&quot;,
+  &quot;priorzdv&quot;,
+  &quot;age&quot;)
 head(actg320)</code></pre>
-<pre><code>##   V1  V2 V3  V4 V5 V6 V7 V8 V9 V10 V11 V12 V13   V14 V15 V16
-## 1  1 189  0 189  0  0  1  1  1   1   1   0 100 169.0  39  34
-## 2  2 287  0 287  0  0  1  1  2   2   1   0  90 149.5  15  34
-## 3  3 242  0 242  0  1  2  0  1   1   1   1 100  23.5   9  20
-## 4  4 199  0 199  0  0  1  1  1   1   1   0  90  46.0  53  48
-## 5  5 286  0 286  0  1  2  0  1   1   3   0  90  10.0  12  46
-## 6  6 285  0 285  0  1  2  0  1   1   1   0  70   0.0  24  51</code></pre>
+<pre><code>##   id time censor time_d censor_d tx txgrp strat2 sex raceth ivdrug
+## 1  1  189      0    189        0  0     1      1   1      1      1
+## 2  2  287      0    287        0  0     1      1   2      2      1
+## 3  3  242      0    242        0  1     2      0   1      1      1
+## 4  4  199      0    199        0  0     1      1   1      1      1
+## 5  5  286      0    286        0  1     2      0   1      1      3
+## 6  6  285      0    285        0  1     2      0   1      1      1
+##   hemophil karnof   cd4 priorzdv age
+## 1        0    100 169.0       39  34
+## 2        0     90 149.5       15  34
+## 3        1    100  23.5        9  20
+## 4        0     90  46.0       53  48
+## 5        0     90  10.0       12  46
+## 6        0     70   0.0       24  51</code></pre>
 </div>
 <div id="interval-censoring" class="section level2">
 <h2>Interval censoring</h2>
 <p>Page 235 of Hosmer, Lemeshow, and May shows interval censoring using the GBCS data set.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/gbcs.dat&quot; 
 gbcs &lt;- read.table(fn, header = FALSE) 
+names(gbcs) &lt;- c(
+  &quot;id&quot;,
+  &quot;diagdate&quot;,
+  &quot;recdate&quot;,
+  &quot;deathdate&quot;,
+  &quot;age&quot;,
+  &quot;menopause&quot;,
+  &quot;hormone&quot;,
+  &quot;size&quot;,
+  &quot;grade&quot;,
+  &quot;nodes&quot;,
+  &quot;prog_recp&quot;,
+  &quot;estrg_recp&quot;,
+  &quot;rectime&quot;,
+  &quot;censrec&quot;,
+  &quot;survtime&quot;,
+  &quot;censdead&quot;)
+
 head(gbcs)</code></pre>
-<pre><code>##   V1        V2        V3        V4 V5 V6 V7 V8 V9 V10 V11 V12  V13 V14
-## 1  1 17aug1984 15apr1988 16nov1990 38  1  1 18  3   5 141 105 1337   1
-## 2  2 25apr1985 15mar1989 22oct1990 52  1  1 20  1   1  78  14 1420   1
-## 3  3 11oct1984 12apr1988 06oct1988 47  1  1 30  2   1 422  89 1279   1
-## 4  4 29jun1984 24nov1984 24nov1984 40  1  1 24  1   3  25  11  148   0
-## 5  5 03jul1984 09aug1989 09aug1989 64  2  2 19  2   1  19   9 1863   0
-## 6  6 24jul1984 08nov1989 08nov1989 49  2  2 56  1   3 356  64 1933   0
-##    V15 V16
-## 1 2282   0
-## 2 2006   0
-## 3 1456   1
-## 4  148   0
-## 5 1863   0
-## 6 1933   0</code></pre>
+<pre><code>##   id  diagdate   recdate deathdate age menopause hormone size grade nodes
+## 1  1 17aug1984 15apr1988 16nov1990  38         1       1   18     3     5
+## 2  2 25apr1985 15mar1989 22oct1990  52         1       1   20     1     1
+## 3  3 11oct1984 12apr1988 06oct1988  47         1       1   30     2     1
+## 4  4 29jun1984 24nov1984 24nov1984  40         1       1   24     1     3
+## 5  5 03jul1984 09aug1989 09aug1989  64         2       2   19     2     1
+## 6  6 24jul1984 08nov1989 08nov1989  49         2       2   56     1     3
+##   prog_recp estrg_recp rectime censrec survtime censdead
+## 1       141        105    1337       1     2282        0
+## 2        78         14    1420       1     2006        0
+## 3       422         89    1279       1     1456        1
+## 4        25         11     148       0      148        0
+## 5        19          9    1863       0     1863        0
+## 6       356         64    1933       0     1933        0</code></pre>
 <p>Save everything for possible later re-use.</p>
 <pre class="r"><code>save.image(&quot;~/survival-models/bin/survival-lecture-5.RData&quot;)</code></pre>
 </div>

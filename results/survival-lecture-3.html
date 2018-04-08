@@ -135,12 +135,12 @@ library(survival)
 library(tidyr)</code></pre>
 <div id="date-manipulations-in-r" class="section level2">
 <h2>Date manipulations in R</h2>
-<p>R stores dates as the number of days since January 1, 1960.</p>
-<pre class="r"><code>baseline &lt;- as.Date(&quot;1/1/1960&quot;)
+<p>R stores dates as the number of days since January 1, 1970.</p>
+<pre class="r"><code>baseline &lt;- as.Date(&quot;1/1/1970&quot;, format=&quot;%m/%d/%Y&quot;)
 print(baseline)</code></pre>
-<pre><code>## [1] &quot;0001-01-19&quot;</code></pre>
+<pre><code>## [1] &quot;1970-01-01&quot;</code></pre>
 <pre class="r"><code>print(as.numeric(baseline))</code></pre>
-<pre><code>## [1] -719144</code></pre>
+<pre><code>## [1] 0</code></pre>
 </div>
 <div id="sample-size-justification" class="section level2">
 <h2>Sample size justification</h2>
