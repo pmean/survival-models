@@ -6,3 +6,4 @@ data/wiley/*.txt
 data/wiley/*.dat
 bin/*.sas7bdat
 bin/*.RData
+bin/~*.*

@@ -1,0 +1,43 @@
+---
+title: "survival lecture 6"
+author: "Steve Simon"
+date: "April 8, 2018"
+output: html_document
+---
+
+Lecture 6. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You’ll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You’ll fit parametric models and interpret the coefficients.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. You’ll compute power for hypothetical studies and compare power across different research designs. Then you’ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.
+
+## Cox multivariate regression
+
+Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
+
+```{r read-whas100}
+fn <- "~/survival-models/data/wiley/whas100.dat" 
+whas100 <- read.table(fn, header = FALSE) 
+names(whas100) <- 
+  c("id", "admitdate", "foldate",
+    "los", "lenfol", "fstat",
+    "age", "gender", "bmi")
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-6.RData")
+```

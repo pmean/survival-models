@@ -1,0 +1,10 @@
+~/survival-models/TODO.txt
+
+Lecture 1.
+
+* Complete SAS code to parallel R code.
+* Incorporate SAS output and graphs into PowerPoint.
+
+Lecture 2.
+
+* Find or recreate code for graphs in first example.

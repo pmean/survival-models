@@ -5,6 +5,8 @@ date: "March 24, 2018"
 output: html_document
 ---
 
+Lecture 1: The Kaplan-Meier curve. The Kaplan-Meier curve is a quick and simple graphical tool to help you visualize the trend in survival data when you have censored data. You’ll review the concept of censoring, including the assumptions that are important for censored data. You’ll construct a Kaplan-Meier curve for a simple example, and the produce a basic interpretation of this curve. Then, you’ll also compare the trend across two or more subgroups using the log rank test.
+
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}

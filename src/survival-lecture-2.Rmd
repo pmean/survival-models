@@ -5,6 +5,8 @@ date: "April 8, 2018"
 output: html_document
 ---
 
+Lecture 2: The hazard function and the Cox proportional hazards regression model. The Cox proportional hazard model allows you to examine how categorical and continuous predictor variables influence survival data. You’ll review the definition of a hazard function, and interpret the meaning of constant hazard versus an increasing hazard or a decreasing hazard. Then you’ll fit Cox regression models and interpret the model coefficients.
+
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}
@@ -16,26 +18,64 @@ library(survival)
 library(tidyr)
 ```
 
-## Fruit fly data (round 1)
+## Motivating example
 
-The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring. For a brief overview of this data, refer to data-dictionary-fly1in the doc folder.
+Note to myself: The graphs used in the motivating example were based on a Weibull distribution that had a mode around 25 and a maximum density around 0.024. Let's see if I can find the original code or recreate the graphs from scratch.
 
-To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
+## Cox regression for gender
 
-```{r read-fly1}
-fn <- "~/survival-models/data/fly1.txt"
-fly1 <- read.table(fn, header=FALSE)
-names(fly1) <- "time"
-print(fly1)
-fly1$censor <- 1
-fly1_surv <- Surv(fly1$time, fly1$censor)
-fly1_km <- survfit(fly1_surv~1)
-print(fly1_km)
-plot(fly1_km, conf.int=FALSE)
+Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
+
+```{r read-whas100}
+fn <- "~/survival-models/data/wiley/whas100.dat" 
+whas100 <- read.table(fn, header = FALSE) 
+names(whas100) <- 
+  c("id", "admitdate", "foldate",
+    "los", "lenfol", "fstat",
+    "age", "gender", "bmi")
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
 ```
 
-Save everything for possible re-use.
+The coxph function will produce a Cox proportional hazards model. This function has a convenient "data" argument that allows you to specify a particular data set and save having to prefix every single variable with a "whas100$".
 
+```{r cox-model-gender}
+cox_gender <- coxph(Surv(time_yrs, fstat)~gender, data=whas100)
+print(cox_gender)
+summary(cox_gender)
+```
+
+You can also export your Cox regression model to a data frame for further manipulation using the broom package.
+
+```{r cox-broom}
+glance(cox_gender)
+tidy(cox_gender)
+augment(cox_gender, newdata=data_frame(gender=0:1))
+```
+
+Next let's look at the age groups.
+
+```{r cox-model-age-groups}
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas100$age_group <- cut(whas100$age, age_breaks, age_labels)
+cox_age_group <- 
+  coxph(Surv(time_yrs, fstat)~age_group, data=whas100)
+print(cox_age_group)
+summary(cox_age_group)
+```
+
+A big advantage of the Cox regression model is that it can treat age as a continuous variable. Here's what that model produces.
+
+```{r cox-model-age}
+cox_age <- 
+  coxph(Surv(time_yrs, fstat)~age, data=whas100)
+print(cox_age)
+summary(cox_age)
+```
+
+Save everything for possible later re-use.
 ```{r save-everything}
 save.image("~/survival-models/bin/survival-lecture-2.RData")
 ```
