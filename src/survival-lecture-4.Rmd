@@ -34,6 +34,23 @@ head(whas100)
 whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
 ```
 
+You should examine your independent variables one at a time before putting them all in a multivariate model.
+
+```{r one-at-a-time}
+coxph(Surv(time_yrs, fstat)~los, data=whas100)
+coxph(Surv(time_yrs, fstat)~age, data=whas100)
+coxph(Surv(time_yrs, fstat)~gender, data=whas100)
+coxph(Surv(time_yrs, fstat)~bmi, data=whas100)
+```
+
+```{r multivariate-model}
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat)~los+age+gender+bmi, data=whas100)
+summary(cox_mv)
+glance(cox_mv)
+tidy(cox_mv)
+```
+
 Save everything for possible later re-use.
 
 ```{r save-everything}

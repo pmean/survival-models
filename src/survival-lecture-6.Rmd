@@ -18,11 +18,9 @@ library(survival)
 library(tidyr)
 ```
 
-Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. You’ll compute power for hypothetical studies and compare power across different research designs. Then you’ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.
+## Exponential model
 
-## Cox multivariate regression
-
-Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
+The exponential model is the simplest parametric model and is illustrated using the whas100 data set on page 250 of Hosmer, Lemeshow, and May.
 
 ```{r read-whas100}
 fn <- "~/survival-models/data/wiley/whas100.dat" 
@@ -35,6 +33,14 @@ whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
 whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
 ```
+
+## Weibull model
+
+The WHAS100 data is also used to describe the Weibull regression model and an example of the model appears on page 264 of Hosmer, Lemeshow, and May.
+
+## Log-logistic model
+
+The WHAS100 data is used yet again to describe the log-logistic model and an example of the model appears on page 277 of Hosmer, Lemeshow, and May.
 
 Save everything for possible later re-use.
 

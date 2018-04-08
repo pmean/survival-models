@@ -18,6 +18,20 @@ library(survival)
 library(tidyr)
 ```
 
+## Date manipulations in R
+
+R stores dates as the number of days since January 1, 1970.
+
+```{r date-manipulations}
+baseline <- as.Date("1/1/1970", format="%m/%d/%Y")
+print(baseline)
+print(as.numeric(baseline))
+```
+
+## Sample size justification
+
+Hosmer, Lemeshow, and May discuss power calculations starting on page 340.
+
 Save everything for possible later re-use.
 
 ```{r save-everything}

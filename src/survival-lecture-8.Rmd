@@ -18,23 +18,42 @@ library(survival)
 library(tidyr)
 ```
 
-Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. You’ll compute power for hypothetical studies and compare power across different research designs. Then you’ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.
+## Recurrent events model
 
-## Cox multivariate regression
+Hosmer, Lemeshow, and May describe a recurrent events model on page 293 that uses the Psoriasis data.
 
-Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
-
-```{r read-whas100}
-fn <- "~/survival-models/data/wiley/whas100.dat" 
-whas100 <- read.table(fn, header = FALSE) 
-names(whas100) <- 
-  c("id", "admitdate", "foldate",
-    "los", "lenfol", "fstat",
-    "age", "gender", "bmi")
-whas100$time_yrs <- whas100$lenfol / 365.25
-head(whas100)
-whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+```{r read-psoriasis}
+fn <- "~/survival-models/data/wiley/recur.dat" 
+psoriasis <- read.table(fn, header = FALSE) 
+names(psoriasis) <- c(
+  "id",
+  "age",
+  "treat",
+  "time0",
+  "time1",
+  "censor",
+  "event")
+head(psoriasis)
 ```
+
+## Frailty model
+
+Hosmer, Lemeshow, and May describe a frailty model using a data set with variables bmi, hr, diasbp, and chf.
+
+## Nested case-control study
+
+It's not on the syllabus, but depending on how things work out, I might want to look at a nested case control study. If I do, the relevant data set is acth320ncc.
+
+```{r read-ncc}
+fn <- "~/survival-models/data/wiley/actg320ncc.dat" 
+ncc <- read.table(fn, header = FALSE) 
+head(ncc)
+```
+
+## Competing risk models
+
+Also not on the syllabus is the competing risk model. But the examples presented in Hosmer, Lemeshow, and May (pages 329-339) are hypothetical. The data management looks daunting, as in Table 9.9.
+
 
 Save everything for possible later re-use.
 

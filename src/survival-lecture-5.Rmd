@@ -18,20 +18,59 @@ library(survival)
 library(tidyr)
 ```
 
-## Cox multivariate regression
+## Stratified models
 
-Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
+Page 211 of Hosmer, Lemeshow, and May shows how to fit a stratified model by quartile of CD4 cell count using the ACTG320 data set.
 
-```{r read-whas100}
-fn <- "~/survival-models/data/wiley/whas100.dat" 
-whas100 <- read.table(fn, header = FALSE) 
-names(whas100) <- 
-  c("id", "admitdate", "foldate",
-    "los", "lenfol", "fstat",
-    "age", "gender", "bmi")
-whas100$time_yrs <- whas100$lenfol / 365.25
-head(whas100)
-whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+```{r read-actg320}
+fn <- "~/survival-models/data/wiley/actg320.dat" 
+actg320 <- read.table(fn, header = FALSE) 
+names(actg320) <- c(
+  "id",
+  "time", 
+  "censor",
+  "time_d",
+  "censor_d",
+  "tx",
+  "txgrp",
+  "strat2",
+  "sex",
+  "raceth",
+  "ivdrug",
+  "hemophil",
+  "karnof",
+  "cd4",
+  "priorzdv",
+  "age")
+head(actg320)
+```
+
+## Interval censoring
+
+Page 235 of Hosmer, Lemeshow, and May shows interval censoring using the GBCS data set.
+
+```{r read-gbcs}
+fn <- "~/survival-models/data/wiley/gbcs.dat" 
+gbcs <- read.table(fn, header = FALSE) 
+names(gbcs) <- c(
+  "id",
+  "diagdate",
+  "recdate",
+  "deathdate",
+  "age",
+  "menopause",
+  "hormone",
+  "size",
+  "grade",
+  "nodes",
+  "prog_recp",
+  "estrg_recp",
+  "rectime",
+  "censrec",
+  "survtime",
+  "censdead")
+
+head(gbcs)
 ```
 
 Save everything for possible later re-use.
