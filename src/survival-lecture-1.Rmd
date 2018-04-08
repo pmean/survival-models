@@ -224,6 +224,8 @@ plot(survfit(whas100_surv~whas100$age_group))
 survdiff(whas100_surv~whas100$age_group)
 ```
 
+For data like this, a test for trend would be better. You can find such a test in the survMisc package.
+
 ```{r read-bpd}
 fn <- "~/survival-models/data/wiley/bpd.dat" 
 bpd <- read.table(fn, header = FALSE) 
