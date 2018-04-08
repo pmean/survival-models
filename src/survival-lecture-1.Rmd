@@ -181,9 +181,6 @@ whas100_km_by_gender %>%
     geom_step()
 ```
 
-
-
-
 ## The log rank test
 
 Note: put the data from Table 2.9 in here.
