@@ -171,7 +171,7 @@ text(
   km_labels$strata, adj=0)
 ```
 
-You should also consider plotting with the ggplot2 library.
+You should also consider plotting with the ggplot2 library. The ggplot2 library will produce a reasonable legend, but you can also get ggplot2 to produce labels like the graph above, if you prefer.
 
 ```{r plot-with-ggplot2, fig.width=4.5, fig.height=2}
 whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
@@ -215,12 +215,16 @@ survdiff(whas100_surv~whas100$gender)
 
 You cannot use a continuous variable like age with the log rank test. When you need to see how a continuous variable affects survival, split the continuous variable into discrete intervals.
 
-```{r age-groups}
+```{r age-groups, fig.width=4.5, fig.height=2}
 age_breaks <- c(0, 59, 69, 79, 99)
 age_labels <- c("<60", "60-69", "70-79", ">=80")
 whas100$age_group <- cut(whas100$age, age_breaks, age_labels)
 table(whas100$age_group, whas100$fstat)
-plot(survfit(whas100_surv~whas100$age_group))
+whas100_km_by_age <- survfit(whas100_surv~whas100$age_group)
+whas100_km_by_age    %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
 survdiff(whas100_surv~whas100$age_group)
 ```
 
