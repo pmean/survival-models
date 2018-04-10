@@ -12,4 +12,3 @@ your results.
 
 c. Treat age as a continuous variable and calculate a Cox
 regression model. Interpret your results.
-

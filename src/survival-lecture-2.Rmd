@@ -22,6 +22,25 @@ library(tidyr)
 
 Note to myself: The graphs used in the motivating example were based on a Weibull distribution that had a mode around 25 and a maximum density around 0.024. Let's see if I can find the original code or recreate the graphs from scratch.
 
+## Formulas
+
+Likelihood: l(beta) = prod f^c S^(1-c)
+
+Partial likelihood = prod exp(X beta)/ sum exp(X beta)
+
+h(t) = (P[t <= T <= t+delta t]/delta t) / P[T>t]
+lambda(t|X)=lamba0(t)exp(X beta)
+
+S*t|X)=[S0(t)]^exp(X beta)
+
+Define cumulative hazard H(t).
+
+LR test: G=2{Lp(beta)-Lp(0)}
+
+Wald test: beta/se(beta)
+
+Score test: partial Lp/partial beta / sqrt(I(beta))
+
 ## Cox regression for gender
 
 Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
@@ -54,7 +73,7 @@ tidy(cox_gender)
 augment(cox_gender, newdata=data_frame(gender=0:1))
 ```
 
-Next let's look at the age groups.
+Next let's look at the age groups. Compare the results below to Table 4.6.
 
 ```{r cox-model-age-groups}
 age_breaks <- c(0, 59, 69, 79, 99)
@@ -66,7 +85,7 @@ print(cox_age_group)
 summary(cox_age_group)
 ```
 
-A big advantage of the Cox regression model is that it can treat age as a continuous variable. Here's what that model produces.
+A big advantage of the Cox regression model is that it can treat age as a continuous variable. Here's what that model produces. Compare the results below to Table 4.9.
 
 ```{r cox-model-age}
 cox_age <- 
@@ -74,6 +93,12 @@ cox_age <-
 print(cox_age)
 summary(cox_age)
 ```
+
+Talk about the interpretation of beta and how to calculate the effect of a five year change in age.
+
+More analyses to do:
+
+* Show how to get S0(t), H0(t), h0(t)
 
 Save everything for possible later re-use.
 ```{r save-everything}

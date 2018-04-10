@@ -5,7 +5,7 @@ date: "April 8, 2018"
 output: html_document
 ---
 
-Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you’ll work with more complex forms of the Cox model with multiple predictor variables. You’ll include covariates in the Cox model to produce risk adjusted survival curves. You’ll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
+Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you'll work with more complex forms of the Cox model with multiple predictor variables. You'll include covariates in the Cox model to produce risk adjusted survival curves. You'll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -50,6 +50,20 @@ summary(cox_mv)
 glance(cox_mv)
 tidy(cox_mv)
 ```
+
+Additonal topics to cover.
+
+* GBCS data, hormone, nodes model
+
+* Table 4.13. Gender by age interaction. Predict hazard ratio for gender at age=40, 50, 60, 65, 85, 90. Also see Table 4.14.
+
+* Define risk scores, page 126-130.
+
+* Discuss stepwise selection.
+
+* Fractional polynomials, or maybe smoothing splines.
+
+
 
 Save everything for possible later re-use.
 

@@ -5,7 +5,7 @@ date: "April 8, 2018"
 output: html_document
 ---
 
-Lecture 6. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You’ll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You’ll fit parametric models and interpret the coefficients.
+Lecture 6. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You'll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You'll fit parametric models and interpret the coefficients.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 

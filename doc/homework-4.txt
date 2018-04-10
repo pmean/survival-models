@@ -1,0 +1,13 @@
+~/survival-models/doc/homework-4.txt
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+a. Calculate a Cox regression model gender and age. 
+Calculate the unadjusted hazard ratio for gender and
+the hazard ratio for gender adjusted for age. 
+Interpret your result.
+
+b. Calculate a Cox regression model withh a gender by
+age interaction. Calculate the hazard ratio for gender
+at ages 60, 70, and 80. Interpret your result.

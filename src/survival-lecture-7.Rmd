@@ -38,6 +38,10 @@ names(grace) <- c(
 head(grace)
 ```
 
+## Also for discussion
+
+* Stratified analysis. Stratify whas500 by year=1, 2, 3. This would use the actg320 data. Compare output to Table 7.1.
+
 Save everything for possible later re-use.
 
 ```{r save-everything}

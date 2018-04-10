@@ -28,11 +28,24 @@ print(baseline)
 print(as.numeric(baseline))
 ```
 
+## Date differences
+
+Start date: when therapy was initiated or when disease first appeared. This can be tricky.
+
+Death date or event date: This will be missing values for any censored observation.
+
+Date of last follow up.
+
+Choose maximum of death/last followup. Set censor to 0 if death date is missing, 1 otherwise.
+
 ## Sample size justification
 
 Hosmer, Lemeshow, and May discuss power calculations starting on page 340.
 
+Also mention how number of events dominates power calculation and how you want 25 to 50 events in each group.
+
 Save everything for possible later re-use.
+
 
 ```{r save-everything}
 save.image("~/survival-models/bin/survival-lecture-3.RData")

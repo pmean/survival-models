@@ -73,6 +73,16 @@ names(gbcs) <- c(
 head(gbcs)
 ```
 
+## Additional topics
+
+* Schoenfeld residual, scaled Schoenfeld residual
+
+* Martingale/Cox and Snell residual: Ci-H(ti, X, beta)
+
+* How to check proportional hazards assumption, plot Schoenfeld residual versus time.
+
+* Influential data, Cook's d. This is described on page 185. Also see the whas500 data in Table 6.2, 5.13
+
 Save everything for possible later re-use.
 
 ```{r save-everything}
