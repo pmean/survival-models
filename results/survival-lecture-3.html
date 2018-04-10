@@ -142,9 +142,17 @@ print(baseline)</code></pre>
 <pre class="r"><code>print(as.numeric(baseline))</code></pre>
 <pre><code>## [1] 0</code></pre>
 </div>
+<div id="date-differences" class="section level2">
+<h2>Date differences</h2>
+<p>Start date: when therapy was initiated or when disease first appeared. This can be tricky.</p>
+<p>Death date or event date: This will be missing values for any censored observation.</p>
+<p>Date of last follow up.</p>
+<p>Choose maximum of death/last followup. Set censor to 0 if death date is missing, 1 otherwise.</p>
+</div>
 <div id="sample-size-justification" class="section level2">
 <h2>Sample size justification</h2>
 <p>Hosmer, Lemeshow, and May discuss power calculations starting on page 340.</p>
+<p>Also mention how number of events dominates power calculation and how you want 25 to 50 events in each group.</p>
 <p>Save everything for possible later re-use.</p>
 <pre class="r"><code>save.image(&quot;~/survival-models/bin/survival-lecture-3.RData&quot;)</code></pre>
 </div>

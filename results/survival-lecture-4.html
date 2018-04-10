@@ -125,7 +125,7 @@ $(document).ready(function () {
 </div>
 
 
-<p>Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, youâ€™ll work with more complex forms of the Cox model with multiple predictor variables. Youâ€™ll include covariates in the Cox model to produce risk adjusted survival curves. Youâ€™ll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.</p>
+<p>Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you’ll work with more complex forms of the Cox model with multiple predictor variables. You’ll include covariates in the Cox model to produce risk adjusted survival curves. You’ll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.</p>
 <p>This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.</p>
 <pre class="r"><code>library(broom)
 library(dplyr)
@@ -235,6 +235,14 @@ summary(cox_mv)</code></pre>
 ## 2  0.0636944060
 ## 3  0.7540023873
 ## 4 -0.0001174725</code></pre>
+<p>Additonal topics to cover.</p>
+<ul>
+<li><p>GBCS data, hormone, nodes model</p></li>
+<li><p>Table 4.13. Gender by age interaction. Predict hazard ratio for gender at age=40, 50, 60, 65, 85, 90. Also see Table 4.14.</p></li>
+<li><p>Define risk scores, page 126-130.</p></li>
+<li><p>Discuss stepwise selection.</p></li>
+<li><p>Fractional polynomials, or maybe smoothing splines.</p></li>
+</ul>
 <p>Save everything for possible later re-use.</p>
 <pre class="r"><code>save.image(&quot;~/survival-models/bin/survival-lecture-4.RData&quot;)</code></pre>
 </div>

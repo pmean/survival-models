@@ -1,0 +1,5 @@
+~/survival-models/changelog.txt
+
+This files documents major changes to the file structure of this repository.
+
+2018-04-10. I split the survival-lecture-1.Rmd file into two pieces, the original file and survival-lecture-1-supplement.Rmd. The latter contains code that I need to produce graphs for the PowerPoint handout, but which are not really needed by the students to understand the material or to do the homework assignment. I also removed the SAS code that was only needed for PowerPoint graphs. This makes my job easier and allows students to focus on the important content.
