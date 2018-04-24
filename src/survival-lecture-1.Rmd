@@ -18,79 +18,10 @@ library(survival)
 library(tidyr)
 ```
 
-## Fruit fly data (round 1)
-
-The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring. For a brief overview of this data, refer to data-dictionary-fly1in the doc folder.
-
-To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
-
-```{r read-fly1}
-fn <- "~/survival-models/data/fly1.txt"
-fly1 <- read.table(fn, header=FALSE)
-names(fly1) <- "time"
-print(fly1)
-fly1$censor <- 1
-fly1_surv <- Surv(fly1$time, fly1$censor)
-fly1_km <- survfit(fly1_surv~1)
-print(fly1_km)
-plot(fly1_km, conf.int=FALSE)
-```
-
-## Fruit fly data (round 2)
-
-The fly2 data set illustrates what happens to the data if a scientist accidentally let all the flies still alive at day 70 escape.
-
-```{r read-fly2}
-fn <- "~/survival-models/data/fly2.txt"
-fly2 <- read.table(fn, header=FALSE)
-names(fly2) <- c("time", "censor")
-print(fly2)
-fly2_surv <- Surv(fly2$time, fly2$censor)
-fly2_km <- survfit(fly2_surv~1)
-print(fly2_km)
-plot(fly2_km, conf.int=FALSE)
-```
-
-## Fruit fly data (round 3)
-
-The fly3 data set illustrates what happens to the data if a scientist accidentally let some (but not all) of the flies escape at day 70.
-
-```{r read-fly3}
-fn <- "~/survival-models/data/fly3.txt"
-fly3 <- read.table(fn, header=FALSE)
-names(fly3) <- c("time", "censor")
-print(fly3)
-fly3_surv <- Surv(fly3$time, fly3$censor)
-fly3_km <- survfit(fly3_surv~1)
-print(fly3_km)
-plot(fly3_km, conf.int=FALSE)
-```
-
-## Hand calculation of Kaplan-Meier curve
-
-Table 2.1 of Hosmer, Lemeshow, and May has a very small data set that you can use to calculate the Kaplan-Meier curve by hand. This code shows how R software would generate the graph, just so you can double check your work.
-
-In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
-
-The survfit function takes a survival object and produces information needed to draw one or more Kaplan-Meier curve. Using ~1 tells R that you want a single curve for all of the data.
-
-```{r read-table21}
-fn <- "~/survival-models/data/table21.txt"
-table21 <- read.csv(fn, header=TRUE)
-print(table21)
-table21_surv <- Surv(table21$time, table21$censor)
-print(table21_surv)
-table21_fit <- survfit(table21_surv~1)
-print(table21_fit)
-summary(table21_fit)
-plot(table21_fit, conf.int=FALSE)
-```
 
 ## Kaplan-Meier curve using WHAS100 data
 
-Let's look at a larger data set. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
-
-Out of respect for the book's copyright, I am not reproducing the whas100.txt file in the git repository. See README.md in the main folder or the data dictionary file mentioned above for details about how to download this file.
+Let's look at, WHAS100, a data set first described in Chapter 1 of Hosmer, Lemeshow, and May. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
 
 ```{r read-whas100}
 fn <- "~/survival-models/data/wiley/whas100.dat" 
@@ -101,6 +32,8 @@ names(whas100) <-
     "age", "gender", "bmi")
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
+save(whas100, 
+  file="~/survival-models/bin/whas100.RData")
 ```
 
 Use the same functions, Surv and survfit to create a Kaplan-Meier curve. This plot is the same as Figure 2.2 in Hosmer, Lemeshow, and May.
@@ -160,7 +93,8 @@ There is no legend by default in R. While you can put in a legend, I generally r
 
 ```{r plot-with-labels, fig.width=4.5, fig.height=2}
 par(mar=c(2.1, 2.1, 0.6, 0.6))
-whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+whas100_km_by_gender <-
+  survfit(whas100_surv~whas100$gender)
 whas100_km_by_gender %>%
   tidy               %>%
   group_by(strata)   %>%
