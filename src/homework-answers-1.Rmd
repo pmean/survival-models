@@ -338,3 +338,4 @@ catheter_km
 data.frame(our.calc=km$s, r.calc=catheter_km$surv)
 ```
 
+They match. Hooray!
