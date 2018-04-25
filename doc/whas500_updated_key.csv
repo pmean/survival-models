@@ -1,0 +1,23 @@
+name_old,name_new,class_old,class_new,value_old,value_new,missings,recodes
+V1,id,integer,integer,.,.,,
+V2,age,integer,integer,.,.,,
+V3,gender,integer,factor,0|1|.,Male|Female|.,,
+V4,hr,integer,integer,.,.,,
+V5,sysbp,integer,integer,.,.,,
+V6,diasbp,integer,integer,.,.,,
+V7,bmi,numeric,numeric,.,.,,
+V8,cvd,integer,factor,0|1|.,No|Yes|.,,
+V9,afb,integer,factor,0|1|.,No|Yes|.,,
+V10,sho,integer,factor,0|1|.,No|Yes|.,,
+V11,chf,integer,factor,0|1|.,No|Yes|.,,
+V12,av3,integer,factor,0|1|.,No|Yes|.,,
+V13,miord,integer,factor,0|1|.,First|Recurrent|.,,
+V14,mitype,integer,factor,0|1|.,non Q-wave|Q-wave|.,,
+V15,year,integer,factor,1|2|3|.,1997|1999|2001|.,,
+V16,admitdate,character,Date,.,.,,"as.Date(x, format=""%m/%d/%Y"")"
+V17,disdate,character,Date,.,.,,"as.Date(x, format=""%m/%d/%Y"")"
+V18,fdate,character,Date,.,.,,"as.Date(x, format=""%m/%d/%Y"")"
+V19,los,integer,integer,.,.,,
+V20,dstat,integer,factor,0|1|.,Alive|Dead|.,,
+V21,lenfol,integer,integer,.,.,,
+V22,fstat,integer,factor,0|1|.,Alive|Dead|.,,

@@ -1,0 +1,112 @@
+---
+title: "Read and code data files"
+author: "Steve Simon"
+date: "April 24, 2018"
+output: html_document
+---
+
+This program reads in several text files, makes minor updates, and adds documentation to them. It uses an R library, kutils, that stores the update information in an easy to read spreadsheet or comma separated text file.
+
+## The kutils template
+
+The first step is to create a template with the existing information about the data frame. The keyTemplate function in kutils does this for you.
+
+### Template variable names
+
+You can review the template to find the current name of every variable in the data frame under "name_old". The template has a column right next to it, "name_new" that you can use to rename the variable to something more close to your liking. 
+
+### Template variable types
+
+It stores the current class of the variable (integer, numeric, character, etc.) under "class_old" and has a second column right next to it, "class_new". You can change the class (e.g., from numeric to character) in this column.
+
+### Template categories
+
+For any variable with less than 15 unique values, you will find a list of those values under "value_old". You can modify those values using the "values_new" column. If you prefer to list this information only for variables with much fewer than 15 unique values or with much more than 15 unique values, you have the option of changing this with 
+
+### Template missing value codes
+
+You can find and update missing value codes using the "missings" column of the template. Your template will initially be filled with dots, implying that only values with the default code of NA are currently designated as missing.
+
+You can change this to designate a particular value as missing (e.g., c(-1)), or you can specify a range of values (e.g., c(7,9), >=990).
+
+### Template recodes
+
+The final column in the key template is "recodes." This starts out empty, but you can put in some R code that will automatically transform your data. This is especially useful for dates, which come in so many different sizes and shapes.
+
+## Example
+
+The whas500 is a data set used in Survival Analysis, by Hosmer, Lemeshow, and May. You can download it at 
+
+ftp://ftp.wiley.com/public/sci_tech_med/survival/
+
+along with a description of the variables in the file. When you first read in the data, there are no variable names and no documentation of the various categorical variables.
+
+I was going to add this information the old fashioned way, and then I was inspired to try the kutils program. Here's how it worked.
+
+First you create a key template. You can store this key template as a data frame within R, or you can write it to an Excel file (.xlsx), a comma separated value text file (.csv), or an R serialization data structure (.rds). I chose a csv file.
+
+```{r create-the-template}
+fn <- "~/survival-models/data/wiley/whas500.dat"
+whas500_raw <- read.table(fn, header=FALSE, as.is=TRUE)
+library(kutils)
+kn <- "~/survival-models/doc/whas500_key.csv"
+whas_key <- keyTemplate(whas500_raw, file=kn)
+```
+
+Here's what the csv file looks like.
+
+```{r review-the-template}
+cat(readLines(kn), sep="\n")
+```
+
+Now you update this file and store it under a different name. For this example, I needed to 
+
+* replace V1 through V22 with descriptive variable names,
+* change some of the integer coded variables to factors,
+* provide descriptive names for the integer codes, and
+* convert the date strings to dates with the as.Date function.
+
+```{r update-the-template}
+kn <- "~/survival-models/doc/whas500_updated_key.csv"
+cat(readLines(kn), sep="\n")
+```
+
+Now apply the updated template.
+
+```{r apply-the-template}
+whas_key <- keyImport(kn)
+whas500 <- keyApply(whas500_raw, whas_key)
+```
+
+Let's look at the old and new files.
+
+```{r compare-the-old-and-new}
+head(whas500_raw)
+str(whas500_raw)
+head(whas500)
+str(whas500)
+fn <- "~/survival-models/bin/whas500.RData"
+save(whas500, file=fn)
+```
+
+That was so much fun, let's do it again with the whas100 data set.
+
+```{r whas100}
+fn <- "~/survival-models/data/wiley/whas100.dat"
+whas100_raw <- read.table(fn, header=FALSE, as.is=TRUE)
+library(kutils)
+kn <- "~/survival-models/doc/whas100_key.csv"
+whas_key <- keyTemplate(whas100_raw, file=kn)
+cat(readLines(kn), sep="\n")
+kn <- "~/survival-models/doc/whas100_updated_key.csv"
+cat(readLines(kn), sep="\n")
+whas_key <- keyImport(kn)
+whas100 <- keyApply(whas100_raw, whas_key)
+head(whas100_raw)
+str(whas100_raw)
+head(whas100)
+str(whas100)
+fn <- "~/survival-models/bin/whas100.RData"
+save(whas100, file=fn)
+```
+

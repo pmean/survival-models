@@ -15,7 +15,7 @@ Read in the WHAS500 data set.
 
 ```{r read}
 fn <- "~/survival-models/data/wiley/whas500.dat"
-whas500 <- read.table(fn, header=FALSE)
+whas500_raw <- read.table(fn, header=FALSE, as.is=TRUE)
 names(whas500) <- c(
   "id",
   "age", 
