@@ -1,0 +1,156 @@
+---
+title: "survival lecture 2"
+author: "Steve Simon"
+date: "April 8, 2018"
+output: html_document
+---
+
+Lecture 2: The hazard function and the Cox proportional hazards regression model. The Cox proportional hazard model allows you to examine how categorical and continuous predictor variables influence survival data. You’ll review the definition of a hazard function, and interpret the meaning of constant hazard versus an increasing hazard or a decreasing hazard. Then you’ll fit Cox regression models and interpret the model coefficients.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Motivating example
+
+This is a simple distribution of survival probabilities. It is unrepresentative, but easy to work with.
+
+```{r plot-weibull, fig.width=4.5, fig.height=1.5}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+x <- seq(0.001, 100, length=1000)
+shp <- 1.6
+sc <- 36
+y <- dweibull(x, shp, sc)
+plot(x, y, type="l", axes=FALSE)
+axis(side=1, at=10*(0:10))
+axis(side=2)
+box()
+```
+
+```{r plot-20-to-30, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(x, y, type="n", axes=FALSE)
+axis(side=1, at=10*(0:10))
+axis(side=2)
+box()
+irange <- which((x >= 20) & (x <= 30))
+ipolygon <- c(min(irange), irange, max(irange))
+polygon(
+  x[ipolygon],
+  c(0, y[irange], 0),
+  density=-1, 
+  border=NA, 
+  col="gray")
+lines(x, y)
+pweibull(30, shp, sc) - pweibull(20, shp, sc); pweibull(60, shp, sc) - pweibull(40, shp, sc)
+text(25, 0.5*median(y[irange]), "20%")
+```
+```{r plot-40-to-60, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(x, y, type="n", axes=FALSE)
+axis(side=1, at=10*(0:10))
+axis(side=2)
+box()
+irange <- which((x >= 40) & (x <= 60))
+ipolygon <- c(min(irange), irange, max(irange))
+polygon(
+  x[ipolygon],
+  c(0, y[irange], 0),
+  density=-1, 
+  border=NA, 
+  col="gray")
+lines(x, y)
+pweibull(30, shp, sc) - pweibull(20, shp, sc)
+pweibull(60, shp, sc) - pweibull(40, shp, sc)
+1-pweibull(20, shp, sc)
+1-pweibull(40, shp, sc)
+dweibull(20, shp, sc)/(1-pweibull(20, shp, sc))
+dweibull(40, shp, sc)/(1-pweibull(40, shp, sc))
+text(50, 0.5*median(y[irange]), "20%")
+```
+
+```{r, plot-hazards, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.1, 2.1, 0.6, 0.6), mfrow=c(3,1))
+h1 <- dweibull(x, shp, sc)/(1-pweibull(x, shp, sc))
+plot(x, h1, type="l")
+h2 <- dweibull(x, 0.95, sc)/(1-pweibull(x, 0.95, sc))
+plot(x, h2, type="l")
+h3 <- dweibull(x, 1, sc)/(1-pweibull(x, 1, sc))
+plot(x, h3, type="l",axes=FALSE)
+axis(side=1)
+axis(side=2, at=median(h3), label=round(median(h3), 2))
+box()
+```
+
+## Formulas
+
+The cumulative hazard function is defined as
+
+$H(t)=\int_0^t h(u)du$
+
+and with a bit of calculus (change of variable), you can show that 
+
+$S(t)=e^{-H(t)}$
+
+You can compute the cumulative hazard function as
+
+$\hat{H}(t_j)=\sum_{i=1}^j\frac{d_i}{n_i}$
+
+Let's suppose that an event or censored value at time $t_i$ has a covariate $X_i$ associated with it that may help in prediction. You no longer has a single density, but a family of densities
+
+$f(t_i, X_i, \beta)$
+
+where $\beta$ is an unknown constant that measures the influence of the covariate. A value of $\beta=0$ implies no influence, a value of $\beta>0$ implies an increase in hazard and $\beta<0$ implies a decrease in hazard.
+
+The likelihood function, given times $t_i$, covariates $X_i$ and indicators $c_i$ equal to zero for censored observation and one for deaths, is
+
+$l(\beta) = \prod_i f(t_i, X_i, \beta)^{c_i} S(t_i, X_i, \beta)^{1-c_i}$
+
+Notice that the likelihood for a censored observation is an average density because 
+
+$S(t, X, \beta)=\int_t^\infty f(u, X, \beta)du$
+
+Let's assume that the density function has an associated hazard function of the form
+
+$h(t_i, X_i, \beta)=e^{X_i \beta}h_0(t_i)$
+
+This is called the proportional hazards assumption.
+
+If you compare the ratio of the hazard function with covariates $X_i$ and $X_j$, you get
+
+$\frac{h(t, X_i, \beta)}{h(t, X_j, \beta)}=e^{(X_i-X_j) \beta}$
+
+which is called the hazard ratio. Notice that the hazard function cancels out, greatly simplifying things.
+
+You cannot use maximum likelihood principles to get an estimate for $\beta$. You can, however, treat the baseline hazard ratio, $h_0(t_i)$ as a nuisance parameter, and maximize the partial likelihood of $\beta$. This maximization simplifies to 
+
+$l_p(\beta)=\prod_i \frac{e^{X_i \beta}}{\sum_j e^{X_j \beta}}$
+
+where the summation in the denominator is across all patients still at risk at time $t_i$.
+
+## Three roughly equivalent tests
+
+Define the information matrix, 
+
+$I(\beta) = \frac{\partial^2 L_p(\beta)}{\partial^2 \beta}$,
+
+where $L_p$ is the log partial likelihood ($L_p=log(l_p)$).
+
+Then the standard error of $\hat\beta$ is
+
+$se(\hat\beta)=\sqrt{I^{-1}(\hat\beta)}$
+
+This leads to three statistical tests.
+
+Wald test: $\frac{\hat\beta}{se(\hat\beta)}$
+
+Score test: $\frac{\partial L_p/\partial \beta}{\sqrt{I(\beta)}}|_{\beta=0}$
+
+LR test: $G=2(L_p(\beta)-L_p(0))$
+
+The Wald test is the easiest test to compute, but may not be as accurate as the others, especially for small sample sizes.
