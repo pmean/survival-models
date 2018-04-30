@@ -13,48 +13,14 @@ ods graphics on
 libname survival
   "c:/Users/simons/My Documents/survival-models/bin";
 
-** whas100 **;
-
-* Read the data-dictionary-whas100.txt file in the doc 
-  subdirectory for information about this data set.
-
-  Out of respect for the book's copyright, I am not reproducing
-  the whas100.txt file in the git repository. See README.md in
-  the main folder or the data dictionary file mentioned above
-  for details about how to download this file.                    ;
-
-filename whas100
-  "c:/Users/simons/My Documents/survival-models/data/wiley/whas100.dat";
-
-data survival.whas100;
-  infile whas100 delimiter=' ';
-  input
-    id
-    admitdate $
-    foldate $
-    los
-    lenfol
-    fstat
-    age
-    gender
-    bmi;
-  time_yrs=lenfol/365.25;
-run;
-
-proc lifetest
-  plots=survival
-  data=survival.whas100;
-  time time_yrs*fstat(0);
-  title "Kaplan-Meier curve for WHAS100 data";
-run;
-
-** graph including point-wise confidence limits **;
+** overall survival **;
 
 proc lifetest
     notable
-    plots=survival(cl)
+    plots=survival
     data=survival.whas100;
   time time_yrs*fstat(0);
+  title "Kaplan-Meier curve for WHAS100 data";
 run;
 
 ** analysis by gender **;
@@ -69,19 +35,34 @@ proc lifetest
 run;
 
 proc phreg
+    plots=(cumhaz survival)
     data=survival.whas100;
   model time_yrs*fstat(0)=gender;
 run;
 
 ** analysis by age group **;
 
+data temp;
+  set survival.whas100;
+  age_gp = " 0-59";
+  if (age > 60) then age_gp = "60-69";
+  if (age > 70) then age_gp = "70-79";
+  if (age > 80) then age_gp = ">=80";
+run;
+
 proc lifetest
     notable
     plots=survival
-    data=survival.whas100;
+    data=temp;
   time time_yrs*fstat(0);
-  strata age(60, 70, 80);
+  strata age_gp;
   title "Comparison of survival for age groups for WHAS100 data";
+run;
+
+proc phreg
+    data=temp;
+  class age_gp;
+  model time_yrs*fstat(0)=age_gp;
 run;
 
 proc phreg
