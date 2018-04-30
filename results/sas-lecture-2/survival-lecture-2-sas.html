@@ -2656,7 +2656,7 @@ Note:</td>
 <a name="IDX3"></a>
 <div>
 <div  class="c">
-<img alt="Product-Limit Survival Curve" src="survival-lecture-1-sas-.png" style=" height: 480px; width: 640px;" border="0" class="c">
+<img alt="Product-Limit Survival Curve" src="survival-lecture-2-sas-.png" style=" height: 480px; width: 640px;" border="0" class="c">
 </div>
 </div>
 <br>
@@ -2706,7 +2706,7 @@ Note:</td>
 <p>
 <div>
 <div  class="c">
-<img alt="Product-Limit Survival Curve with 95% Pointwise Confidence Limits" src="survival-lecture-1-sas-1.png" style=" height: 480px; width: 640px;" border="0" class="c">
+<img alt="Product-Limit Survival Curve with 95% Pointwise Confidence Limits" src="survival-lecture-2-sas-1.png" style=" height: 480px; width: 640px;" border="0" class="c">
 </div>
 </div>
 <br>
@@ -2979,7 +2979,7 @@ Note:</td>
 <a name="IDX12"></a>
 <div>
 <div  class="c">
-<img alt="Product-Limit Survival Curves" src="survival-lecture-1-sas-2.png" style=" height: 480px; width: 640px;" border="0" class="c">
+<img alt="Product-Limit Survival Curves" src="survival-lecture-2-sas-2.png" style=" height: 480px; width: 640px;" border="0" class="c">
 </div>
 </div>
 <br>
@@ -2987,6 +2987,270 @@ Note:</td>
 <div class="branch">
 <p style="page-break-after: always;"><br/></p><hr size="3"/>
 <a name="IDX13"></a>
+<table class="systitleandfootercontainer" width="100%" cellspacing="1" cellpadding="1" rules="none" frame="void" border="0" summary="Page Layout">
+<tr>
+<td class="c systemtitle">Comparison of survival for gender for WHAS100 data</td>
+</tr>
+</table><br>
+<div class="c proctitle">The PHREG Procedure</div>
+<p>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Model Information">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="2" scope="colgroup">Model Information</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">Data Set</th>
+<td class="l data">SURVIVAL.WHAS100</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Dependent Variable</th>
+<td class="l data">time_yrs</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Censoring Variable</th>
+<td class="l data">fstat</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Censoring Value(s)</th>
+<td class="l data">0</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Ties Handling</th>
+<td class="l data">BRESLOW</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX14"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Number of Observations">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<th class="l stacked_cell rowheader" scope="row"><table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr>
+<td class="l rowheader top_stacked_value" scope="row">Number of Observations Read</td>
+</tr>
+<tr>
+<td class="l rowheader bottom_stacked_value" scope="row">Number of Observations Used</td>
+</tr>
+</table></th>
+<td class="r stacked_cell data"><table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr>
+<td class="r data top_stacked_value">100</td>
+</tr>
+<tr>
+<td class="r data bottom_stacked_value">100</td>
+</tr>
+</table></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX15"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Summary of Event and Censored Observations">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="4" scope="colgroup">Summary of the Number of Event and Censored<br/>Values</th>
+</tr>
+<tr>
+<th class="r b header" scope="col">Total</th>
+<th class="r b header" scope="col">Event</th>
+<th class="r b header" scope="col">Censored</th>
+<th class="r b header" scope="col">Percent<br/>Censored</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="r data">100</td>
+<td class="r data">51</td>
+<td class="r data">49</td>
+<td class="r data">49.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX16"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Convergence Status">
+<colgroup>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" scope="col">Convergence Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="c data">Convergence criterion (GCONV=1E-8) satisfied.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX17"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Model Fit Statistics">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="3" scope="colgroup">Model Fit Statistics</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Criterion</th>
+<th class="r b header" scope="col">Without<br/>Covariates</th>
+<th class="r b header" scope="col">With<br/>Covariates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">-2 LOG L</th>
+<td class="r data">418.239</td>
+<td class="r data">414.485</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">AIC</th>
+<td class="r data">418.239</td>
+<td class="r data">416.485</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">SBC</th>
+<td class="r data">418.239</td>
+<td class="r data">418.416</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX18"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Test of Global Null Hypothesis">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="4" scope="colgroup">Testing Global Null Hypothesis: BETA=0</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Test</th>
+<th class="r b header" scope="col">Chi-Square</th>
+<th class="r b header" scope="col">DF</th>
+<th class="r b header" scope="col">Pr&nbsp;&gt;&nbsp;ChiSq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">Likelihood Ratio</th>
+<td class="r data">3.7548</td>
+<td class="r data">1</td>
+<td class="r data">0.0527</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Score</th>
+<td class="r data">3.9678</td>
+<td class="r data">1</td>
+<td class="r data">0.0464</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Wald</th>
+<td class="r data">3.8705</td>
+<td class="r data">1</td>
+<td class="r data">0.0491</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX19"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Maximum Likelihood Estimates of Model Parameters">
+<colgroup>
+<col>
+</colgroup>
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="7" scope="colgroup">Analysis of Maximum Likelihood Estimates</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Parameter</th>
+<th class="r b header" scope="col">DF</th>
+<th class="r b header" scope="col">Parameter<br/>Estimate</th>
+<th class="r b header" scope="col">Standard<br/>Error</th>
+<th class="r b header" scope="col">Chi-Square</th>
+<th class="r b header" scope="col">Pr&nbsp;&gt;&nbsp;ChiSq</th>
+<th class="r b header" scope="col">Hazard<br/>Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">gender</th>
+<td class="r data">1</td>
+<td class="r data">0.55555</td>
+<td class="r data">0.28238</td>
+<td class="r data">3.8705</td>
+<td class="r data">0.0491</td>
+<td class="r data">1.743</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+</div>
+<div class="branch">
+<p style="page-break-after: always;"><br/></p><hr size="3"/>
+<a name="IDX20"></a>
 <table class="systitleandfootercontainer" width="100%" cellspacing="1" cellpadding="1" rules="none" frame="void" border="0" summary="Page Layout">
 <tr>
 <td class="c systemtitle">Comparison of survival for age groups for WHAS100 data</td>
@@ -3067,7 +3331,7 @@ Note:</td>
 </div>
 <br>
 <p style="page-break-after: always;"><br/></p><hr size="3"/>
-<a name="IDX14"></a>
+<a name="IDX21"></a>
 <table class="systitleandfootercontainer" width="100%" cellspacing="1" cellpadding="1" rules="none" frame="void" border="0" summary="Page Layout">
 <tr>
 <td class="c systemtitle">Comparison of survival for age groups for WHAS100 data</td>
@@ -3123,7 +3387,7 @@ Note:</td>
 </div>
 </div>
 <br>
-<a name="IDX15"></a>
+<a name="IDX22"></a>
 <div>
 <div align="center">
 <table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Lifetest: Log-Rank Covariance">
@@ -3182,7 +3446,7 @@ Note:</td>
 </div>
 </div>
 <br>
-<a name="IDX16"></a>
+<a name="IDX23"></a>
 <div>
 <div align="center">
 <table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Lifetest: Wilcoxon Covariance">
@@ -3241,7 +3505,7 @@ Note:</td>
 </div>
 </div>
 <br>
-<a name="IDX17"></a>
+<a name="IDX24"></a>
 <div>
 <div align="center">
 <table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Lifetest: Homogeneity Tests">
@@ -3286,10 +3550,274 @@ Note:</td>
 </div>
 </div>
 <br>
-<a name="IDX18"></a>
+<a name="IDX25"></a>
 <div>
 <div  class="c">
-<img alt="Product-Limit Survival Curves" src="survival-lecture-1-sas-3.png" style=" height: 480px; width: 640px;" border="0" class="c">
+<img alt="Product-Limit Survival Curves" src="survival-lecture-2-sas-3.png" style=" height: 480px; width: 640px;" border="0" class="c">
+</div>
+</div>
+<br>
+</div>
+<div class="branch">
+<p style="page-break-after: always;"><br/></p><hr size="3"/>
+<a name="IDX26"></a>
+<table class="systitleandfootercontainer" width="100%" cellspacing="1" cellpadding="1" rules="none" frame="void" border="0" summary="Page Layout">
+<tr>
+<td class="c systemtitle">Comparison of survival for age groups for WHAS100 data</td>
+</tr>
+</table><br>
+<div class="c proctitle">The PHREG Procedure</div>
+<p>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Model Information">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="2" scope="colgroup">Model Information</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">Data Set</th>
+<td class="l data">SURVIVAL.WHAS100</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Dependent Variable</th>
+<td class="l data">time_yrs</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Censoring Variable</th>
+<td class="l data">fstat</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Censoring Value(s)</th>
+<td class="l data">0</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Ties Handling</th>
+<td class="l data">BRESLOW</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX27"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Number of Observations">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<th class="l stacked_cell rowheader" scope="row"><table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr>
+<td class="l rowheader top_stacked_value" scope="row">Number of Observations Read</td>
+</tr>
+<tr>
+<td class="l rowheader bottom_stacked_value" scope="row">Number of Observations Used</td>
+</tr>
+</table></th>
+<td class="r stacked_cell data"><table width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr>
+<td class="r data top_stacked_value">100</td>
+</tr>
+<tr>
+<td class="r data bottom_stacked_value">100</td>
+</tr>
+</table></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX28"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Summary of Event and Censored Observations">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="4" scope="colgroup">Summary of the Number of Event and Censored<br/>Values</th>
+</tr>
+<tr>
+<th class="r b header" scope="col">Total</th>
+<th class="r b header" scope="col">Event</th>
+<th class="r b header" scope="col">Censored</th>
+<th class="r b header" scope="col">Percent<br/>Censored</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="r data">100</td>
+<td class="r data">51</td>
+<td class="r data">49</td>
+<td class="r data">49.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX29"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Convergence Status">
+<colgroup>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" scope="col">Convergence Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="c data">Convergence criterion (GCONV=1E-8) satisfied.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX30"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Model Fit Statistics">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="3" scope="colgroup">Model Fit Statistics</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Criterion</th>
+<th class="r b header" scope="col">Without<br/>Covariates</th>
+<th class="r b header" scope="col">With<br/>Covariates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">-2 LOG L</th>
+<td class="r data">418.239</td>
+<td class="r data">400.888</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">AIC</th>
+<td class="r data">418.239</td>
+<td class="r data">402.888</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">SBC</th>
+<td class="r data">418.239</td>
+<td class="r data">404.820</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX31"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Test of Global Null Hypothesis">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="4" scope="colgroup">Testing Global Null Hypothesis: BETA=0</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Test</th>
+<th class="r b header" scope="col">Chi-Square</th>
+<th class="r b header" scope="col">DF</th>
+<th class="r b header" scope="col">Pr&nbsp;&gt;&nbsp;ChiSq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">Likelihood Ratio</th>
+<td class="r data">17.3516</td>
+<td class="r data">1</td>
+<td class="r data">&lt;.0001</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Score</th>
+<td class="r data">15.6273</td>
+<td class="r data">1</td>
+<td class="r data">&lt;.0001</td>
+</tr>
+<tr>
+<th class="l rowheader" scope="row">Wald</th>
+<td class="r data">14.5989</td>
+<td class="r data">1</td>
+<td class="r data">0.0001</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<br>
+<a name="IDX32"></a>
+<div>
+<div align="center">
+<table class="table" cellspacing="0" cellpadding="5" rules="all" frame="box" bordercolor="#C1C1C1" summary="Procedure Phreg: Maximum Likelihood Estimates of Model Parameters">
+<colgroup>
+<col>
+</colgroup>
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="c b header" colspan="7" scope="colgroup">Analysis of Maximum Likelihood Estimates</th>
+</tr>
+<tr>
+<th class="l b header" scope="col">Parameter</th>
+<th class="r b header" scope="col">DF</th>
+<th class="r b header" scope="col">Parameter<br/>Estimate</th>
+<th class="r b header" scope="col">Standard<br/>Error</th>
+<th class="r b header" scope="col">Chi-Square</th>
+<th class="r b header" scope="col">Pr&nbsp;&gt;&nbsp;ChiSq</th>
+<th class="r b header" scope="col">Hazard<br/>Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="l rowheader" scope="row">age</th>
+<td class="r data">1</td>
+<td class="r data">0.04566</td>
+<td class="r data">0.01195</td>
+<td class="r data">14.5989</td>
+<td class="r data">0.0001</td>
+<td class="r data">1.047</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <br>

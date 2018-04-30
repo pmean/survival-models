@@ -4,10 +4,10 @@
 
 ** preliminaries **;
 
-ods html body="survival-lecture-1-sas.html";
+ods html body="survival-lecture-2-sas.html";
 
 ods graphics on
-  / imagename="survival-lecture-1-sas-"
+  / imagename="survival-lecture-2-sas-"
     reset=index;
 
 libname survival
@@ -68,6 +68,11 @@ proc lifetest
   title "Comparison of survival for gender for WHAS100 data";
 run;
 
+proc phreg
+    data=survival.whas100;
+  model time_yrs*fstat(0)=gender;
+run;
+
 ** analysis by age group **;
 
 proc lifetest
@@ -78,4 +83,10 @@ proc lifetest
   strata age(60, 70, 80);
   title "Comparison of survival for age groups for WHAS100 data";
 run;
+
+proc phreg
+    data=survival.whas100;
+  model time_yrs*fstat(0)=age;
+run;
+
 
