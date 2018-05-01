@@ -1,0 +1,123 @@
+---
+title: "homework answers 2"
+author: "Steve Simon"
+date: "April 30, 2018"
+output: html_document
+---
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+```{r read-whas500}
+fn <- "~/survival-models/bin/whas500.RData" 
+load(fn)
+whas500$time_yrs <- whas500$lenfol / 365.25
+head(whas500)
+```
+
+a. Calculate a Cox regression model for males versus females.
+Interpret your result.
+
+This calculation will start with some simpler statistics and graphs to place everything in the proper context.
+
+```{r overall, fig.width=4.5, fig.height=2}
+table(whas500$fstat)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+km_overall <- survfit(Surv(time_yrs, fstat=="Dead")~1, data=whas500)
+plot(km_overall, conf.int=FALSE)
+
+table(whas500$gender, whas500$fstat)
+km_by_gender <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=whas500)
+plot(km_by_gender)
+
+survdiff(Surv(time_yrs, fstat=="Dead")~gender, data=whas500)
+```
+
+Now you are ready for the Cox proportional hazards model.
+
+```{r cox-model-gender}
+cox_gender <- coxph(
+  Surv(time_yrs, fstat=="Dead")~gender, data=whas500)
+summary(cox_gender)
+```
+
+You can also export your Cox regression model to a data frame for further manipulation using the broom package. I am not using the augment function because it has issues with Cox regression.
+
+```{r cox-broom}
+glance(cox_gender)
+tidy(cox_gender)
+```
+
+Instead of using augment, you can get estimates for the survival curves and the cumulative hazard using the survfit function.
+
+```{r survfit, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+n <- data.frame(gender=factor(1:2, labels=c("Male", "Female")))
+cox_predict <- survfit(cox_gender, newdata=n)
+plot(
+  cox_predict$time,
+  cox_predict$surv[, 2], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$surv[, 1], 
+  type="s", lty="dotted")
+plot(
+  cox_predict$time,
+  cox_predict$cumhaz[, 2], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$cumhaz[, 1], 
+  type="s", lty="dotted")
+```
+
+b. Produce age groups <60, 60-69, 70-79, and >=80. 
+Calculate a Cox regression model for age groups. Interpret
+your results.
+
+```{r km-age-groups, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas500$age_group <- cut(whas500$age, age_breaks, age_labels)
+table(whas500$age_group, whas500$fstat)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+km_by_age_group <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~age_group, data=whas500)
+plot(km_by_age_group)
+survdiff(Surv(time_yrs, fstat=="Dead")~age_group, data=whas500)
+
+cox_age_group <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age_group, data=whas500)
+print(cox_age_group)
+summary(cox_age_group)
+```
+
+c. Treat age as a continuous variable and calculate a Cox
+regression model. Interpret your results.
+
+```{r cox-model-age}
+cox_age <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age, data=whas500)
+summary(cox_age)
+```
+
+The hazard ratio, `r round(exp(tidy(cox_age)$estimate), 3)`, is the estimated relative change in the hazard when age increases by one unit. To get the relative change in the hazard when age increases by a decade, raise to the 10th power.
+
+`r round(exp(tidy(cox_age)$estimate),3)`^10 = 
+`r round(exp(tidy(cox_age)$estimate)^10,3)` 
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-2.RData")
+```
