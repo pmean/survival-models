@@ -1,5 +1,5 @@
 ---
-title: "survival lecture 1"
+title: "survival lecture 1 supplement"
 author: "Steve Simon"
 date: "March 24, 2018"
 output: html_document
