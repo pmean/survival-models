@@ -60,29 +60,67 @@ Let's round that up to 75, with 25 deaths in the first group and 50 deaths in th
 
 So, how many patients do you need to follow and for how long in order to get 75 deaths total?
 
-Start with the simplest case, the exponential distribution. The exponential distribution has a constant hazard rate, which we will let equal $\lambda$ for the first group and $2 \lambda$ for the second group. The larger the value of $\lambda$ the less time you need to accumulate 75 deaths total. 
+You need to account for deaths that you never see
 
-Let's choose $\lambda=0.1$. Then with an average of three year's worth of follow up, the probability of seeing a death is $1-e^{-3*0.1}=$ `r round(1-exp(-0.3), 2)` in the first group and $1-e^{-3*0.2}=$ `r round(1-exp(-0.6), 2)` in the second group.
+* because they occur after your study ends, or
+* becuase of early dropouts.
 
-Note that the probability of death is not doubled when you double the hazard rate.
+You need to start making assumptions. In this example, assume that 
 
-Divide the number of deaths by the probability of death to get the total number studied in each group.
+* you follow the average patient for three years, and
+* you will have a 20% early dropout rate,
+* deaths follow an exponential distribution, and
+* the baseline hazard rate is 0.4.
 
-$n_1 =$ 25 / `r round(1-exp(-0.3), 2)` 
-= `r round(25 / (1-exp(-0.3)), 1)`.
+You can (and should) modify these assumptions to check sensitivity.
 
-$n_2 =$ 50 / `r round(1-exp(-0.6), 2)` 
-= `r round(50 / (1-exp(-0.6)), 1)`.
+The survival function for the exponential distribution is
 
-There's one more thing to consider. Some patients might drop out during the study. You could assume, for example, that the drop out rate before the third year of the study is 2% and that dropouts are uniformly distributed throughout the three years. Divide each of the sample sizes by 0.98 to get
+$S(t)=e^{-\lambda t}$
 
-$n_1 =$ 25 / `r round(1-exp(-0.3), 2)` / 0.98 
-= `r round(25 / (0.98*(1-exp(-0.3))), 1)`.
+This produces two adjustment factors.
 
-$n_2 =$ 50 / `r round(1-exp(-0.6), 2)` / 0.98 
-= `r round(50 / (0.98*(1-exp(-0.6))), 1)`.
+$e^{-1.2}=$ `r round(exp(-1.2), 2)` in the first group and $e^{-2.4}=$ `r round(exp(-2.4), 2)` in the second group.
+
+Note that the probability of survival/death is not halved/doubled when you double the hazard rate.
+
+Divide the number of deaths by 1 - the probability of survival and by 1 - the probability of early dropout to get the total number studied in each group.
+
+$n_1 =$ 25 / ((1-0.2)(1-`r round(exp(-1.2), 2)`)) 
+= `r round(25 / (0.8*(1-exp(-1.2))), 1)`.
+
+$n_2 =$ 50 / ((1-0.2)(1-`r round(exp(-2.4), 2)`)) 
+= `r round(50 / (0.8*(1-exp(-2.4))), 1)`.
 
 To keep things simple, you might wish to use the larger of the two sample sizes in both groups.
+
+## What does a hazard ratio of 2 mean in a clinical sense?
+
+It is hard to get a practical understanding of how big a hazard ratio of 2 really is. You should draw a pair of survival curves to better understand what is going on.
+
+```{r draw-survival-curves, fig.width=4.5, fig.height=2}
+lambda <- 0.4
+t <- seq(0, 3, length=100)
+s1 <- exp(-lambda*t)
+s2 <- exp(-2*lambda*t)
+par(mar=c(2.6, 2.7, 0.6, 0.6))
+plot(t, s1, type="l", ylim=c(0, 1), axes=FALSE)
+axis(side=1, at=c(0:3, round(log(2)/c(0.4, 0.8), 2)))
+axis(side=2, at=(0:4)/4)
+lines(t, s2)
+segments(0, 0.5, log(2)/lambda, 0.5, lty="dotted")
+segments(log(2)/lambda, 0.5, log(2)/lambda, 0, lty="dotted")
+segments(0.5*log(2)/lambda, 0.5, 0.5*log(2)/lambda, 0, lty="dotted")
+
+par(las=1)
+plot(t, s1, type="l", ylim=c(0, 1), axes=FALSE)
+axis(side=1, at=0:3)
+axis(side=2, at=c(0, 1, round(exp(-c(0.8, 1.6)), 2)))
+lines(t, s2)
+segments(0, exp(-0.8), 2, exp(-0.8), lty="dotted")
+segments(0, exp(-1.6), 2, exp(-1.6), lty="dotted")
+segments(2, exp(-0.8), 2, 0, lty="dotted")
+```
 
 ## Simulation
 

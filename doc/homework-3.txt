@@ -1,0 +1,13 @@
+~/survival-models/doc/homework-3.txt
+
+1. Recalculate the sample size in the lecture if the early dropout rate is 0.1 or 0.3 instead of 0.2.
+
+2. Recalculate the sample size if the average time of follow up is 2 years or 4 years instead of 3 years.
+
+3. Recalculate the sample size if the baseline hazard is 0.2 or 0.6 instead of 0.4.
+
+4. Recalculate the sample size if the hazard ratio is 1.8 or 2.2 instead of 2.0.
+
+5. Do the changes in sample size fit your intuition?
+
+6. Put today's date into a statistical package of your choice and convert it to a numeric value. Does the number seem surprising to you?
