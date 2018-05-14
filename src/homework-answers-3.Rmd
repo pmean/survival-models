@@ -247,7 +247,7 @@ sensitivity_plot4
 
 Now let's look at all four sensitivity plots together.
 
-```{r all-plots, fig.width=2}
+```{r all-plots, fig.width=1.75, echo=FALSE}
 sensitivity_plot1
 sensitivity_plot2
 sensitivity_plot3
