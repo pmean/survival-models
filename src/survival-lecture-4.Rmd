@@ -236,7 +236,29 @@ ggplot(whas500, aes(age, r)) +
   geom_point()
 ggplot(data=whas500, aes(age, r)) +
   geom_point() +
-  geom_smooth(se=FALSE)
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(hr, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(sysbp, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(diasbp, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(cvd, r)) +
+  geom_boxplot()
+coxph(Surv(time_yrs, fstat=="Dead")~hr, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~sysbp, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~diasbp, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~cvd, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~afb, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~sho, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~chf, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~av3, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~miord, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~mitype, data=whas500)
+
 ```
 
 ```{r spline, fig.width=4.5, fig.height=2.5}
