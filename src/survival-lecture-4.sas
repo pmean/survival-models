@@ -4,10 +4,10 @@
 
 ** preliminaries **;
 
-ods html body="survival-lecture-2-sas.html";
+ods html body="survival-lecture-4-sas.html";
 
 ods graphics on
-  / imagename="survival-lecture-2-sas-"
+  / imagename="survival-lecture-4-sas-"
     reset=index;
 
 libname survival
@@ -34,9 +34,9 @@ data survival.whas500;
     miord
     mitype
     year
-    admitdate
-    disdate
-    fdate
+    admitdate $
+    disdate $
+    fdate $
     los
     dstat
     lenfol
@@ -48,27 +48,27 @@ run;
 ** one-at-a-time **;
 
 proc phreg
-    data=survival.whas100;
+    data=survival.whas500;
   model time_yrs*fstat(0)=gender;
 run;
 
 proc phreg
-    data=survival.whas100;
+    data=survival.whas500;
   model time_yrs*fstat(0)=age;
 run;
 
 proc phreg
-    data=survival.whas100;
+    data=survival.whas500;
   model time_yrs*fstat(0)=gender age;
 run;
 
 proc sort
-    data=survival.whas100;
+    data=survival.whas500;
   by gender;
 run;
 
 proc means 
-    data=survival.whas100;
+    data=survival.whas500;
   by gender;
   var age;
 run;
