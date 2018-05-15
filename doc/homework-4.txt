@@ -3,11 +3,27 @@
 1. Open the WHAS500 data set in the software program of 
 your choice.
 
-a. Calculate a Cox regression model gender and age. 
-Calculate the unadjusted hazard ratio for gender and
-the hazard ratio for gender adjusted for age. 
-Interpret your result.
+a. Calculate a Cox regression model systolic blood 
+pressure (sysbp) by itself and then adjusted for gender
+and age. Is there evidence that systolic blood pressure
+shows any trends with respect to gender or age?
+Calculate the unadjusted survival curves for patients
+with systolic blood pressures of 120, 140, and 160. Then
+recalculate these survival curves with age set to the 
+overall average age, and to a population that is 30%
+female. Interpret your results.
 
-b. Calculate a Cox regression model withh a gender by
-age interaction. Calculate the hazard ratio for gender
-at ages 60, 70, and 80. Interpret your result.
+b. Calculate cubic spline model for systolic blood
+pressure with four degrees of freedom. Plot this
+spline and offer an informal assessment as to whether
+your spline function deviates markedly from a linear
+relationship.
+
+c. Calculate the Martingale residuals from your Cox
+model with a linear term for systolic blood pressure
+and for age and a term for gender. Plot these residuals
+versus diastolic blood pressure. Offer an informal
+assessment as to whether diastolic blood pressure adds
+any information to a model already including systolic
+blood pressure. Repeat this residual plot analysis using
+myocardial infection type (mitype).
