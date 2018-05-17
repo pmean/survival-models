@@ -1,0 +1,63 @@
+---
+title: "homework answers 4"
+author: "Steve Simon"
+date: "May 17, 2018"
+output: html_document
+---
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+head(whas500)
+```
+
+a. Calculate a Cox regression model systolic blood 
+pressure (sysbp) by itself ...
+
+```{r cox-sysbp}
+cox_sysbp <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp,
+    data-whas500)
+summary(cox_sysbp)
+```
+
+... and then adjusted for gender and age.
+
+```{r cox-sysbp-adj}
+cox_sysbp_adj <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp+age+gender,
+    data-whas500)
+summary(cox_sysbp_adj)
+```
+
+Is there evidence that systolic blood pressure
+shows any trends with respect to gender or age?
+Calculate the unadjusted survival curves for patients
+with systolic blood pressures of 120, 140, and 160. Then
+recalculate these survival curves with age set to the 
+overall average age, and to a population that is 30%
+female. Interpret your results.
+
+b. Calculate cubic spline model for systolic blood
+pressure with four degrees of freedom. Plot this
+spline and offer an informal assessment as to whether
+your spline function deviates markedly from a linear
+relationship.
+
+c. Calculate the Martingale residuals from your Cox
+model with a linear term for systolic blood pressure
+and for age and a term for gender. Plot these residuals
+versus diastolic blood pressure. Offer an informal
+assessment as to whether diastolic blood pressure adds
+any information to a model already including systolic
+blood pressure. Repeat this residual plot analysis using
+myocardial infection type (mitype).

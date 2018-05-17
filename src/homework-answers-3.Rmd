@@ -7,7 +7,7 @@ output: html_document
 
 ## 1. Recalculate the sample size in the lecture if the early dropout rate is 0.1 or 0.3 instead of 0.2.
 
-First recreate the original calculations.
+First replicate the original calculations.
 
 ```{r hw1a}
 pi <- 1/3
