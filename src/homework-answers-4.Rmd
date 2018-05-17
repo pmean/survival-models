@@ -26,32 +26,107 @@ pressure (sysbp) by itself ...
 ```{r cox-sysbp}
 cox_sysbp <- coxph(
   Surv(time_yrs, fstat=="Dead")~sysbp,
-    data-whas500)
+    data=whas500)
 summary(cox_sysbp)
 ```
 
 ... and then adjusted for gender and age.
 
 ```{r cox-sysbp-adj}
+i_female <- as.numeric(whas500$gender=="Female")
 cox_sysbp_adj <- coxph(
-  Surv(time_yrs, fstat=="Dead")~sysbp+age+gender,
-    data-whas500)
+  Surv(time_yrs, fstat=="Dead")~sysbp+age+i_female,
+    data=whas500)
 summary(cox_sysbp_adj)
 ```
 
 Is there evidence that systolic blood pressure
 shows any trends with respect to gender or age?
+
+```{r trends}
+ggplot(data=whas500, aes(age, sysbp)) +
+  geom_point()
+ggplot(data=whas500, aes(gender, sysbp)) +
+  geom_boxplot()
+```
+
 Calculate the unadjusted survival curves for patients
-with systolic blood pressures of 120, 140, and 160. Then
-recalculate these survival curves with age set to the 
+with systolic blood pressures of 120, 140, and 160.
+
+```{r unadjusted-survival}
+n_unadjusted <- 
+  data.frame(
+    sysbp=c(120, 140, 160))
+predict_unadjusted <- survfit(cox_sysbp, newdata=n_unadjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_unadjusted$time,
+  predict_unadjusted$surv[, 3], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_unadjusted$time, 
+  predict_unadjusted$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_unadjusted$time, 
+  predict_unadjusted$surv[, 1], 
+  type="s", lty="dashed")
+```
+
+Then recalculate these survival curves with age set to the 
 overall average age, and to a population that is 30%
 female. Interpret your results.
 
+```{r adjusted-survival}
+n_adjusted <- 
+  data.frame(
+    i_female=0.3,
+    age=mean(whas500$age),
+    sysbp=c(120, 140, 160))
+predict_adjusted <- survfit(cox_sysbp_adj, newdata=n_adjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_adjusted$time,
+  predict_adjusted$surv[, 3], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_adjusted$time, 
+  predict_adjusted$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_adjusted$time, 
+  predict_adjusted$surv[, 1], 
+  type="s", lty="dashed")
+```
+
 b. Calculate cubic spline model for systolic blood
-pressure with four degrees of freedom. Plot this
-spline and offer an informal assessment as to whether
-your spline function deviates markedly from a linear
-relationship.
+pressure with four degrees of freedom.
+
+```{r calculate-spline}
+cox_pspline4 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    pspline(sysbp, df=4),
+      data=whas500)
+cox_pspline4
+```
+
+Plot this spline and offer an informal assessment as
+to whether your spline function deviates markedly 
+from a linear relationship.
+
+```{r plot-spline}
+terms_pspline4 <- predict(cox_pspline4, type="terms")
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+o <- order(whas500$sysbp)
+plot(whas500$sysbp[o], terms_pspline4[o , 1], type="l")
+glance(cox_sysbp)                 %>%
+  bind_rows(glance(cox_pspline4)) %>%
+  mutate(lab=c(
+    "linear (df=1)",
+    "spline (df=4)"))             %>%
+  select(lab, logLik, AIC, BIC)   -> compare_splines
+compare_splines
+```
 
 c. Calculate the Martingale residuals from your Cox
 model with a linear term for systolic blood pressure
