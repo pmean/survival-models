@@ -13,41 +13,14 @@ ods graphics on
 libname survival
   "c:/Users/simons/My Documents/survival-models/bin";
 
-filename whas500
-  "c:/Users/simons/My Documents/survival-models/data/wiley/whas500.dat";
-
-data survival.whas500;
-  infile whas500 delimiter=' ';
-  input
-    id
-    age
-    gender
-    hr
-    sysbp
-    diasbp
-    bmi
-    cvd
-    afb
-    sho
-    chf
-    av3
-    miord
-    mitype
-    year
-    admitdate $
-    disdate $
-    fdate $
-    los
-    dstat
-    lenfol
-    fstat
-  ;
-  time_yrs=lenfol/365.25;
+proc print
+    data=survival.whas500(obs=20);
 run;
-
 ** one-at-a-time **;
 
 proc phreg
+    zph
+    plots=survival
     data=survival.whas500;
   model time_yrs*fstat(0)=gender;
 run;
