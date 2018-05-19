@@ -20,6 +20,34 @@ library(tidyr)
 
 ## The Kaplan-Meier plot and proportional hazards.
 
+```{r diverging}
+n <- 300
+t1 <- rexp(n, 0.4)
+t2 <- rexp(n, 0.8)
+censor <- as.numeric(c(t1, t2) < 3)
+df0 <- data.frame(
+  time=pmin(c(t1, t2), 3), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+df0_surv <- Surv(df0$time, df0$censor)
+plot(survfit(df0_surv~df0$gp))
+```
+
+```{r diverging-1}
+n <- 300
+t1 <- rexp(n, 0.4)
+t2 <- rexp(n, 0.8)
+censor <- as.numeric(c(t1, t2)< 10)
+t1[1] <- 10
+t2[1] <- 10
+df0a <- data.frame(
+  time=pmin(c(t1, t2), 10), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+df0a_surv <- Surv(df0a$time, df0a$censor)
+plot(survfit(df0a_surv~df0a$gp))
+```
+
 A key and very important deviation from proportional hazards is when one group has increased hazard early and a second group has increased hazard late. The Kaplan-Meier curves for the two groups will show this if they cross.
 
 ```{r crossing}
@@ -29,12 +57,12 @@ t2 <- rexp(n, 2)
 t3 <- rexp(n, 0.5)
 t4 <- ifelse(t2<0.5, t2, t2+t3)
 censor <- as.numeric(c(t1, t4) < 3)
-df <- data.frame(
+df1 <- data.frame(
   time=pmin(c(t1, t4), 3), 
   gp=rep(1:2, each=n), 
   censor=censor)
-df_surv <- Surv(df$time, df$censor)
-plot(survfit(df_surv~df$gp))
+df1_surv <- Surv(df1$time, df1$censor)
+plot(survfit(df1_surv~df1$gp))
 ```
 
 ```{r re-converging}
@@ -46,14 +74,65 @@ t4 <- rexp(n, 0.5)
 t5 <- ifelse(t2<0.5, t2, t2+t3)
 t6 <- ifelse(t1<1.2, t1, t1+t4)
 censor <- as.numeric(c(t5, t6) < 3)
-df <- data.frame(
+df2 <- data.frame(
   time=pmin(c(t5, t6), 3), 
   gp=rep(1:2, each=n), 
   censor=censor)
-df_surv <- Surv(df$time, df$censor)
-plot(survfit(df_surv~df$gp))
+df2_surv <- Surv(df2$time, df2$censor)
+plot(survfit(df2_surv~df2$gp))
 ```
 
+## Complementary log-log plot
+
+If the proportional hazards assumption holds then the survival curves for two different groups should be related by
+
+$S_2(t) = S_1(t)^{e^\hat{\beta}}$
+
+Take the logarithm of both sides to get
+
+$log(S_2(t)) = log(S_1(t)) e^\hat{\beta}$
+
+We'd like to take a second log here, but since $S_2$ and $S_1$ are always between 0 and 1, their logarithms would be negative. You have to flip this to a positive value and then take a second logarithm.
+
+$log(-log(S_2(t))) = log(-log(S_1(t))) + \hat{\beta}$
+
+If this transformation, the complementary log-log transformation, produces two curves that are separated by a constant for all values of t, then you have evidence to support the proportional hazards assumption.
+
+```{r log-log-nice}
+df0_km <- survfit(df0_surv~df0$gp)
+g1 <- 1:df0_km$strata[1]
+g2 <- (df0_km$strata[1]+1):sum(df0_km$strata)
+plot(
+  df0_km$time, 
+  log(-log(df0_km$surv)), 
+  type="n")
+lines(
+  df0_km$time[g2], 
+  log(-log(df0_km$surv[g2])), 
+  type="s", ltype="dotted")
+lines(
+  df0_km$time[g1], 
+  log(-log(df0_km$surv[g1])), 
+  type="s")
+```
+
+```{r log-log-nasty}
+df1_km <- survfit(df1_surv~df1$gp)
+g1 <- 1:df1_km$strata[1]
+g2 <- (df1_km$strata[1]+1):sum(df1_km$strata)
+plot(
+  df1_km$time, 
+  log(-log(df1_km$surv)), 
+  type="n")
+lines(
+  df1_km$time[g2], 
+  log(-log(df1_km$surv[g2])), 
+  type="s", ltype="dotted")
+lines(
+  df1_km$time[g1], 
+  log(-log(df1_km$surv[g1])), 
+  type="s")
+```
 
 ## Review the likelihood ratio test
 
@@ -182,7 +261,11 @@ The slope of the likelihood function is zero at its maximum, which implies that
 
 $\sum\limits_{i=1}^m \big( X_{(i)} - \hat{X}_{w{(i)}} \big) = 0$
 
-where $\hat{X}_{w{(i)}$ is equal to $\bar{X}_{w{(i)}$ evaluated at $\beta = \hat{\beta}$
+where $\hat{X}_{w{(i)}}$ is equal to $\bar{X}_{w{(i)}}$ evaluated at $\beta = \hat{\beta}$.
+
+The individual terms in this sum are called the Schoenfeld residuals. Normally, these residuals are standardized. If you see a time trend with respect to the Schoenfeld residuals, then this is evidence of a violation of the proportional hazards assumption.
+
+If the Schoenfeld residuals show a positive time trend (negative early and positive late), that means that you have a hazard ratio that is a bit too large early and a bit too small late.
 
 
 ## Time-varying covariates
