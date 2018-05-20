@@ -1,0 +1,98 @@
+---
+title: "survival lecture 7"
+author: "Steve Simon"
+date: "April 8, 2018"
+output: html_document
+---
+
+Lecture 7. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## The Kaplan-Meier plot and proportional hazards.
+
+```{r read}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+```
+
+```{r km-plots, fig.width=4.5, fig.height=2.5}
+whas500 %$% Surv(time_yrs, fstat=="Dead") -> whas500_surv
+hr_cuts <- c(0, 70, 85, 100, 999)
+whas500                                    %>%
+  mutate(hr_categories=cut(hr, hr_cuts))   %$%
+  survfit(whas500_surv~hr_categories)      %>%
+  tidy                                      -> km_hr
+km_hr                                       %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+diasbp_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(
+    diasbp_categories=
+      cut(diasbp, diasbp_cuts))             %$%
+  survfit(whas500_surv~diasbp_categories)   %>%
+  tidy                                      -> km_diasbp
+km_diasbp                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~chf)                 %>%
+  tidy                                      -> km_chf
+km_chf                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+```
+
+## Complementary log-log plot
+
+```{r log-log, fig.width=4.5, fig.height=2.5}
+km_hr                                 %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_diasbp                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_chf                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+```
+
+## Schoenfeld residuals.
+
+```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_mv <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    hr +
+    diasbp +
+    chf,
+  data=whas500)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
+
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-7.RData")
+```

@@ -20,259 +20,274 @@ library(tidyr)
 
 ## The Kaplan-Meier plot and proportional hazards.
 
-```{r diverging}
-n <- 300
-t1 <- rexp(n, 0.4)
-t2 <- rexp(n, 0.8)
-censor <- as.numeric(c(t1, t2) < 3)
-df0 <- data.frame(
-  time=pmin(c(t1, t2), 3), 
-  gp=rep(1:2, each=n), 
-  censor=censor)
-df0_surv <- Surv(df0$time, df0$censor)
-plot(survfit(df0_surv~df0$gp))
+```{r read}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
 ```
 
-```{r diverging-1}
-n <- 300
-t1 <- rexp(n, 0.4)
-t2 <- rexp(n, 0.8)
-censor <- as.numeric(c(t1, t2)< 10)
-t1[1] <- 10
-t2[1] <- 10
-df0a <- data.frame(
-  time=pmin(c(t1, t2), 10), 
-  gp=rep(1:2, each=n), 
-  censor=censor)
-df0a_surv <- Surv(df0a$time, df0a$censor)
-plot(survfit(df0a_surv~df0a$gp))
-```
+```{r km-plots, fig.width=4.5, fig.height=2.5}
+whas500 %$% Surv(time_yrs, fstat=="Dead") -> whas500_surv
+bmi_cuts <- c(0, 25, 30, 35, 99)
+whas500                                     %>%
+  mutate(bmi_categories=cut(bmi, bmi_cuts)) %$%
+  survfit(whas500_surv~bmi_categories)      %>%
+  tidy                                      -> km_bmi
+km_bmi                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-A key and very important deviation from proportional hazards is when one group has increased hazard early and a second group has increased hazard late. The Kaplan-Meier curves for the two groups will show this if they cross.
+age_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(age_categories=cut(age, age_cuts)) %$%
+  survfit(whas500_surv~age_categories)      %>%
+  tidy                                      -> km_age
+km_age                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-```{r crossing}
-n <- 300
-t1 <- rexp(n, 1)
-t2 <- rexp(n, 2)
-t3 <- rexp(n, 0.5)
-t4 <- ifelse(t2<0.5, t2, t2+t3)
-censor <- as.numeric(c(t1, t4) < 3)
-df1 <- data.frame(
-  time=pmin(c(t1, t4), 3), 
-  gp=rep(1:2, each=n), 
-  censor=censor)
-df1_surv <- Surv(df1$time, df1$censor)
-plot(survfit(df1_surv~df1$gp))
-```
+hr_cuts <- c(0, 70, 85, 100, 999)
+whas500                                    %>%
+  mutate(hr_categories=cut(hr, hr_cuts))   %$%
+  survfit(whas500_surv~hr_categories)      %>%
+  tidy                                      -> km_hr
+km_hr                                       %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-```{r re-converging}
-n <- 300
-t1 <- rexp(n, 1)
-t2 <- rexp(n, 2)
-t3 <- rexp(n, 0.5)
-t4 <- rexp(n, 0.5)
-t5 <- ifelse(t2<0.5, t2, t2+t3)
-t6 <- ifelse(t1<1.2, t1, t1+t4)
-censor <- as.numeric(c(t5, t6) < 3)
-df2 <- data.frame(
-  time=pmin(c(t5, t6), 3), 
-  gp=rep(1:2, each=n), 
-  censor=censor)
-df2_surv <- Surv(df2$time, df2$censor)
-plot(survfit(df2_surv~df2$gp))
+diasbp_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(
+    diasbp_categories=
+      cut(diasbp, diasbp_cuts))             %$%
+  survfit(whas500_surv~diasbp_categories)   %>%
+  tidy                                      -> km_diasbp
+km_diasbp                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~gender)              %>%
+  tidy                                      -> km_gender
+km_gender                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~chf)                 %>%
+  tidy                                      -> km_chf
+km_chf                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 ```
 
 ## Complementary log-log plot
 
-If the proportional hazards assumption holds then the survival curves for two different groups should be related by
+```{r log-log, fig.width=4.5, fig.height=2.5}
+km_bmi                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-$S_2(t) = S_1(t)^{e^\hat{\beta}}$
+km_age                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-Take the logarithm of both sides to get
+km_hr                                 %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-$log(S_2(t)) = log(S_1(t)) e^\hat{\beta}$
+km_diasbp                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-We'd like to take a second log here, but since $S_2$ and $S_1$ are always between 0 and 1, their logarithms would be negative. You have to flip this to a positive value and then take a second logarithm.
+km_gender                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-$log(-log(S_2(t))) = log(-log(S_1(t))) + \hat{\beta}$
+km_chf                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
-If this transformation, the complementary log-log transformation, produces two curves that are separated by a constant for all values of t, then you have evidence to support the proportional hazards assumption.
-
-```{r log-log-nice}
-df0_km <- survfit(df0_surv~df0$gp)
-g1 <- 1:df0_km$strata[1]
-g2 <- (df0_km$strata[1]+1):sum(df0_km$strata)
-plot(
-  df0_km$time, 
-  log(-log(df0_km$surv)), 
-  type="n")
-lines(
-  df0_km$time[g2], 
-  log(-log(df0_km$surv[g2])), 
-  type="s", ltype="dotted")
-lines(
-  df0_km$time[g1], 
-  log(-log(df0_km$surv[g1])), 
-  type="s")
 ```
-
-```{r log-log-nasty}
-df1_km <- survfit(df1_surv~df1$gp)
-g1 <- 1:df1_km$strata[1]
-g2 <- (df1_km$strata[1]+1):sum(df1_km$strata)
-plot(
-  df1_km$time, 
-  log(-log(df1_km$surv)), 
-  type="n")
-lines(
-  df1_km$time[g2], 
-  log(-log(df1_km$surv[g2])), 
-  type="s", ltype="dotted")
-lines(
-  df1_km$time[g1], 
-  log(-log(df1_km$surv[g1])), 
-  type="s")
-```
-
-## Review the likelihood ratio test
-
-Consider a small data set with the following survival times:
-
-1 M   6 1
-
-2 F  14 1
-
-3 F  44 1
-
-4 M  45 0
-
-5 F  89 0
-
-6 M  98 1
-
-7 F  99 1
-
-8 F 104 1
-
-9 M 114 1
-
-the partial likelihood ratio is
-
-$l_p = \prod_i \frac{\psi_{(i)}}{\sum_{j \in R_{(i)}} \psi_j}$
-
-where the parentheses around the subscript implicitly excludes those patients who were censored,
-
-$\psi_{(i)} = e^{X_{(i)} \beta}$
-
-and $R_{(i)}$ is the set of  all patients at risk at time $t_{(i)}$.
-
-For a simple case with a binary predictor like gender, you would have $\psi_{(i)}$ equalling a constant $\psi$ for females and a constant 1 for males.
-
-It helps to keep tabs on the running number of men and women at risk at each time point.
-
-1 M   6 1 4/5
-
-2 F  14 1 3/5
-
-3 F  44 1 3/4
-
-4 M  45 0 3/3
-
-5 F  89 0 2/3
-
-6 M  98 1 2/2
-
-7 F  99 1 1/2
-
-8 F 104 1 1/1
-
-9 M 114 1 1/0
-
-At t=6, a male died, making the numerator 1. The denominator is 4+5$\psi$ because there are 4 males and 5 females in the risk set. The fraction is
-
-$\frac{1}{4+5\psi}$
-
-At t=14, a female died, making the numerator $\psi$ and the denominator is 3+5$\psi$ because there are 3 males and 5 females in the risk set. The second fraction in the product is
-
-$\frac{\psi}{3+5\psi}$
-
-At t=44, another female died, making the numerator $\psi$ again, but the denominator is 3+4$\psi$ because there are 3 males and 4 females in the risk set. This fraction is
-
-$\frac{\psi}{3+4\psi}$
-
-You skip the censored values of t=45 and t=89. The remaining fractions are
-
-$\frac{1}{2+2\psi}$
-
-$\frac{\psi}{1+2\psi}$
-
-$\frac{\psi}{1+\psi}$
-
-$\frac{1}{1}$
-
-The entire product works out to be
-
-$\frac{\psi^4}{(4+5\psi)(3+5\psi)(3+4\psi)(2+2\psi)(1+2\psi)(1+\psi)}$
-
-Let's plot this for various values of $\psi=e^\beta$.
-
-```{r plot-lr}
-lp <- function(beta) {
-  psi <- exp(beta)
-  f <- psi^4 / 
-    ((4+5*psi)*
-     (3+5*psi)*
-     (3+4*psi)*
-     (2+2*psi)*
-     (1+2*psi)*
-     (1+  psi))
-  return(log(f))
-}
-beta <- seq(-2, 2, length=100)
-plot(beta, lp(beta), type="l")
-beta[which.max(lp(beta))]
-```
-
-The log parial likelihood is
-
-$L_p=\sum_i \big( X_{(i)} \beta - log(\sum_{j \in R_{(i)}} e^{X_j \beta}) \big)$
-
-The derivative of the log partial likelihood is
-
-$\frac{\partial L_p}{\partial \beta}= \sum\limits_{i=1}^m \big( X_{(i)} - \bar{X}_{w{(i)}} \big)$
-
-where $\bar{X}_{w{(i)}}$ is a weighted average of all the X's remaining in the risk set and with weights equal to
-
-$w_{ij}=\frac{e^{X_j \beta}}{\sum_{l \in R_i} e^{X_l \beta}}$.
-
-A positive derivative implies that we could maximize the log partial likelihood by increasing from the current value of $\beta$ and a negative derivative implies the opposite.
-
-The second derivative of the log partial likelihood is
-
-$\frac{\partial L_p}{\partial \beta}= -\sum_i \sum_{j \in R_i}{} w_{ij}\big( X_j - \bar{X}_{w{(i)}} \big)^2$
-
-which is a weighted variance.
-
-The information matrix is the negative of the second derivative and the inverse of the information matrix gives you the variances and covariances of the maximum likelihood estimates.
 
 ## Schoenfeld residuals.
 
-The slope of the likelihood function is zero at its maximum, which implies that 
+```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_mv <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    bmi +
+    age +
+    gender,
+  data=whas500)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
 
-$\sum\limits_{i=1}^m \big( X_{(i)} - \hat{X}_{w{(i)}} \big) = 0$
+```
 
-where $\hat{X}_{w{(i)}}$ is equal to $\bar{X}_{w{(i)}}$ evaluated at $\beta = \hat{\beta}$.
+## Stratified analysis
 
-The individual terms in this sum are called the Schoenfeld residuals. Normally, these residuals are standardized. If you see a time trend with respect to the Schoenfeld residuals, then this is evidence of a violation of the proportional hazards assumption.
+If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
 
-If the Schoenfeld residuals show a positive time trend (negative early and positive late), that means that you have a hazard ratio that is a bit too large early and a bit too small late.
-
+```{r stratified-analysis}
+whas500                                     %$%
+  survfit(whas500_surv~year)                %>%
+  tidy                                      -> km_year
+km_year                                     %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+cox_strata <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    bmi +
+    age +
+    gender +
+  strata(year),
+  data=whas500)
+print(cox_strata)
+summary(cox_strata)
+```
 
 ## Time-varying covariates
 
+The Stanford Heart Transplant study has an interesting application of time-varying covariates.
+
+```{r read-heart, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 0.6, 0.1, 0.6))
+head(jasa)
+head(jasa1)
+head(heart)
+o <- order(jasa$accept.dt)
+jasax <- jasa[o, ]
+start <- as.numeric(jasax$accept.dt)-as.numeric(as.Date("1967-01-01"))
+id <- 1:dim(jasax)[1]
+plot(start+jasax$futime, id, type="n", axes=FALSE)
+axis(side=1, at=365*1:7, labels=1967+(1:7))
+d <- jasax$fustat==1
+w <- is.na(jasax$wait.time)
+# w and !d
+arrows(
+  start[w&!d]+jasax$wait.time[w&!d], id[w&!d], 
+  start[w&!d]+jasax$futime[w&!d], id[w&!d],
+  col="red", len=0.05)
+# w and d
+segments(
+  start[w&d], id[w&d], 
+  start[w&d]+jasax$futime[w&d], id[w&d],
+  col="red")
+text(
+  start[w&d]+jasax$futime[w&d], id[w&d],
+  "X", col="red", cex=0.5)
+# !w and !d
+segments(
+  start[!w&!d], id[!w&!d],
+  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d], col="red")
+arrows(
+  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d],
+  start[!w&!d]+jasax$futime[!w&!d], id[!w&!d], 
+  col="green", len=0.05)
+# !w and d
+segments(
+  start[!w&d], id[!w&d],
+  start[!w&d]+jasax$wait.time[!w&d], id[!w&d], col="red")
+segments(
+  start[!w&d]+jasax$wait.time[!w&d], id[!w&d],
+  start[!w&d]+jasax$futime[!w&d], id[!w&d], col="green")
+text(
+  start[!w&d]+jasax$futime[!w&d], id[!w&d],
+  "X", col="green", cex=0.5)
+```
+
+```{r restructure-jasa}
+jasax$id <- 1:(dim(jasax)[1])
+jasax                            %>%
+  filter(transplant==0)          %>%
+  select(
+    id, 
+    wait.time, 
+    futime, 
+    transplant, 
+    fustat)                       -> subset_n
+
+subset_n                         %>%
+  mutate(t0=0)                   %>%
+  mutate(t1=futime)              %>%
+  mutate(event=fustat)           %>%           
+  select(
+    id, 
+    transplant,
+    t0,
+    t1,
+    event)                       -> recode_subset1
+
+jasax                            %>%
+  filter(transplant==1)          %>%
+  select(
+    id, 
+    wait.time, 
+    futime, 
+    transplant, 
+    fustat)                      -> subset_y
+
+subset_y                         %>%
+  mutate(t0=0)                   %>%
+  mutate(t1=wait.time)           %>%
+  mutate(event=0)                %>%
+  select(
+    id, 
+    transplant,
+    t0,
+    t1,
+    event)                       -> recode_subset2
+
+subset_y                         %>%
+  mutate(t0=wait.time)           %>%
+  mutate(t1=futime)              %>%
+  mutate(event=fustat)           %>%
+  select(
+    id, 
+    transplant,
+    t0,
+    t1,
+    event)                       -> recode_subset3
+
+sample1 <- sample(subset_n$id, 5)
+subset_n       %>% filter(id %in% sample1)
+recode_subset1 %>% filter(id %in% sample1)
+
+sample2 <- sample(subset_y$id, 5)
+subset_y       %>% filter(id %in% sample2)
+recode_subset2 %>% filter(id %in% sample2)
+recode_subset3 %>% filter(id %in% sample2)
+```
+
+```{r naive-model}
+cox_naive <- coxph(
+  Surv(futime, fustat) ~ transplant,
+    data=jasax)
+
+print(cox_naive)
+
+recode_subset1              %>% 
+  bind_rows(recode_subset2) %>%
+  bind_rows(recode_subset3) -> jasa_recoded
+
+cox_time_varying <- coxph(
+  Surv(t0, t1, event) ~ transplant,
+  data=jasa_recoded)
+
+print(cox_time_varying)
+```
+
 Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.
 
-```{r read-grace}
+
+```{r read-grace, eval=FALSE}
 fn <- "~/survival-models/data/wiley/GRACE1000.dat" 
 grace <- read.table(fn, header = FALSE) 
 names(grace) <- c(
@@ -287,10 +302,6 @@ names(grace) <- c(
   "stchange")
 head(grace)
 ```
-
-## Also for discussion
-
-* Stratified analysis. Stratify whas500 by year=1, 2, 3. This would use the actg320 data. Compare output to Table 7.1.
 
 Save everything for possible later re-use.
 
