@@ -32,6 +32,12 @@ names(whas100) <-
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
 whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+
+exp_model <- survreg(
+  whas100_surv~gender, 
+  data=whas100, 
+  dist="exponential")
+summary(exp_model)
 ```
 
 ## Weibull model
