@@ -20,18 +20,60 @@ library(tidyr)
 
 ## Exponential model
 
-The exponential model is the simplest parametric model and is illustrated using the whas100 data set on page 250 of Hosmer, Lemeshow, and May.
+The exponential model is the simplest parametric model. The probability density function for the "standard" exponential distribution is
+
+$f(t)=e^{-t}$
+
+```{r density-1, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+t <- seq(0, 3, length=1000)
+plot(t, dexp(t), type="l", ylim=c(0,2))
+```
+
+You can include a rate parameter, $\lambda$, to create a density,
+
+$f(t; \lambda)=\lambda e^{-\lambda t}$
+
+but there is an equivalent form using a scale parameter, $\theta$,
+
+$f(t; \theta) = \frac{1}{\theta} e^{-t/\theta}$.
+
+This is the density function for an exponential distribution with  $\theta=2$.
+
+```{r density-2, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 2
+plot(t, dexp(t, rate=1/theta), type="l", ylim=c(0,2))
+lines(t, dexp(t), lty="dotted")
+```
+
+If theta is larger than 1, the effect is to stretch out the exponential and slow down time.
+
+This is the density function for an exponential distribution with  $\theta=0.5$.
+
+```{r density-0.5, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 0.5
+plot(t, dexp(t, rate=1/theta), type="l", ylim=c(0,2))
+lines(t, dexp(t), lty="dotted")
+```
+
+The accelerated time model replaces $\theta$ with
+
+e^{(\beta_0+\beta_1 x)}
+
+This produces a density
+
+$f(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}e^{-t/e^{(\beta_0+\beta_1 x)}}$
+
+The values of $\beta_0$ and $\beta_1$ will end up stretching or shrinking the time scale.
 
 ```{r read-whas100}
-fn <- "~/survival-models/data/wiley/whas100.dat" 
-whas100 <- read.table(fn, header = FALSE) 
-names(whas100) <- 
-  c("id", "admitdate", "foldate",
-    "los", "lenfol", "fstat",
-    "age", "gender", "bmi")
+fn <- "~/survival-models/bin/whas100.RData" 
+load(fn)
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
-whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat=="Dead")
 
 exp_model <- survreg(
   whas100_surv~gender, 
@@ -39,6 +81,22 @@ exp_model <- survreg(
   dist="exponential")
 summary(exp_model)
 ```
+
+This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The survival function is 
+
+$S(t, x, \beta_0, \beta_1)=e^{-t/e^{-(\beta_0+\beta_1 x)}}$
+
+and the hazard function is 
+
+$h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
+
+Notice that the hazard is constant with respect to t. The baseline hazard, the hazard when X=0 is
+
+$h_0(t)=e^{-\beta_0}$
+
+The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ is
+
+$e^{-\beta_1 (x_1-x_2)}$
 
 ## Weibull model
 
