@@ -24,27 +24,39 @@ The exponential model is the simplest parametric model. The probability density 
 
 $f(t)=e^{-t}$
 
+and the survival curve is
+
+$S(t)=e^{-t}$.
+
+The plot of the survival curve is 
+
 ```{r density-1, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 t <- seq(0, 3, length=1000)
-plot(t, dexp(t), type="l", ylim=c(0,2))
+plot(t, exp(-t), type="l", ylim=c(0,1))
 ```
 
 You can include a rate parameter, $\lambda$, to create a density,
 
 $f(t; \lambda)=\lambda e^{-\lambda t}$
 
-but there is an equivalent form using a scale parameter, $\theta$,
+and the survival curve is
+
+$S(t; \lambda)=e^{-\lambda t}$
+
+There is an equivalent form using a scale parameter, $\theta$,
 
 $f(t; \theta) = \frac{1}{\theta} e^{-t/\theta}$.
+
+$S(t; \theta) = e^{-t/\theta}$
 
 This is the density function for an exponential distribution with  $\theta=2$.
 
 ```{r density-2, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 theta <- 2
-plot(t, dexp(t, rate=1/theta), type="l", ylim=c(0,2))
-lines(t, dexp(t), lty="dotted")
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
 ```
 
 If theta is larger than 1, the effect is to stretch out the exponential and slow down time.
@@ -54,19 +66,29 @@ This is the density function for an exponential distribution with  $\theta=0.5$.
 ```{r density-0.5, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 theta <- 0.5
-plot(t, dexp(t, rate=1/theta), type="l", ylim=c(0,2))
-lines(t, dexp(t), lty="dotted")
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
 ```
 
 The accelerated time model replaces $\theta$ with
 
-e^{(\beta_0+\beta_1 x)}
+$e^{(\beta_0+\beta_1 X)}$
 
-This produces a density
+This produces the survival curve
 
-$f(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}e^{-t/e^{(\beta_0+\beta_1 x)}}$
+$S(t, X, \beta_0, \beta_1)=e^{-t/e^{(\beta_0+\beta_1 X)}}$
 
 The values of $\beta_0$ and $\beta_1$ will end up stretching or shrinking the time scale.
+
+The pth percentile of the accelerated time model is
+
+$-ln(1-p) e^{\beta_0+\beta_1 X}$ 
+
+and the ratio of two percentiles, one with X=$X_1$ and the other with X=$X_2$ is
+
+$\frac{-ln(1-p) e^{\beta_0+\beta_1 X_1}} {-ln(1-p) e^{\beta_0+\beta_1 X_2}} = e^{\beta_1 (X_1-X_2)}$
+
+If $X_1$ is one unit larger than $X_2$, this reduces to $e^{\beta_1}$.
 
 ```{r read-whas100}
 fn <- "~/survival-models/bin/whas100.RData" 
@@ -74,19 +96,74 @@ load(fn)
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
 whas100_surv <- Surv(whas100$time_yrs, whas100$fstat=="Dead")
+```
 
+Before you fit the exponential and Weibull regression models, fit a Kaplan-Meier curve.
+
+```{r km, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+km_overall <- survfit(Surv(whas100$time_yrs, whas100$fstat)~1)
+exp_null_model <- survreg(whas100_surv~1, dist="exponential")
+exp_null_model
+pct <- (1:999)/1000
+
+exp_null_model %>%
+  predict(
+    newdata=data.frame(one=1),
+    type="quantile",
+    p=pct)                     %>%
+  data.frame                   %>%
+  set_names("time")            %>%
+  mutate(estimate=rev(pct))    %>%
+  mutate(grp="Exponential")    %>%
+  filter(time<=10)             -> exp_survival
+
+km_overall                     %>%
+  tidy                         %>%
+  mutate(estimate=1-estimate)  %>%
+  mutate(grp="Kaplan-Meier")   %>%
+  bind_rows(exp_survival)      -> combined_survivals
+
+combined_survivals             %>%
+  ggplot(aes(time, estimate))   +
+    expand_limits(y=0)          +
+    geom_step(aes(color=grp))
+
+```
+
+You can also compare the cumulative hazard functions.
+
+```{r cumhaz, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+combined_survivals                %>%
+  mutate(c_hazard=-log(estimate)) %>%
+  ggplot(aes(time, c_hazard))      +
+    geom_step(aes(color=grp))
+```
+
+```{r exponential-regression, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+whas100$age_c=whas100$age-mean(whas100$age)
+whas100$bmi_c=whas100$bmi-mean(whas100$bmi)
+whas100$i_female=as.numeric(whas100$gender=="Female")
 exp_model <- survreg(
-  whas100_surv~gender, 
+  whas100_surv~i_female*age_c+bmi_c, 
   data=whas100, 
   dist="exponential")
 summary(exp_model)
+exp_coef <- tidy(exp_model)
+bmi_coef <- exp(exp_coef[exp_coef$term=="bmi_c", "estimate"])
+age_m_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"])
+age_f_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"]+
+  exp_coef[exp_coef$term=="i_female:age_c", "estimate"])
 ```
 
-This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The survival function is 
+Each unit increase in BMI shifts the survival percentiles by a factor `r round(bmi_coef, 3)`. A five unit shift in BMI shifts the survival percentiles by `r round(bmi_coef, 3)`^5 = `r round(bmi_coef^5, 3)`. 
 
-$S(t, x, \beta_0, \beta_1)=e^{-t/e^{-(\beta_0+\beta_1 x)}}$
+Because of the interaction, the effect of age is different for men and women. For men, a one year increase in age will shift the survival percentiles by a factor of
+exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)`) = `r round(age_m_coef, 3)`. For women, a one year increase in age will shift the survival percentiles by a factor of exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)` + `r round(exp_coef[exp_coef$term=="i_female:age_c", "estimate"], 3)`) = `r round(age_f_coef, 3)`.
 
-and the hazard function is 
+This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The hazard function is 
 
 $h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
 
@@ -100,11 +177,83 @@ $e^{-\beta_1 (x_1-x_2)}$
 
 ## Weibull model
 
-The WHAS100 data is also used to describe the Weibull regression model and an example of the model appears on page 264 of Hosmer, Lemeshow, and May.
+The standard Weibull distribution has a density
 
-## Log-logistic model
+$f(t, k)=k t^{k-1} e^{-t^k}$
 
-The WHAS100 data is used yet again to describe the log-logistic model and an example of the model appears on page 277 of Hosmer, Lemeshow, and May.
+and a survival function
+
+$S(t, k)=e^{-t^\gamma}$.
+
+You can add a scale parameter, $\theta$, to get 
+
+$f(t, k, \theta) = \frac {k} {\theta} \left( \frac {t} {\theta} \right)^{k-1} e^{-\left( \frac {t} {\theta} \right)^k}$
+
+and a survival function
+
+$S(t, k, \theta)=e^{-\left(\frac{t}{\theta}\right)^k}$.
+
+The value of k controls whether the Weibull distribution has an increasing hazard (k>1), constant hazard (k=1), or decreasing hazard (k<1).
+
+```{r standard-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dotted")
+plot(t, 1-pweibull(t, shape=0.5), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dashed")
+```
+
+The scale parameter, $\theta$, will stretch or squeeze the survival curve along the time axis.
+
+```{r scaled-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2, scale=1), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=2, scale=2), lty="dotted")
+```
+
+You can fit an accelerated time model for the Weibull distribution as well.
+
+$S(t, k, X, \beta_0, \beta_1) = e^{-\left( \frac {t} {\beta_0 + \beta_1 x} \right)^k}$.
+
+
+```{r weibull-regression}
+weibull_model <- survreg(
+  whas100_surv~gender*age+bmi, 
+  data=whas100, 
+  dist="weibull")
+summary(weibull_model)
+```
+
+```{r residuals}
+r_response <- residuals(weibull_model, type="response")
+r_deviance <- residuals(weibull_model, type="deviance")
+r_dfbeta <- residuals(weibull_model, type="dfbeta")
+r_dfbetas <- residuals(weibull_model, type="dfbetas")
+r_working <- residuals(weibull_model, type="working")
+r_ldcase <- residuals(weibull_model, type="ldcase")
+r_ldresp <- residuals(weibull_model, type="ldresp")
+
+head(r_response)
+head(r_deviance)
+head(r_dfbeta)
+head(r_dfbetas)
+head(r_working)
+head(r_ldcase)
+head(r_ldresp)
+
+p_response <- predict(weibull_model, type="response")
+p_linear <- predict(weibull_model, type="linear")
+p_terms <- predict(weibull_model, type="terms")
+
+head(p_response)
+head(p_linear)
+head(p_terms)
+```
+The hazard function for the Weibull distribution is
+
+$h(t, \lambda) = \lambda t^{\lambda-1}$
+
+There is an alternate formulation for the Weibull regression model.
 
 Save everything for possible later re-use.
 
