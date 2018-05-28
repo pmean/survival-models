@@ -24,6 +24,7 @@ a. Calculate a Cox regression model systolic blood
 pressure (sysbp) by itself ...
 
 ```{r cox-sysbp}
+whas500$time_yrs <- whas500$lenfol / 365.25
 cox_sysbp <- coxph(
   Surv(time_yrs, fstat=="Dead")~sysbp,
     data=whas500)

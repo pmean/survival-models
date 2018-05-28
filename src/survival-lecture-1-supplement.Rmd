@@ -13,6 +13,7 @@ This file does not need any special libraries other than the ones listed below. 
 library(broom)
 library(dplyr)
 library(ggplot2)
+library(knitr)
 library(magrittr)
 library(survival)
 library(tidyr)
@@ -120,11 +121,6 @@ segments(q$upper[1], 0.75, 0, 0.75, lty="dotted")
 In my Powerpoint lecture, I had a few problems with notation and produced some confusion on how the logrank test actually works. Let me try again with this program. 
 
 This file does not need any special libraries other than the ones listed below.
-
-```{r load-libraries, echo=FALSE}
-library(knitr)
-library(survival)
-```
 
 Consider a small data set with the following survival times:
 

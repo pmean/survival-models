@@ -32,8 +32,6 @@ names(whas100) <-
     "age", "gender", "bmi")
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
-save(whas100, 
-  file="~/survival-models/bin/whas100.RData")
 ```
 
 Use the same functions, Surv and survfit to create a Kaplan-Meier curve. This plot is the same as Figure 2.2 in Hosmer, Lemeshow, and May.

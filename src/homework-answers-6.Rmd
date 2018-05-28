@@ -21,6 +21,7 @@ library(tidyr)
 ```{r read}
 fn <- "~/survival-models/bin/whas500.RData"
 load(fn)
+whas500$time_yrs <- whas500$lenfol / 365.25
 ```
 
 ```{r km-plots, fig.width=4.5, fig.height=2.5}

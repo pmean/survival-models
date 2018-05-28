@@ -49,7 +49,7 @@ First you create a key template. You can store this key template as a data frame
 fn <- "~/survival-models/data/wiley/whas500.dat"
 whas500_raw <- read.table(fn, header=FALSE, as.is=TRUE)
 library(kutils)
-kn <- "~/survival-models/doc/whas500_key.csv"
+kn <- "~/survival-models/doc/keys/whas500_key.csv"
 whas_key <- keyTemplate(whas500_raw, file=kn)
 ```
 
@@ -67,7 +67,7 @@ Now you update this file and store it under a different name. For this example, 
 * convert the date strings to dates with the as.Date function.
 
 ```{r update-the-template}
-kn <- "~/survival-models/doc/whas500_updated_key.csv"
+kn <- "~/survival-models/doc/keys/whas500_updated_key.csv"
 cat(readLines(kn), sep="\n")
 ```
 
@@ -76,6 +76,8 @@ Now apply the updated template.
 ```{r apply-the-template}
 whas_key <- keyImport(kn)
 whas500 <- keyApply(whas500_raw, whas_key)
+whas500$time_yrs <- whas500$lenfol / 365.25
+
 ```
 
 Let's look at the old and new files.
@@ -95,13 +97,14 @@ That was so much fun, let's do it again with the whas100 data set.
 fn <- "~/survival-models/data/wiley/whas100.dat"
 whas100_raw <- read.table(fn, header=FALSE, as.is=TRUE)
 library(kutils)
-kn <- "~/survival-models/doc/whas100_key.csv"
+kn <- "~/survival-models/doc/keys/whas100_key.csv"
 whas_key <- keyTemplate(whas100_raw, file=kn)
 cat(readLines(kn), sep="\n")
-kn <- "~/survival-models/doc/whas100_updated_key.csv"
+kn <- "~/survival-models/doc/keys/whas100_updated_key.csv"
 cat(readLines(kn), sep="\n")
 whas_key <- keyImport(kn)
 whas100 <- keyApply(whas100_raw, whas_key)
+whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100_raw)
 str(whas100_raw)
 head(whas100)
