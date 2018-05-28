@@ -1,11 +1,11 @@
 ---
 title: "survival lecture 8"
 author: "Steve Simon"
-date: "April 8, 2018"
+date: "May 27, 2018"
 output: html_document
 ---
 
-Lecture 8. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
+Lecture 8. Competing risk models.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -18,42 +18,70 @@ library(survival)
 library(tidyr)
 ```
 
-## Recurrent events model
+## Stratified models
 
-Hosmer, Lemeshow, and May describe a recurrent events model on page 293 that uses the Psoriasis data.
+Page 211 of Hosmer, Lemeshow, and May shows how to fit a stratified model by quartile of CD4 cell count using the ACTG320 data set.
 
-```{r read-psoriasis}
-fn <- "~/survival-models/data/wiley/recur.dat" 
-psoriasis <- read.table(fn, header = FALSE) 
-names(psoriasis) <- c(
+```{r read-actg320}
+fn <- "~/survival-models/data/wiley/actg320.dat" 
+actg320 <- read.table(fn, header = FALSE) 
+names(actg320) <- c(
   "id",
-  "age",
-  "treat",
-  "time0",
-  "time1",
+  "time", 
   "censor",
-  "event")
-head(psoriasis)
+  "time_d",
+  "censor_d",
+  "tx",
+  "txgrp",
+  "strat2",
+  "sex",
+  "raceth",
+  "ivdrug",
+  "hemophil",
+  "karnof",
+  "cd4",
+  "priorzdv",
+  "age")
+head(actg320)
 ```
 
-## Frailty model
+## Interval censoring
 
-Hosmer, Lemeshow, and May describe a frailty model using a data set with variables bmi, hr, diasbp, and chf.
+Page 235 of Hosmer, Lemeshow, and May shows interval censoring using the GBCS data set.
 
-## Nested case-control study
+```{r read-gbcs}
+fn <- "~/survival-models/data/wiley/gbcs.dat" 
+gbcs <- read.table(fn, header = FALSE) 
+names(gbcs) <- c(
+  "id",
+  "diagdate",
+  "recdate",
+  "deathdate",
+  "age",
+  "menopause",
+  "hormone",
+  "size",
+  "grade",
+  "nodes",
+  "prog_recp",
+  "estrg_recp",
+  "rectime",
+  "censrec",
+  "survtime",
+  "censdead")
 
-It's not on the syllabus, but depending on how things work out, I might want to look at a nested case control study. If I do, the relevant data set is acth320ncc.
-
-```{r read-ncc}
-fn <- "~/survival-models/data/wiley/actg320ncc.dat" 
-ncc <- read.table(fn, header = FALSE) 
-head(ncc)
+head(gbcs)
 ```
 
-## Competing risk models
+## Additional topics
 
-Also not on the syllabus is the competing risk model. But the examples presented in Hosmer, Lemeshow, and May (pages 329-339) are hypothetical. The data management looks daunting, as in Table 9.9.
+* Schoenfeld residual, scaled Schoenfeld residual
 
+* Martingale/Cox and Snell residual: Ci-H(ti, X, beta)
+
+* How to check proportional hazards assumption, plot Schoenfeld residual versus time.
+
+* Influential data, Cook's d. This is described on page 185. Also see the whas500 data in Table 6.2, 5.13
 
 Save everything for possible later re-use.
 

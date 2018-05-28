@@ -1,11 +1,11 @@
 ---
 title: "survival lecture 7"
 author: "Steve Simon"
-date: "April 8, 2018"
+date: "May 27, 2018"
 output: html_document
 ---
 
-Lecture 7. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
+Lecture 7. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -18,315 +18,42 @@ library(survival)
 library(tidyr)
 ```
 
-## The Kaplan-Meier plot and proportional hazards.
+## Recurrent events model
 
-```{r read}
-fn <- "~/survival-models/bin/whas500.RData"
-load(fn)
-```
+Hosmer, Lemeshow, and May describe a recurrent events model on page 293 that uses the Psoriasis data.
 
-```{r km-plots, fig.width=4.5, fig.height=2.5}
-whas500 %$% Surv(time_yrs, fstat=="Dead") -> whas500_surv
-bmi_cuts <- c(0, 25, 30, 35, 99)
-whas500                                     %>%
-  mutate(bmi_categories=cut(bmi, bmi_cuts)) %$%
-  survfit(whas500_surv~bmi_categories)      %>%
-  tidy                                      -> km_bmi
-km_bmi                                      %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-
-age_cuts <- c(0, 60, 70, 80, 999)
-whas500                                     %>%
-  mutate(age_categories=cut(age, age_cuts)) %$%
-  survfit(whas500_surv~age_categories)      %>%
-  tidy                                      -> km_age
-km_age                                      %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-
-hr_cuts <- c(0, 70, 85, 100, 999)
-whas500                                    %>%
-  mutate(hr_categories=cut(hr, hr_cuts))   %$%
-  survfit(whas500_surv~hr_categories)      %>%
-  tidy                                      -> km_hr
-km_hr                                       %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-
-diasbp_cuts <- c(0, 60, 70, 80, 999)
-whas500                                     %>%
-  mutate(
-    diasbp_categories=
-      cut(diasbp, diasbp_cuts))             %$%
-  survfit(whas500_surv~diasbp_categories)   %>%
-  tidy                                      -> km_diasbp
-km_diasbp                                   %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-
-whas500                                     %$%
-  survfit(whas500_surv~gender)              %>%
-  tidy                                      -> km_gender
-km_gender                                   %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-
-whas500                                     %$%
-  survfit(whas500_surv~chf)                 %>%
-  tidy                                      -> km_chf
-km_chf                                      %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-```
-
-## Complementary log-log plot
-
-```{r log-log, fig.width=4.5, fig.height=2.5}
-km_bmi                                %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-km_age                                %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-km_hr                                 %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-km_diasbp                             %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-km_gender                             %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-km_chf                                %>%
-  mutate(cll=log(-log(estimate)))     %>%
-  ggplot(aes(time, cll, color=strata)) +
-    geom_step()
-
-```
-
-## Schoenfeld residuals.
-
-```{r schoenfeld, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 4.1, 0.6, 0.6))
-cox_mv <- coxph(
-  Surv(time_yrs, fstat=="Dead") ~
-    bmi +
-    age +
-    gender,
-  data=whas500)
-cox_schoenfeld <- cox.zph(cox_mv)
-print(cox_schoenfeld)
-plot(cox_schoenfeld)
-
-```
-
-## Stratified analysis
-
-If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
-
-```{r stratified-analysis}
-whas500                                     %$%
-  survfit(whas500_surv~year)                %>%
-  tidy                                      -> km_year
-km_year                                     %>%
-  ggplot(aes(time, estimate, color=strata))  +
-    geom_step()
-cox_strata <- coxph(
-  Surv(time_yrs, fstat=="Dead") ~
-    bmi +
-    age +
-    gender +
-  strata(year),
-  data=whas500)
-print(cox_strata)
-summary(cox_strata)
-```
-
-## Time-varying covariates
-
-The Stanford Heart Transplant study has an interesting application of time-varying covariates.
-
-```{r read-heart, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 0.6, 0.1, 0.6))
-head(jasa)
-head(jasa1)
-head(heart)
-o <- order(jasa$accept.dt)
-jasax <- jasa[o, ]
-start <- as.numeric(jasax$accept.dt)-as.numeric(as.Date("1967-01-01"))
-id <- 1:dim(jasax)[1]
-plot(start+jasax$futime, id, type="n", axes=FALSE)
-axis(side=1, at=365*1:7, labels=1967+(1:7))
-d <- jasax$fustat==1
-w <- is.na(jasax$wait.time)
-# w and !d
-arrows(
-  start[w&!d]+jasax$wait.time[w&!d], id[w&!d], 
-  start[w&!d]+jasax$futime[w&!d], id[w&!d],
-  col="red", len=0.05)
-# w and d
-segments(
-  start[w&d], id[w&d], 
-  start[w&d]+jasax$futime[w&d], id[w&d],
-  col="red")
-text(
-  start[w&d]+jasax$futime[w&d], id[w&d],
-  "X", col="red", cex=0.5)
-# !w and !d
-segments(
-  start[!w&!d], id[!w&!d],
-  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d], col="red")
-arrows(
-  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d],
-  start[!w&!d]+jasax$futime[!w&!d], id[!w&!d], 
-  col="green", len=0.05)
-# !w and d
-segments(
-  start[!w&d], id[!w&d],
-  start[!w&d]+jasax$wait.time[!w&d], id[!w&d], col="red")
-segments(
-  start[!w&d]+jasax$wait.time[!w&d], id[!w&d],
-  start[!w&d]+jasax$futime[!w&d], id[!w&d], col="green")
-text(
-  start[!w&d]+jasax$futime[!w&d], id[!w&d],
-  "X", col="green", cex=0.5)
-```
-
-```{r restructure-jasa}
-jasax$id <- 1:(dim(jasax)[1])
-jasax                            %>%
-  filter(transplant==0)          %>%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                       -> subset_n
-
-subset_n                         %>%
-  mutate(t0=0)                   %>%
-  mutate(t1=futime)              %>%
-  mutate(event=fustat)           %>%           
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset1
-
-jasax                            %>%
-  filter(transplant==1)          %>%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                      -> subset_y
-
-subset_y                         %>%
-  mutate(t0=0)                   %>%
-  mutate(t1=wait.time)           %>%
-  mutate(event=0)                %>%
-  mutate(transplant=0)           %>%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset2
-
-subset_y                         %>%
-  mutate(t0=wait.time)           %>%
-  mutate(t1=futime)              %>%
-  mutate(event=fustat)           %>%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset3
-
-sample1 <- sample(subset_n$id, 5)
-subset_n       %>% filter(id %in% sample1)
-recode_subset1 %>% filter(id %in% sample1)
-
-sample2 <- sample(subset_y$id, 5)
-subset_y       %>% filter(id %in% sample2)
-recode_subset2 %>% filter(id %in% sample2)
-recode_subset3 %>% filter(id %in% sample2)
-```
-
-```{r naive-model}
-cox_naive <- coxph(
-  Surv(futime, fustat) ~ transplant + age + surgery,
-    data=jasax)
-
-print(cox_naive)
-
-recode_subset1              %>% 
-  bind_rows(recode_subset2) %>%
-  bind_rows(recode_subset3) -> jasa_recoded
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
-jasa_recoded$t1[jasa_recoded$id==16] <- 0.5
-
-jasa_recoded$t1[jasa_recoded$id== 4& jasa_recoded$event==0] <- 0.5
-jasa_recoded$t0[jasa_recoded$id== 4& jasa_recoded$event==1] <- 0.5
-
-jasa_recoded$t1[jasa_recoded$id==39& jasa_recoded$event==1] <- 4.5
-
-jasa_recoded$t1[jasa_recoded$id==46& jasa_recoded$event==0] <- 0.5
-jasa_recoded$t0[jasa_recoded$id==46& jasa_recoded$event==1] <- 0.5
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
-cox_time_varying <- coxph(
-  Surv(t0, t1, event, type="counting") ~ transplant+age+surgery,
-  data=jasa_recoded)
-
-print(cox_time_varying)
-```
-
-Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.
-
-
-```{r read-grace, eval=FALSE}
-fn <- "~/survival-models/data/wiley/GRACE1000.dat" 
-grace <- read.table(fn, header = FALSE) 
-names(grace) <- c(
+```{r read-psoriasis}
+fn <- "~/survival-models/data/wiley/recur.dat" 
+psoriasis <- read.table(fn, header = FALSE) 
+names(psoriasis) <- c(
   "id",
-  "days",
-  "death",
-  "revasc",
-  "revascdays",
-  "los",
   "age",
-  "sysbp",
-  "stchange")
-head(grace)
+  "treat",
+  "time0",
+  "time1",
+  "censor",
+  "event")
+head(psoriasis)
 ```
+
+## Frailty model
+
+Hosmer, Lemeshow, and May describe a frailty model using a data set with variables bmi, hr, diasbp, and chf.
+
+## Nested case-control study
+
+It's not on the syllabus, but depending on how things work out, I might want to look at a nested case control study. If I do, the relevant data set is acth320ncc.
+
+```{r read-ncc}
+fn <- "~/survival-models/data/wiley/actg320ncc.dat" 
+ncc <- read.table(fn, header = FALSE) 
+head(ncc)
+```
+
+## Competing risk models
+
+Also not on the syllabus is the competing risk model. But the examples presented in Hosmer, Lemeshow, and May (pages 329-339) are hypothetical. The data management looks daunting, as in Table 9.9.
+
 
 Save everything for possible later re-use.
 
