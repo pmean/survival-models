@@ -1,11 +1,11 @@
 ---
 title: "survival lecture 5"
 author: "Steve Simon"
-date: "April 8, 2018"
+date: "May 27, 2018"
 output: html_document
 ---
 
-Lecture 5. Extensions of the Cox model (interval censoring, stratified models). In this lecture, you will examine two important extensions of the Cox model, interval censoring and stratified models. You’ll see how interval censoring provides a more general framework for survival models and see important applications that rely on interval censoring. You’ll also fit stratified models to account for different hazard functions within strata.
+Lecture 5. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You'll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You'll fit parametric models and interpret the coefficients.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -18,70 +18,141 @@ library(survival)
 library(tidyr)
 ```
 
-## Stratified models
 
-Page 211 of Hosmer, Lemeshow, and May shows how to fit a stratified model by quartile of CD4 cell count using the ACTG320 data set.
-
-```{r read-actg320}
-fn <- "~/survival-models/data/wiley/actg320.dat" 
-actg320 <- read.table(fn, header = FALSE) 
-names(actg320) <- c(
-  "id",
-  "time", 
-  "censor",
-  "time_d",
-  "censor_d",
-  "tx",
-  "txgrp",
-  "strat2",
-  "sex",
-  "raceth",
-  "ivdrug",
-  "hemophil",
-  "karnof",
-  "cd4",
-  "priorzdv",
-  "age")
-head(actg320)
+```{r read-whas100}
+fn <- "~/survival-models/bin/whas100.RData" 
+load(fn)
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat=="Dead")
 ```
 
-## Interval censoring
+Before you fit the exponential and Weibull regression models, fit a Kaplan-Meier curve.
 
-Page 235 of Hosmer, Lemeshow, and May shows interval censoring using the GBCS data set.
+```{r km, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+km_overall <- survfit(Surv(whas100$time_yrs, whas100$fstat)~1)
+exp_null_model <- survreg(whas100_surv~1, dist="exponential")
+summary(exp_null_model)
+pct <- (1:999)/1000
 
-```{r read-gbcs}
-fn <- "~/survival-models/data/wiley/gbcs.dat" 
-gbcs <- read.table(fn, header = FALSE) 
-names(gbcs) <- c(
-  "id",
-  "diagdate",
-  "recdate",
-  "deathdate",
-  "age",
-  "menopause",
-  "hormone",
-  "size",
-  "grade",
-  "nodes",
-  "prog_recp",
-  "estrg_recp",
-  "rectime",
-  "censrec",
-  "survtime",
-  "censdead")
+exp_null_model %>%
+  predict(
+    newdata=data.frame(one=1),
+    type="quantile",
+    p=pct)                     %>%
+  data.frame                   %>%
+  set_names("time")            %>%
+  mutate(estimate=rev(pct))    %>%
+  mutate(grp="Exponential")    %>%
+  filter(time<=10)             -> exp_survival
 
-head(gbcs)
+km_overall                     %>%
+  tidy                         %>%
+  mutate(estimate=1-estimate)  %>%
+  mutate(grp="Kaplan-Meier")   %>%
+  bind_rows(exp_survival)      -> combined_survivals
+
+combined_survivals             %>%
+  ggplot(aes(time, estimate))   +
+    expand_limits(y=0)          +
+    geom_step(aes(color=grp))
+
 ```
 
-## Additional topics
+You can also compare the cumulative hazard functions.
 
-* Schoenfeld residual, scaled Schoenfeld residual
+```{r cumhaz, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+combined_survivals                %>%
+  mutate(c_hazard=-log(estimate)) %>%
+  ggplot(aes(time, c_hazard))      +
+    geom_step(aes(color=grp))
+```
 
-* Martingale/Cox and Snell residual: Ci-H(ti, X, beta)
+```{r exponential-regression, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+whas100$age_c=whas100$age-mean(whas100$age)
+whas100$bmi_c=whas100$bmi-mean(whas100$bmi)
+whas100$i_female=as.numeric(whas100$gender=="Female")
+exp_model <- survreg(
+  whas100_surv~i_female*age_c+bmi_c, 
+  data=whas100, 
+  dist="exponential")
+summary(exp_model)
+exp_coef <- tidy(exp_model)
+bmi_coef <- exp(exp_coef[exp_coef$term=="bmi_c", "estimate"])
+age_m_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"])
+age_f_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"]+
+  exp_coef[exp_coef$term=="i_female:age_c", "estimate"])
+```
 
-* How to check proportional hazards assumption, plot Schoenfeld residual versus time.
+Each unit increase in BMI shifts the survival percentiles by a factor of exp(`r round(log(bmi_coef), 3)`) = `r round(bmi_coef, 3)`. A five unit shift in BMI shifts the survival percentiles by `r round(bmi_coef, 3)`^5 = `r round(bmi_coef^5, 3)`. 
 
-* Influential data, Cook's d. This is described on page 185. Also see the whas500 data in Table 6.2, 5.13
+Because of the interaction, the effect of age is different for men and women. For men, a one year increase in age will shift the survival percentiles by a factor of
+exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)`) = `r round(age_m_coef, 3)`. 
+
+For women, a one year increase in age will shift the survival percentiles by a factor of exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)` + `r round(exp_coef[exp_coef$term=="i_female:age_c", "estimate"], 3)`) = `r round(age_f_coef, 3)`.
+
+This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The hazard function is 
+
+$h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
+
+Notice that the hazard is constant with respect to t. The baseline hazard, the hazard when X=0 is
+
+$h_0(t)=e^{-\beta_0}$
+
+The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ is
+
+$e^{-\beta_1 (x_1-x_2)}$
+
+
+```{r null-weibull, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+weibull_null_model <- survreg(whas100_surv~1, dist="weibull")
+summary(weibull_null_model)
+
+pct <- (1:999)/1000
+
+weibull_null_model %>%
+  predict(
+    newdata=data.frame(one=1),
+    type="quantile",
+    p=pct)                     %>%
+  data.frame                   %>%
+  set_names("time")            %>%
+  mutate(estimate=rev(pct))    %>%
+  mutate(grp="Weibull")        %>%
+  filter(time<=10)             -> weibull_survival
+
+combined_survivals             %>%
+  bind_rows(weibull_survival)  -> combined_survivals
+
+combined_survivals             %>%
+  ggplot(aes(time, estimate))   +
+    expand_limits(y=0)          +
+    geom_step(aes(color=grp))
+
+```
+
+```{r weibull-regression}
+weibull_model <- survreg(
+  whas100_surv~i_female*age_c+bmi_c, 
+  data=whas100, 
+  dist="weibull")
+summary(weibull_model)
+coef_w <- tidy(weibull_model)
+coef_w
+log_scale <- coef_w[coef_w$term=="Log(scale)", "estimate"]
+std_error <- coef_w[coef_w$term=="Log(scale)", "std.error"]
+ci_lower <- exp(log_scale-1.96*std_error)
+ci_upper <- exp(log_scale+1.96*std_error)
+```
+
+The 95% confidence interval for the scale parameter is 
+exp(`r round(log_scale, 3)` +/- 1.96*`r round(std_error, 3)`) or
+`r round(ci_lower, 3)` to 
+`r round(ci_upper, 3)`.
 
 Save everything for possible later re-use.
 

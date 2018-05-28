@@ -12,13 +12,13 @@ Lecture 3. Planning and data management issues for survival data. Planning a stu
 
 Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you’ll work with more complex forms of the Cox model with multiple predictor variables. You’ll include covariates in the Cox model to produce risk adjusted survival curves. You’ll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
 
-Lecture 5. Extensions of the Cox model (interval censoring, stratified models). In this lecture, you will examine two important extensions of the Cox model, interval censoring and stratified models. You’ll see how interval censoring provides a more general framework for survival models and see important applications that rely on interval censoring. You’ll also fit stratified models to account for different hazard functions within strata.
+Lecture 5. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You’ll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You’ll fit parametric models and interpret the coefficients.
 
-Lecture 6. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You’ll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You’ll fit parametric models and interpret the coefficients.
+Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will learn how to spot the need for time-varying covariates, and use a stratified model to account for differing hazards. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
 
-Lecture 7. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
+Lecture 7. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
 
-Lecture 8. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
+Lecture 8. Competing risk models.
 
 Resources:
 

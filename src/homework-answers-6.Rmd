@@ -1,11 +1,9 @@
 ---
-title: "survival lecture 7"
+title: "homework answers 6"
 author: "Steve Simon"
-date: "April 8, 2018"
+date: "May 27, 2018"
 output: html_document
 ---
-
-Lecture 7. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -94,5 +92,5 @@ plot(cox_schoenfeld)
 Save everything for possible later re-use.
 
 ```{r save-everything}
-save.image("~/survival-models/bin/homework-answers-7.RData")
+save.image("~/survival-models/bin/homework-answers-6.RData")
 ```

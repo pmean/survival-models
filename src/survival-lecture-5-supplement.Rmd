@@ -1,0 +1,186 @@
+---
+title: "survival lecture 5"
+author: "Steve Simon"
+date: "May 27, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Exponential model
+
+The exponential model is the simplest parametric model. The probability density function for the "standard" exponential distribution is
+
+$f(t)=e^{-t}$
+
+and the survival curve is
+
+$S(t)=e^{-t}$.
+
+The plot of the survival curve is 
+
+```{r density-1, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+t <- seq(0, 3, length=1000)
+plot(t, exp(-t), type="l", ylim=c(0,1))
+```
+
+You can include a rate parameter, $\lambda$, to create a density,
+
+$f(t; \lambda)=\lambda e^{-\lambda t}$
+
+and the survival curve is
+
+$S(t; \lambda)=e^{-\lambda t}$
+
+There is an equivalent form using a scale parameter, $\theta$,
+
+$f(t; \theta) = \frac{1}{\theta} e^{-t/\theta}$.
+
+$S(t; \theta) = e^{-t/\theta}$
+
+This is the density function for an exponential distribution with  $\theta=2$.
+
+```{r density-2, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 2
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
+```
+
+If theta is larger than 1, the effect is to stretch out the exponential and slow down time.
+
+This is the density function for an exponential distribution with  $\theta=0.5$.
+
+```{r density-0.5, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 0.5
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
+```
+
+The accelerated time model replaces $\theta$ with
+
+$e^{(\beta_0+\beta_1 X)}$
+
+This produces the survival curve
+
+$S(t, X, \beta_0, \beta_1)=e^{-t/e^{(\beta_0+\beta_1 X)}}$
+
+The values of $\beta_0$ and $\beta_1$ will end up stretching or shrinking the time scale.
+
+The pth percentile of the accelerated time model is
+
+$-ln(1-p) e^{\beta_0+\beta_1 X}$ 
+
+and the ratio of two percentiles, one with X=$X_1$ and the other with X=$X_2$ is
+
+$\frac{-ln(1-p) e^{\beta_0+\beta_1 X_1}} {-ln(1-p) e^{\beta_0+\beta_1 X_2}} = e^{\beta_1 (X_1-X_2)}$
+
+If $X_1$ is one unit larger than $X_2$, this reduces to $e^{\beta_1}$.
+
+This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The hazard function is 
+
+$h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
+
+Notice that the hazard is constant with respect to t. The baseline hazard, the hazard when X=0 is
+
+$h_0(t)=e^{-\beta_0}$
+
+The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ is
+
+$e^{-\beta_1 (x_1-x_2)}$
+
+## Weibull model
+
+The standard Weibull distribution has a density
+
+$f(t, k)=k t^{k-1} e^{-t^k}$
+
+and a survival function
+
+$S(t, k)=e^{-t^\gamma}$.
+
+You can add a scale parameter, $\theta$, to get 
+
+$f(t, k, \theta) = \frac {k} {\theta} \left( \frac {t} {\theta} \right)^{k-1} e^{-\left( \frac {t} {\theta} \right)^k}$
+
+and a survival function
+
+$S(t, k, \theta)=e^{-\left(\frac{t}{\theta}\right)^k}$.
+
+The value of k controls whether the Weibull distribution has an increasing hazard (k>1), constant hazard (k=1), or decreasing hazard (k<1).
+
+```{r standard-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dotted")
+plot(t, 1-pweibull(t, shape=0.5), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dotted")
+```
+
+The scale parameter, $\theta$, will stretch or squeeze the survival curve along the time axis.
+
+```{r scaled-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2, scale=2), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=2, scale=1), lty="dotted")
+plot(t, 1-pweibull(t, shape=2, scale=0.5), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=2, scale=1), lty="dotted")
+```
+
+You can fit an accelerated time model for the Weibull distribution as well.
+
+$S(t, k, X, \beta_0, \beta_1) = e^{-\left( \frac {t} {e^{\beta_0 + \beta_1 x}} \right)^k}$.
+
+
+```{r residuals}
+r_response <- residuals(weibull_model, type="response")
+r_deviance <- residuals(weibull_model, type="deviance")
+r_dfbeta <- residuals(weibull_model, type="dfbeta")
+r_dfbetas <- residuals(weibull_model, type="dfbetas")
+r_working <- residuals(weibull_model, type="working")
+r_ldcase <- residuals(weibull_model, type="ldcase")
+r_ldresp <- residuals(weibull_model, type="ldresp")
+
+head(r_response)
+head(r_deviance)
+head(r_dfbeta)
+head(r_dfbetas)
+head(r_working)
+head(r_ldcase)
+head(r_ldresp)
+
+p_response <- predict(weibull_model, type="response")
+p_linear <- predict(weibull_model, type="linear")
+p_terms <- predict(weibull_model, type="terms")
+
+head(p_response)
+head(p_linear)
+exp(head(p_linear))
+head(p_terms)
+
+term_totals <- apply(p_terms, 1, sum)
+head(term_totals)
+```
+
+The hazard function for the Weibull distribution is
+
+$h(t, k) = k t^{k-1}$
+
+There is an alternate formulation for the Weibull regression model.
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-5-supplement.RData")
+```

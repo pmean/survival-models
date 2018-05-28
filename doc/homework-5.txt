@@ -1,0 +1,10 @@
+~/survival-models/doc/homework-5.txt
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+a. Calculate and graph on the same graph an overall Kaplan-Meier survival curve, a survival curve for an exponential model with no independent variables, and a survival curve for a Weibull model with no independent variables. Does there appear to be a difference between the exponential model and the Weibull model? Does either model match the Kaplan-Meier curve?
+
+b. Calculate a Weibull regression model with bmi, age, gender, and a age by gender interaction. Estimate the impact of a 5 unit change in BMI on the survival percentiles, holding all of the other variables constant.
+
+c. Calculate a confidence interval for the scale parameter of the Weibull model. Interpret this interval.

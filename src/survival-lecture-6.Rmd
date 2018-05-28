@@ -1,11 +1,11 @@
 ---
 title: "survival lecture 6"
 author: "Steve Simon"
-date: "April 8, 2018"
+date: "May 20, 2018"
 output: html_document
 ---
 
-Lecture 6. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You'll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You'll fit parametric models and interpret the coefficients.
+Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
@@ -18,242 +18,315 @@ library(survival)
 library(tidyr)
 ```
 
-## Exponential model
+## The Kaplan-Meier plot and proportional hazards.
 
-The exponential model is the simplest parametric model. The probability density function for the "standard" exponential distribution is
-
-$f(t)=e^{-t}$
-
-and the survival curve is
-
-$S(t)=e^{-t}$.
-
-The plot of the survival curve is 
-
-```{r density-1, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-t <- seq(0, 3, length=1000)
-plot(t, exp(-t), type="l", ylim=c(0,1))
-```
-
-You can include a rate parameter, $\lambda$, to create a density,
-
-$f(t; \lambda)=\lambda e^{-\lambda t}$
-
-and the survival curve is
-
-$S(t; \lambda)=e^{-\lambda t}$
-
-There is an equivalent form using a scale parameter, $\theta$,
-
-$f(t; \theta) = \frac{1}{\theta} e^{-t/\theta}$.
-
-$S(t; \theta) = e^{-t/\theta}$
-
-This is the density function for an exponential distribution with  $\theta=2$.
-
-```{r density-2, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-theta <- 2
-plot(t, exp(-t/theta), type="l", ylim=c(0,1))
-lines(t, exp(-t), lty="dotted")
-```
-
-If theta is larger than 1, the effect is to stretch out the exponential and slow down time.
-
-This is the density function for an exponential distribution with  $\theta=0.5$.
-
-```{r density-0.5, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-theta <- 0.5
-plot(t, exp(-t/theta), type="l", ylim=c(0,1))
-lines(t, exp(-t), lty="dotted")
-```
-
-The accelerated time model replaces $\theta$ with
-
-$e^{(\beta_0+\beta_1 X)}$
-
-This produces the survival curve
-
-$S(t, X, \beta_0, \beta_1)=e^{-t/e^{(\beta_0+\beta_1 X)}}$
-
-The values of $\beta_0$ and $\beta_1$ will end up stretching or shrinking the time scale.
-
-The pth percentile of the accelerated time model is
-
-$-ln(1-p) e^{\beta_0+\beta_1 X}$ 
-
-and the ratio of two percentiles, one with X=$X_1$ and the other with X=$X_2$ is
-
-$\frac{-ln(1-p) e^{\beta_0+\beta_1 X_1}} {-ln(1-p) e^{\beta_0+\beta_1 X_2}} = e^{\beta_1 (X_1-X_2)}$
-
-If $X_1$ is one unit larger than $X_2$, this reduces to $e^{\beta_1}$.
-
-```{r read-whas100}
-fn <- "~/survival-models/bin/whas100.RData" 
+```{r read}
+fn <- "~/survival-models/bin/whas500.RData"
 load(fn)
-whas100$time_yrs <- whas100$lenfol / 365.25
-head(whas100)
-whas100_surv <- Surv(whas100$time_yrs, whas100$fstat=="Dead")
 ```
 
-Before you fit the exponential and Weibull regression models, fit a Kaplan-Meier curve.
+```{r km-plots, fig.width=4.5, fig.height=2.5}
+whas500 %$% Surv(time_yrs, fstat=="Dead") -> whas500_surv
+bmi_cuts <- c(0, 25, 30, 35, 99)
+whas500                                     %>%
+  mutate(bmi_categories=cut(bmi, bmi_cuts)) %$%
+  survfit(whas500_surv~bmi_categories)      %>%
+  tidy                                      -> km_bmi
+km_bmi                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-```{r km, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-km_overall <- survfit(Surv(whas100$time_yrs, whas100$fstat)~1)
-exp_null_model <- survreg(whas100_surv~1, dist="exponential")
-exp_null_model
-pct <- (1:999)/1000
+age_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(age_categories=cut(age, age_cuts)) %$%
+  survfit(whas500_surv~age_categories)      %>%
+  tidy                                      -> km_age
+km_age                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-exp_null_model %>%
-  predict(
-    newdata=data.frame(one=1),
-    type="quantile",
-    p=pct)                     %>%
-  data.frame                   %>%
-  set_names("time")            %>%
-  mutate(estimate=rev(pct))    %>%
-  mutate(grp="Exponential")    %>%
-  filter(time<=10)             -> exp_survival
+hr_cuts <- c(0, 70, 85, 100, 999)
+whas500                                    %>%
+  mutate(hr_categories=cut(hr, hr_cuts))   %$%
+  survfit(whas500_surv~hr_categories)      %>%
+  tidy                                      -> km_hr
+km_hr                                       %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-km_overall                     %>%
-  tidy                         %>%
-  mutate(estimate=1-estimate)  %>%
-  mutate(grp="Kaplan-Meier")   %>%
-  bind_rows(exp_survival)      -> combined_survivals
+diasbp_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(
+    diasbp_categories=
+      cut(diasbp, diasbp_cuts))             %$%
+  survfit(whas500_surv~diasbp_categories)   %>%
+  tidy                                      -> km_diasbp
+km_diasbp                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
 
-combined_survivals             %>%
-  ggplot(aes(time, estimate))   +
-    expand_limits(y=0)          +
-    geom_step(aes(color=grp))
+whas500                                     %$%
+  survfit(whas500_surv~gender)              %>%
+  tidy                                      -> km_gender
+km_gender                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~chf)                 %>%
+  tidy                                      -> km_chf
+km_chf                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+```
+
+## Complementary log-log plot
+
+```{r log-log, fig.width=4.5, fig.height=2.5}
+km_bmi                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_age                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_hr                                 %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_diasbp                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_gender                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_chf                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
 
 ```
 
-You can also compare the cumulative hazard functions.
+## Schoenfeld residuals.
 
-```{r cumhaz, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-combined_survivals                %>%
-  mutate(c_hazard=-log(estimate)) %>%
-  ggplot(aes(time, c_hazard))      +
-    geom_step(aes(color=grp))
+```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_mv <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    bmi +
+    age +
+    gender,
+  data=whas500)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
+
 ```
 
-```{r exponential-regression, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-whas100$age_c=whas100$age-mean(whas100$age)
-whas100$bmi_c=whas100$bmi-mean(whas100$bmi)
-whas100$i_female=as.numeric(whas100$gender=="Female")
-exp_model <- survreg(
-  whas100_surv~i_female*age_c+bmi_c, 
-  data=whas100, 
-  dist="exponential")
-summary(exp_model)
-exp_coef <- tidy(exp_model)
-bmi_coef <- exp(exp_coef[exp_coef$term=="bmi_c", "estimate"])
-age_m_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"])
-age_f_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"]+
-  exp_coef[exp_coef$term=="i_female:age_c", "estimate"])
+## Stratified analysis
+
+If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
+
+```{r stratified-analysis}
+whas500                                     %$%
+  survfit(whas500_surv~year)                %>%
+  tidy                                      -> km_year
+km_year                                     %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+cox_strata <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    bmi +
+    age +
+    gender +
+  strata(year),
+  data=whas500)
+print(cox_strata)
+summary(cox_strata)
 ```
 
-Each unit increase in BMI shifts the survival percentiles by a factor `r round(bmi_coef, 3)`. A five unit shift in BMI shifts the survival percentiles by `r round(bmi_coef, 3)`^5 = `r round(bmi_coef^5, 3)`. 
+## Time-varying covariates
 
-Because of the interaction, the effect of age is different for men and women. For men, a one year increase in age will shift the survival percentiles by a factor of
-exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)`) = `r round(age_m_coef, 3)`. For women, a one year increase in age will shift the survival percentiles by a factor of exp(`r round(exp_coef[exp_coef$term=="age_c", "estimate"], 3)` + `r round(exp_coef[exp_coef$term=="i_female:age_c", "estimate"], 3)`) = `r round(age_f_coef, 3)`.
+The Stanford Heart Transplant study has an interesting application of time-varying covariates.
 
-This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The hazard function is 
-
-$h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
-
-Notice that the hazard is constant with respect to t. The baseline hazard, the hazard when X=0 is
-
-$h_0(t)=e^{-\beta_0}$
-
-The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ is
-
-$e^{-\beta_1 (x_1-x_2)}$
-
-## Weibull model
-
-The standard Weibull distribution has a density
-
-$f(t, k)=k t^{k-1} e^{-t^k}$
-
-and a survival function
-
-$S(t, k)=e^{-t^\gamma}$.
-
-You can add a scale parameter, $\theta$, to get 
-
-$f(t, k, \theta) = \frac {k} {\theta} \left( \frac {t} {\theta} \right)^{k-1} e^{-\left( \frac {t} {\theta} \right)^k}$
-
-and a survival function
-
-$S(t, k, \theta)=e^{-\left(\frac{t}{\theta}\right)^k}$.
-
-The value of k controls whether the Weibull distribution has an increasing hazard (k>1), constant hazard (k=1), or decreasing hazard (k<1).
-
-```{r standard-weibulls, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-plot(t, 1-pweibull(t, shape=2), type="l", ylim=c(0,1))
-lines(t, 1-pweibull(t, shape=1), lty="dotted")
-plot(t, 1-pweibull(t, shape=0.5), type="l", ylim=c(0,1))
-lines(t, 1-pweibull(t, shape=1), lty="dashed")
+```{r read-heart, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 0.6, 0.1, 0.6))
+head(jasa)
+head(jasa1)
+head(heart)
+o <- order(jasa$accept.dt)
+jasax <- jasa[o, ]
+start <- as.numeric(jasax$accept.dt)-as.numeric(as.Date("1967-01-01"))
+id <- 1:dim(jasax)[1]
+plot(start+jasax$futime, id, type="n", axes=FALSE)
+axis(side=1, at=365*1:7, labels=1967+(1:7))
+d <- jasax$fustat==1
+w <- is.na(jasax$wait.time)
+# w and !d
+arrows(
+  start[w&!d]+jasax$wait.time[w&!d], id[w&!d], 
+  start[w&!d]+jasax$futime[w&!d], id[w&!d],
+  col="red", len=0.05)
+# w and d
+segments(
+  start[w&d], id[w&d], 
+  start[w&d]+jasax$futime[w&d], id[w&d],
+  col="red")
+text(
+  start[w&d]+jasax$futime[w&d], id[w&d],
+  "X", col="red", cex=0.5)
+# !w and !d
+segments(
+  start[!w&!d], id[!w&!d],
+  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d], col="red")
+arrows(
+  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d],
+  start[!w&!d]+jasax$futime[!w&!d], id[!w&!d], 
+  col="green", len=0.05)
+# !w and d
+segments(
+  start[!w&d], id[!w&d],
+  start[!w&d]+jasax$wait.time[!w&d], id[!w&d], col="red")
+segments(
+  start[!w&d]+jasax$wait.time[!w&d], id[!w&d],
+  start[!w&d]+jasax$futime[!w&d], id[!w&d], col="green")
+text(
+  start[!w&d]+jasax$futime[!w&d], id[!w&d],
+  "X", col="green", cex=0.5)
 ```
 
-The scale parameter, $\theta$, will stretch or squeeze the survival curve along the time axis.
+```{r restructure-jasa}
+jasax$id <- 1:(dim(jasax)[1])
+jasax                            %>%
+  filter(transplant==0)          %>%
+  select(
+    id, 
+    wait.time, 
+    age,
+    surgery,
+    futime, 
+    transplant, 
+    fustat)                       -> subset_n
 
-```{r scaled-weibulls, fig.width=4.5, fig.height=2.5}
-par(mar=c(2.6, 2.6, 0.6, 0.6))
-plot(t, 1-pweibull(t, shape=2, scale=1), type="l", ylim=c(0,1))
-lines(t, 1-pweibull(t, shape=2, scale=2), lty="dotted")
+subset_n                         %>%
+  mutate(t0=0)                   %>%
+  mutate(t1=futime)              %>%
+  mutate(event=fustat)           %>%           
+  select(
+    id, 
+    transplant,
+    age,
+    surgery,
+    t0,
+    t1,
+    event)                       -> recode_subset1
+
+jasax                            %>%
+  filter(transplant==1)          %>%
+  select(
+    id, 
+    wait.time, 
+    age,
+    surgery,
+    futime, 
+    transplant, 
+    fustat)                      -> subset_y
+
+subset_y                         %>%
+  mutate(t0=0)                   %>%
+  mutate(t1=wait.time)           %>%
+  mutate(event=0)                %>%
+  mutate(transplant=0)           %>%
+  select(
+    id, 
+    transplant,
+    age,
+    surgery,
+    t0,
+    t1,
+    event)                       -> recode_subset2
+
+subset_y                         %>%
+  mutate(t0=wait.time)           %>%
+  mutate(t1=futime)              %>%
+  mutate(event=fustat)           %>%
+  select(
+    id, 
+    transplant,
+    age,
+    surgery,
+    t0,
+    t1,
+    event)                       -> recode_subset3
+
+sample1 <- sample(subset_n$id, 5)
+subset_n       %>% filter(id %in% sample1)
+recode_subset1 %>% filter(id %in% sample1)
+
+sample2 <- sample(subset_y$id, 5)
+subset_y       %>% filter(id %in% sample2)
+recode_subset2 %>% filter(id %in% sample2)
+recode_subset3 %>% filter(id %in% sample2)
 ```
 
-You can fit an accelerated time model for the Weibull distribution as well.
+```{r naive-model}
+cox_naive <- coxph(
+  Surv(futime, fustat) ~ transplant + age + surgery,
+    data=jasax)
 
-$S(t, k, X, \beta_0, \beta_1) = e^{-\left( \frac {t} {\beta_0 + \beta_1 x} \right)^k}$.
+print(cox_naive)
 
+recode_subset1              %>% 
+  bind_rows(recode_subset2) %>%
+  bind_rows(recode_subset3) -> jasa_recoded
 
-```{r weibull-regression}
-weibull_model <- survreg(
-  whas100_surv~gender*age+bmi, 
-  data=whas100, 
-  dist="weibull")
-summary(weibull_model)
+jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
+
+jasa_recoded$t1[jasa_recoded$id==16] <- 0.5
+
+jasa_recoded$t1[jasa_recoded$id== 4& jasa_recoded$event==0] <- 0.5
+jasa_recoded$t0[jasa_recoded$id== 4& jasa_recoded$event==1] <- 0.5
+
+jasa_recoded$t1[jasa_recoded$id==39& jasa_recoded$event==1] <- 4.5
+
+jasa_recoded$t1[jasa_recoded$id==46& jasa_recoded$event==0] <- 0.5
+jasa_recoded$t0[jasa_recoded$id==46& jasa_recoded$event==1] <- 0.5
+
+jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
+
+cox_time_varying <- coxph(
+  Surv(t0, t1, event, type="counting") ~ transplant+age+surgery,
+  data=jasa_recoded)
+
+print(cox_time_varying)
 ```
 
-```{r residuals}
-r_response <- residuals(weibull_model, type="response")
-r_deviance <- residuals(weibull_model, type="deviance")
-r_dfbeta <- residuals(weibull_model, type="dfbeta")
-r_dfbetas <- residuals(weibull_model, type="dfbetas")
-r_working <- residuals(weibull_model, type="working")
-r_ldcase <- residuals(weibull_model, type="ldcase")
-r_ldresp <- residuals(weibull_model, type="ldresp")
+Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.
 
-head(r_response)
-head(r_deviance)
-head(r_dfbeta)
-head(r_dfbetas)
-head(r_working)
-head(r_ldcase)
-head(r_ldresp)
 
-p_response <- predict(weibull_model, type="response")
-p_linear <- predict(weibull_model, type="linear")
-p_terms <- predict(weibull_model, type="terms")
-
-head(p_response)
-head(p_linear)
-head(p_terms)
+```{r read-grace, eval=FALSE}
+fn <- "~/survival-models/data/wiley/GRACE1000.dat" 
+grace <- read.table(fn, header = FALSE) 
+names(grace) <- c(
+  "id",
+  "days",
+  "death",
+  "revasc",
+  "revascdays",
+  "los",
+  "age",
+  "sysbp",
+  "stchange")
+head(grace)
 ```
-The hazard function for the Weibull distribution is
-
-$h(t, \lambda) = \lambda t^{\lambda-1}$
-
-There is an alternate formulation for the Weibull regression model.
 
 Save everything for possible later re-use.
 
