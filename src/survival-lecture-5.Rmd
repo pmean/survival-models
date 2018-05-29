@@ -80,6 +80,10 @@ exp_model <- survreg(
   data=whas100, 
   dist="exponential")
 summary(exp_model)
+cox_model <- coxph(
+  whas100_surv~i_female*age_c+bmi_c, 
+  data=whas100)
+summary(cox_model)
 exp_coef <- tidy(exp_model)
 bmi_coef <- exp(exp_coef[exp_coef$term=="bmi_c", "estimate"])
 age_m_coef <- exp(exp_coef[exp_coef$term=="age_c", "estimate"])

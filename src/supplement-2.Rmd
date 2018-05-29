@@ -1,5 +1,5 @@
 ---
-title: "survival lecture 2"
+title: "supplement 2"
 author: "Steve Simon"
 date: "April 8, 2018"
 output: html_document
@@ -154,3 +154,9 @@ Score test: $\frac{\partial L_p/\partial \beta}{\sqrt{I(\beta)}}|_{\beta=0}$
 LR test: $G=2(L_p(\beta)-L_p(0))$
 
 The Wald test is the easiest test to compute, but may not be as accurate as the others, especially for small sample sizes.
+
+Save everything for possible re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/supplement-2.RData")
+```

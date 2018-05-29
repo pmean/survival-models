@@ -1,5 +1,5 @@
 ---
-title: "survival lecture 5"
+title: "supplement 5"
 author: "Steve Simon"
 date: "May 27, 2018"
 output: html_document
@@ -100,6 +100,86 @@ The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ i
 
 $e^{-\beta_1 (x_1-x_2)}$
 
+## Likelihood ratio test
+
+Here's a quick review of the likelihood ratio test, as it applies to the exponential accelerated time model.
+
+Let's fit a model using the WHAS100 data with gender as an independent variable. The survival curve is
+
+$S(t)=e^{-t/e^{\beta_0}}$ 
+
+for males and
+
+$S(t)=e^{-t/e^{\beta_0+\beta_1}}$ 
+
+for females. The density functions for males and females are
+
+$f(t) = \frac{1}{e^{\beta_0}} e^{-t/e^{\beta_0}}$
+
+$f(t) = \frac{1}{e^{\beta_0+\beta_1}} e^{-t/e^{\beta_0+\beta_1}}$
+
+```{r gender-model}
+fn <- "~/survival-models/bin/whas100.RData"
+load(fn)
+gender_model <- survreg(
+  Surv(time_yrs, fstat=="Dead")~gender,
+  data=whas100,
+  dist="exponential")
+summary(gender_model)
+```
+
+Create a function for the likelihood.
+
+```{r create-function}
+f <- function(t, b) {
+  # return(1/exp(b)*exp(-t/exp(b)))
+  return(-b-t/exp(b))
+}
+s <- function(t, b) {
+  # return(exp(-t/exp(b)))
+  return(-t/exp(b))
+}
+li <- function(t, c, g, b0, b1) {
+  # male, censored
+  if (c!="Dead" & g!="Female") {return(s(t, b0))}
+  # male, death
+  if (c=="Dead" & g!="Female")  {return(f(t, b0))}
+  # female, censored
+  if (c!="Dead" & g=="Female") {return(s(t, b0+b1))}
+  # female, death
+  if (c=="Dead" & g=="Female")  {return(f(t, b0+b1))}
+}
+n0 <- 49
+n1 <- 49
+b0 <- seq(2.318-0.602, 2.318+0.602, length=n0)
+b1 <- seq(-2*0.602, 0, length=n1)
+l <- matrix(0, n0, n1)
+for (i0 in 1:n0) {
+  for (i1 in 1:n1) {
+    for (k in 1:100) {
+      l[i0, i1] <- l[i0, i1] +
+            li(whas100$time_yrs[k], 
+               whas100$fstat[k],
+               whas100$gender[k],
+               b0[i0], b1[i1])
+    }
+  }
+}
+persp(b0, b1, l, theta=45, phi=30)
+lv <- -c(156:160, 162, 165, 170, 180, 190, 200)
+contour(b0, b1, l, levels=rev(lv))
+abline(h=-0.602, lty="dotted")
+abline(v=2.318, lty="dotted")
+m <- b0[which.max(l[ , n1])]
+m
+text(2.318, -0.602, round(max(l), 1))
+text(m, 0, round(max(l[ , n1]), 1))
+max(l)
+max(l[ , n1])
+```
+
+
+
 ## Weibull model
 
 The standard Weibull distribution has a density
@@ -144,6 +224,11 @@ $S(t, k, X, \beta_0, \beta_1) = e^{-\left( \frac {t} {e^{\beta_0 + \beta_1 x}} \
 
 
 ```{r residuals}
+weibull_model <- survreg(
+  Surv(time_yrs, fstat=="Dead")~gender,
+  data=whas100,
+  dist="weibull")
+  
 r_response <- residuals(weibull_model, type="response")
 r_deviance <- residuals(weibull_model, type="deviance")
 r_dfbeta <- residuals(weibull_model, type="dfbeta")
@@ -182,5 +267,5 @@ There is an alternate formulation for the Weibull regression model.
 Save everything for possible later re-use.
 
 ```{r save-everything}
-save.image("~/survival-models/bin/survival-lecture-5-supplement.RData")
+save.image("~/survival-models/bin/supplement-5.RData")
 ```

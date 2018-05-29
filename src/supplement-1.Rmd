@@ -1,5 +1,5 @@
 ---
-title: "survival lecture 1 supplement"
+title: "supplement 1"
 author: "Steve Simon"
 date: "March 24, 2018"
 output: html_document
@@ -203,5 +203,5 @@ The sum of the variances is `r sum(df$vi)` and you compare that to the square of
 Save everything for possible re-use.
 
 ```{r save-everything}
-save.image("~/survival-models/bin/survival-lecture-1-supplement.RData")
+save.image("~/survival-models/bin/supplement-1.RData")
 ```
