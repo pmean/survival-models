@@ -1,0 +1,7 @@
+"name_old","name_new","class_old","class_new","value_old","value_new","missings","recodes"
+"V1","V1","integer","integer",".",".","",""
+"V2","V2","integer","integer","1|2|.","1|2|.","",""
+"V3","V3","integer","integer","0|1|.","0|1|.","",""
+"V4","V4","integer","integer",".",".","",""
+"V5","V5","integer","integer","0|1|.","0|1|.","",""
+"V6","V6","integer","integer","20|30|35|40|45|50|55|60|65|70|75|80|90|100|110|.","20|30|35|40|45|50|55|60|65|70|75|80|90|100|110|.","",""

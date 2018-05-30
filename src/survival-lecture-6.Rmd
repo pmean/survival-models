@@ -5,6 +5,15 @@ date: "May 20, 2018"
 output: html_document
 ---
 
+```{r render, eval=FALSE, echo=FALSE}
+# run the commands in this section to store the output
+# in the results folder.
+library(rmarkdown)
+f <- "~/survival-models/src/survival-lecture-6.Rmd"
+o <- "~/survival-models/results"
+render(f, output_dir=o)
+```
+
 Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
@@ -135,22 +144,59 @@ plot(cox_schoenfeld)
 
 If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
 
-```{r stratified-analysis}
-whas500                                     %$%
-  survfit(whas500_surv~year)                %>%
-  tidy                                      -> km_year
-km_year                                     %>%
+```{r stratified-analysis, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+fn <- "~/survival-models/bin/heroin.RData"
+load(fn)
+head(heroin)
+table(heroin$status)
+heroin                                      %$%
+  Surv(time, status=="departed")            -> heroin_surv
+
+heroin                                      %$%
+  survfit(heroin_surv~clinic)               %>%
+  tidy                                      -> km_clinic
+
+km_clinic                                   %>%
   ggplot(aes(time, estimate, color=strata))  +
     geom_step()
+
+km_clinic                                   %>%
+  mutate(cll=log(-log(estimate)))           %>%
+  ggplot(aes(time, cll, color=strata))       +
+    geom_step()
+
 cox_strata <- coxph(
-  Surv(time_yrs, fstat=="Dead") ~
-    bmi +
-    age +
-    gender +
-  strata(year),
-  data=whas500)
+  heroin_surv ~
+    prison_record +
+    methadone_dose +
+  strata(clinic),
+  data=heroin)
 print(cox_strata)
 summary(cox_strata)
+
+n <- data.frame(
+  methadone_dose=mean(heroin$methadone_dose),
+  clinic=c(1, 1, 2, 2),
+  prison_record=c("no", "yes", "no", "yes"))
+
+cox_predict <- survfit(cox_strata, newdata=n)
+plot(
+  cox_predict$time[1:147],
+  cox_predict$surv[1:147],
+  type="s", ylim=c(0,1))
+lines(
+  cox_predict$time[148:294], 
+  cox_predict$surv[148:294], 
+  type="s", lty="dotted")
+plot(
+  cox_predict$time[295:362], 
+  cox_predict$surv[295:362], 
+  type="s", ylim=c(0,1))
+lines(
+  cox_predict$time[363:430], 
+  cox_predict$surv[363:430], 
+  type="s", lty="dotted")
 ```
 
 ## Time-varying covariates

@@ -91,6 +91,8 @@ fn <- "~/survival-models/bin/whas500.RData"
 save(whas500, file=fn)
 ```
 
+## whas100 data set
+
 That was so much fun, let's do it again with the whas100 data set.
 
 ```{r whas100}
@@ -113,3 +115,27 @@ fn <- "~/survival-models/bin/whas100.RData"
 save(whas100, file=fn)
 ```
 
+## heroin data set
+
+Here's a data set that used to be found in the DASL website, but appears to have been lost. I have a copy at my website.
+
+```{r heroin}
+fn <- "http://www.pmean.com/00files/heroin.txt"
+heroin_raw <- read.table(fn, header=FALSE, as.is=TRUE, skip=1)
+head(heroin_raw)
+heroin1 <- heroin_raw[ , 1:6]
+heroin2 <- heroin_raw[ , 7:12]
+names(heroin2) <- names(heroin1)
+heroin_rejoined <- rbind(heroin1, heroin2)
+kn <- "~/survival-models/doc/keys/heroin_key.csv"
+heroin_key <- keyTemplate(heroin_rejoined, file=kn)
+cat(readLines(kn), sep="\n")
+kn <- "~/survival-models/doc/keys/heroin_updated_key.csv"
+cat(readLines(kn), sep="\n")
+heroin_key <- keyImport(kn)
+heroin <- keyApply(heroin_rejoined, heroin_key)
+head(heroin)
+str(heroin)
+fn <- "~/survival-models/bin/heroin.RData"
+save(heroin, file=fn)
+```
