@@ -130,12 +130,25 @@ $(document).ready(function () {
 <li>Open the WHAS500 data set in the software program of your choice.</li>
 </ol>
 <pre class="r"><code>library(broom)
-library(dplyr)
-library(ggplot2)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(ggplot2)
 library(magrittr)
 library(survival)
-library(tidyr)
-fn &lt;- &quot;~/survival-models/bin/whas500.RData&quot;
+library(tidyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'tidyr'</code></pre>
+<pre><code>## The following object is masked from 'package:magrittr':
+## 
+##     extract</code></pre>
+<pre class="r"><code>fn &lt;- &quot;~/survival-models/bin/whas500.RData&quot;
 load(fn)
 head(whas500)</code></pre>
 <pre><code>##   id age gender hr sysbp diasbp      bmi cvd afb sho chf av3     miord
@@ -151,14 +164,7 @@ head(whas500)</code></pre>
 ## 3     Q-wave 1997 1997-01-01 1997-01-06 2002-12-31   5 Alive   2190 Alive
 ## 4     Q-wave 1997 1997-02-17 1997-02-27 1997-12-11  10 Alive    297  Dead
 ## 5     Q-wave 1997 1997-03-01 1997-03-07 2002-12-31   6 Alive   2131 Alive
-## 6 non Q-wave 1997 1997-03-11 1997-03-12 1997-03-12   1  Dead      1  Dead
-##      time_yrs
-## 1 5.963039014
-## 2 5.946611910
-## 3 5.995893224
-## 4 0.813141684
-## 5 5.834360027
-## 6 0.002737851</code></pre>
+## 6 non Q-wave 1997 1997-03-11 1997-03-12 1997-03-12   1  Dead      1  Dead</code></pre>
 <ol style="list-style-type: lower-alpha">
 <li>Calculate a Cox regression model systolic blood pressure (sysbp) by itself …</li>
 </ol>
