@@ -1,9 +1,12 @@
 ---
-title: "survival lecture 6 supplement"
+title: "supplement 6"
 author: "Steve Simon"
 date: "May 20, 2018"
 output: html_document
 ---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-6.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
 
 ```{r render, eval=FALSE, echo=FALSE}
 # run the commands in this section to store the output
@@ -14,7 +17,7 @@ o <- "~/survival-models/results"
 render(f, output_dir=o)
 ```
 
-This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May.
 
 ```{r load-libraries}
 library(broom)
@@ -170,7 +173,7 @@ $\sum\limits_{i=1}^m \big( X_{(i)} - \bar{X}_i(\hat{\beta}) \big) = 0$.
 
 The individual terms in this sum,
 
-$X_{(i)} - \hat{X}_{w{(i)}}$,
+$X_{(i)} - \bar{X}_i(\hat{\beta})$,
 
 are called the Schoenfeld residuals. 
 

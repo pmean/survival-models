@@ -134,6 +134,15 @@ kn <- "~/survival-models/doc/keys/heroin_updated_key.csv"
 cat(readLines(kn), sep="\n")
 heroin_key <- keyImport(kn)
 heroin <- keyApply(heroin_rejoined, heroin_key)
+heroin$time_yrs <- heroin$time/365.25
+heroin$i_prison <- as.numeric(heroin$prison_record=="yes")
+cut_values <- c(0, 40, 50, 60, 70, 999)
+cut_labels <- c("20-40", "45-50", "55-60", "65-70", "75-110")
+heroin$dose_group <- cut(
+  heroin$methadone_dose, 
+  cut_values, 
+  cut_labels)
+
 head(heroin)
 str(heroin)
 fn <- "~/survival-models/bin/heroin.RData"

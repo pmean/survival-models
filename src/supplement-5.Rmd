@@ -5,6 +5,9 @@ date: "May 27, 2018"
 output: html_document
 ---
 
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-5.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}
