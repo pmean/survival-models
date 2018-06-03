@@ -197,150 +197,17 @@ col.names <- c("id", "start", "stop", "event", "transplant")
 jasax[jasax$id %in% ids, col.names]
 ```
 
-```{r temp, eval=FALSE}
-o <- order(jasa$accept.dt)
-jasax <- jasa[o, ]3
-start <- as.numeric(jasax$accept.dt)-as.numeric(as.Date("1967-01-01"))
-id <- 1:dim(jasax)[1]
-plot(start+jasax$futime, id, type="n", axes=FALSE)
-axis(side=1, at=365*1:7, labels=1967+(1:7))
-d <- jasax$fustat==1
-w <- is.na(jasax$wait.time)
-# w and !d
-arrows(
-  start[w&!d]+jasax$wait.time[w&!d], id[w&!d], 
-  start[w&!d]+jasax$futime[w&!d], id[w&!d],
-  col="red", len=0.05)
-# w and d
-segments(
-  start[w&d], id[w&d], 
-  start[w&d]+jasax$futime[w&d], id[w&d],
-  col="red")
-text(
-  start[w&d]+jasax$futime[w&d], id[w&d],
-  "X", col="red", cex=0.5)
-# !w and !d
-segments(
-  start[!w&!d], id[!w&!d],
-  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d], col="red")
-arrows(
-  start[!w&!d]+jasax$wait.time[!w&!d], id[!w&!d],
-  start[!w&!d]+jasax$futime[!w&!d], id[!w&!d], 
-  col="green", len=0.05)
-# !w and d
-segments(
-  start[!w&d], id[!w&d],
-  start[!w&d]+jasax$wait.time[!w&d], id[!w&d], col="red")
-segments(
-  start[!w&d]+jasax$wait.time[!w&d], id[!w&d],
-  start[!w&d]+jasax$futime[!w&d], id[!w&d], col="green")
-text(
-  start[!w&d]+jasax$futime[!w&d], id[!w&d],
-  "X", col="green", cex=0.5)
-```
-
-```{r restructure-jasa, eval=FALSE}
-jasax$id <- 1:(dim(jasax)[1])
-jasax                            %>%
-  filter(transplant==0)          %>%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                       -> subset_n
-
-subset_n                         %>%
-  mutate(t0=0)                   %>%
-  mutate(t1=futime)              %>%
-  mutate(event=fustat)           %>%           
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset1
-
-jasax                            %>%
-  filter(transplant==1)          %>%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                      -> subset_y
-
-subset_y                         %>%
-  mutate(t0=0)                   %>%
-  mutate(t1=wait.time)           %>%
-  mutate(event=0)                %>%
-  mutate(transplant=0)           %>%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset2
-
-subset_y                         %>%
-  mutate(t0=wait.time)           %>%
-  mutate(t1=futime)              %>%
-  mutate(event=fustat)           %>%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -> recode_subset3
-
-sample1 <- sample(subset_n$id, 5)
-subset_n       %>% filter(id %in% sample1)
-recode_subset1 %>% filter(id %in% sample1)
-
-sample2 <- sample(subset_y$id, 5)
-subset_y       %>% filter(id %in% sample2)
-recode_subset2 %>% filter(id %in% sample2)
-recode_subset3 %>% filter(id %in% sample2)
-```
-
-```{r naive-model, eval=FALSE}
+```{r naive-model}
 cox_naive <- coxph(
   Surv(futime, fustat) ~ transplant + age + surgery,
-    data=jasax)
+    data=jasa)
 
 print(cox_naive)
 
-recode_subset1              %>% 
-  bind_rows(recode_subset2) %>%
-  bind_rows(recode_subset3) -> jasa_recoded
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
-jasa_recoded$t1[jasa_recoded$id==16] <- 0.5
-
-jasa_recoded$t1[jasa_recoded$id== 4& jasa_recoded$event==0] <- 0.5
-jasa_recoded$t0[jasa_recoded$id== 4& jasa_recoded$event==1] <- 0.5
-
-jasa_recoded$t1[jasa_recoded$id==39& jasa_recoded$event==1] <- 4.5
-
-jasa_recoded$t1[jasa_recoded$id==46& jasa_recoded$event==0] <- 0.5
-jasa_recoded$t0[jasa_recoded$id==46& jasa_recoded$event==1] <- 0.5
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
 cox_time_varying <- coxph(
-  Surv(t0, t1, event, type="counting") ~ transplant+age+surgery,
-  data=jasa_recoded)
+  Surv(start, stop, event, type="counting") ~
+    transplant+age+surgery,
+  data=jasa1)
 
 print(cox_time_varying)
 ```
