@@ -1,0 +1,5 @@
+"name_old","name_new","class_old","class_new","value_old","value_new","missings","recodes"
+"V1","sex","integer","factor","1|2|.","male|female|.","",""
+"V2","age","integer","integer",".",".","",""
+"V3","time","integer","integer",".",".","",""
+"V4","death","integer","factor","0|1|.","censor|death|.","",""

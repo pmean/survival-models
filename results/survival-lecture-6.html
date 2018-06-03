@@ -455,145 +455,39 @@ jasax[jasax$id %in% ids, col.names]</code></pre>
 ## 44 29     0   34     1          0
 ## 45 30     0   15     0          0
 ## 46 30    15  851     1          1</code></pre>
-<pre class="r"><code>o &lt;- order(jasa$accept.dt)
-jasax &lt;- jasa[o, ]3
-start &lt;- as.numeric(jasax$accept.dt)-as.numeric(as.Date(&quot;1967-01-01&quot;))
-id &lt;- 1:dim(jasax)[1]
-plot(start+jasax$futime, id, type=&quot;n&quot;, axes=FALSE)
-axis(side=1, at=365*1:7, labels=1967+(1:7))
-d &lt;- jasax$fustat==1
-w &lt;- is.na(jasax$wait.time)
-# w and !d
-arrows(
-  start[w&amp;!d]+jasax$wait.time[w&amp;!d], id[w&amp;!d], 
-  start[w&amp;!d]+jasax$futime[w&amp;!d], id[w&amp;!d],
-  col=&quot;red&quot;, len=0.05)
-# w and d
-segments(
-  start[w&amp;d], id[w&amp;d], 
-  start[w&amp;d]+jasax$futime[w&amp;d], id[w&amp;d],
-  col=&quot;red&quot;)
-text(
-  start[w&amp;d]+jasax$futime[w&amp;d], id[w&amp;d],
-  &quot;X&quot;, col=&quot;red&quot;, cex=0.5)
-# !w and !d
-segments(
-  start[!w&amp;!d], id[!w&amp;!d],
-  start[!w&amp;!d]+jasax$wait.time[!w&amp;!d], id[!w&amp;!d], col=&quot;red&quot;)
-arrows(
-  start[!w&amp;!d]+jasax$wait.time[!w&amp;!d], id[!w&amp;!d],
-  start[!w&amp;!d]+jasax$futime[!w&amp;!d], id[!w&amp;!d], 
-  col=&quot;green&quot;, len=0.05)
-# !w and d
-segments(
-  start[!w&amp;d], id[!w&amp;d],
-  start[!w&amp;d]+jasax$wait.time[!w&amp;d], id[!w&amp;d], col=&quot;red&quot;)
-segments(
-  start[!w&amp;d]+jasax$wait.time[!w&amp;d], id[!w&amp;d],
-  start[!w&amp;d]+jasax$futime[!w&amp;d], id[!w&amp;d], col=&quot;green&quot;)
-text(
-  start[!w&amp;d]+jasax$futime[!w&amp;d], id[!w&amp;d],
-  &quot;X&quot;, col=&quot;green&quot;, cex=0.5)</code></pre>
-<pre class="r"><code>jasax$id &lt;- 1:(dim(jasax)[1])
-jasax                            %&gt;%
-  filter(transplant==0)          %&gt;%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                       -&gt; subset_n
-
-subset_n                         %&gt;%
-  mutate(t0=0)                   %&gt;%
-  mutate(t1=futime)              %&gt;%
-  mutate(event=fustat)           %&gt;%           
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -&gt; recode_subset1
-
-jasax                            %&gt;%
-  filter(transplant==1)          %&gt;%
-  select(
-    id, 
-    wait.time, 
-    age,
-    surgery,
-    futime, 
-    transplant, 
-    fustat)                      -&gt; subset_y
-
-subset_y                         %&gt;%
-  mutate(t0=0)                   %&gt;%
-  mutate(t1=wait.time)           %&gt;%
-  mutate(event=0)                %&gt;%
-  mutate(transplant=0)           %&gt;%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -&gt; recode_subset2
-
-subset_y                         %&gt;%
-  mutate(t0=wait.time)           %&gt;%
-  mutate(t1=futime)              %&gt;%
-  mutate(event=fustat)           %&gt;%
-  select(
-    id, 
-    transplant,
-    age,
-    surgery,
-    t0,
-    t1,
-    event)                       -&gt; recode_subset3
-
-sample1 &lt;- sample(subset_n$id, 5)
-subset_n       %&gt;% filter(id %in% sample1)
-recode_subset1 %&gt;% filter(id %in% sample1)
-
-sample2 &lt;- sample(subset_y$id, 5)
-subset_y       %&gt;% filter(id %in% sample2)
-recode_subset2 %&gt;% filter(id %in% sample2)
-recode_subset3 %&gt;% filter(id %in% sample2)</code></pre>
 <pre class="r"><code>cox_naive &lt;- coxph(
   Surv(futime, fustat) ~ transplant + age + surgery,
-    data=jasax)
+    data=jasa)
 
-print(cox_naive)
-
-recode_subset1              %&gt;% 
-  bind_rows(recode_subset2) %&gt;%
-  bind_rows(recode_subset3) -&gt; jasa_recoded
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
-jasa_recoded$t1[jasa_recoded$id==16] &lt;- 0.5
-
-jasa_recoded$t1[jasa_recoded$id== 4&amp; jasa_recoded$event==0] &lt;- 0.5
-jasa_recoded$t0[jasa_recoded$id== 4&amp; jasa_recoded$event==1] &lt;- 0.5
-
-jasa_recoded$t1[jasa_recoded$id==39&amp; jasa_recoded$event==1] &lt;- 4.5
-
-jasa_recoded$t1[jasa_recoded$id==46&amp; jasa_recoded$event==0] &lt;- 0.5
-jasa_recoded$t0[jasa_recoded$id==46&amp; jasa_recoded$event==1] &lt;- 0.5
-
-jasa_recoded[jasa_recoded$t0==jasa_recoded$t1, ]
-
-cox_time_varying &lt;- coxph(
-  Surv(t0, t1, event, type=&quot;counting&quot;) ~ transplant+age+surgery,
-  data=jasa_recoded)
+print(cox_naive)</code></pre>
+<pre><code>## Call:
+## coxph(formula = Surv(futime, fustat) ~ transplant + age + surgery, 
+##     data = jasa)
+## 
+##               coef exp(coef) se(coef)     z       p
+## transplant -1.7171    0.1796   0.2785 -6.16 7.1e-10
+## age         0.0589    1.0607   0.0150  3.91 9.1e-05
+## surgery    -0.4190    0.6577   0.3712 -1.13    0.26
+## 
+## Likelihood ratio test=45.9  on 3 df, p=6.11e-10
+## n= 103, number of events= 75</code></pre>
+<pre class="r"><code>cox_time_varying &lt;- coxph(
+  Surv(start, stop, event, type=&quot;counting&quot;) ~
+    transplant+age+surgery,
+  data=jasa1)
 
 print(cox_time_varying)</code></pre>
+<pre><code>## Call:
+## coxph(formula = Surv(start, stop, event, type = &quot;counting&quot;) ~ 
+##     transplant + age + surgery, data = jasa1)
+## 
+##               coef exp(coef) se(coef)     z     p
+## transplant  0.0141    1.0142   0.3082  0.05 0.964
+## age         0.0306    1.0310   0.0139  2.20 0.028
+## surgery    -0.7733    0.4615   0.3597 -2.15 0.032
+## 
+## Likelihood ratio test=10.7  on 3 df, p=0.0134
+## n= 170, number of events= 75</code></pre>
 <p>Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/GRACE1000.dat&quot; 
 grace &lt;- read.table(fn, header = FALSE) 

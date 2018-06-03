@@ -148,3 +148,29 @@ str(heroin)
 fn <- "~/survival-models/bin/heroin.RData"
 save(heroin, file=fn)
 ```
+
+## psychiatric patients
+
+This is a data set of patients admitted to a psychiatric unit.
+
+"Survival data on 26 psychiatric inpatients admitted to the University of Iowa hospitals during the years 1935–1948. This sample is part of a larger study of psychiatric inpatients discussed by Tsuang and Woolson (1977). Data for each patient consists of age at first admission to the hospital, sex, number of years of follow-up (years from admission to death or censoring) and patient status at the follow-up time. Ultimately we want to know if male psychiatric patients and female psychiatric patients are more likely to die than the general public. The data from the hospitals are displayed in the table below (Klein)."
+
+math.usu.edu/jrstevens/biostat/projects2013/pres_LeftTruncation.pdf
+
+```{r psychiatric-patients}
+fn <- "~/survival-models/data/psychiatric patients.csv"
+psychiatric_raw <- read.csv(fn, header=FALSE, as.is=TRUE, skip=1)
+head(psychiatric_raw)
+kn <- "~/survival-models/doc/keys/psychiatric_key.csv"
+psychiatric_key <- keyTemplate(psychiatric_raw, file=kn)
+cat(readLines(kn), sep="\n")
+kn <- "~/survival-models/doc/keys/psychiatric_updated_key.csv"
+cat(readLines(kn), sep="\n")
+psychiatric_key <- keyImport(kn)
+psychiatric <- keyApply(psychiatric_raw, psychiatric_key)
+psychiatric$age2 <- psychiatric$age+psychiatric$time
+head(psychiatric)
+str(psychiatric)
+fn <- "~/survival-models/bin/psychiatric.RData"
+save(psychiatric, file=fn)
+```
