@@ -5,7 +5,7 @@ date: "April 8, 2018"
 output: html_document
 ---
 
-Lecture 2: The hazard function and the Cox proportional hazards regression model. The Cox proportional hazard model allows you to examine how categorical and continuous predictor variables influence survival data. You’ll review the definition of a hazard function, and interpret the meaning of constant hazard versus an increasing hazard or a decreasing hazard. Then you’ll fit Cox regression models and interpret the model coefficients.
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-2.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
 
 ```{r load-libraries}
 library(broom)

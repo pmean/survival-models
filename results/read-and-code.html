@@ -161,8 +161,9 @@ $(document).ready(function () {
 <p>First you create a key template. You can store this key template as a data frame within R, or you can write it to an Excel file (.xlsx), a comma separated value text file (.csv), or an R serialization data structure (.rds). I chose a csv file.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/whas500.dat&quot;
 whas500_raw &lt;- read.table(fn, header=FALSE, as.is=TRUE)
-library(kutils)
-kn &lt;- &quot;~/survival-models/doc/keys/whas500_key.csv&quot;
+library(kutils)</code></pre>
+<pre><code>## Warning: package 'kutils' was built under R version 3.4.4</code></pre>
+<pre class="r"><code>kn &lt;- &quot;~/survival-models/doc/keys/whas500_key.csv&quot;
 whas_key &lt;- keyTemplate(whas500_raw, file=kn)</code></pre>
 <p>Here’s what the csv file looks like.</p>
 <pre class="r"><code>cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
@@ -373,6 +374,9 @@ cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
 ##  $ time_yrs : num  5.963 5.947 5.996 0.813 5.834 ...</code></pre>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/bin/whas500.RData&quot;
 save(whas500, file=fn)</code></pre>
+</div>
+<div id="whas100-data-set" class="section level2">
+<h2>whas100 data set</h2>
 <p>That was so much fun, let’s do it again with the whas100 data set.</p>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/data/wiley/whas100.dat&quot;
 whas100_raw &lt;- read.table(fn, header=FALSE, as.is=TRUE)
@@ -482,6 +486,217 @@ head(whas100_raw)</code></pre>
 ##  $ time_yrs : num  0.0164 1.024 6.6283 0.2683 3.2991 ...</code></pre>
 <pre class="r"><code>fn &lt;- &quot;~/survival-models/bin/whas100.RData&quot;
 save(whas100, file=fn)</code></pre>
+</div>
+<div id="heroin-data-set" class="section level2">
+<h2>heroin data set</h2>
+<p>Here’s a data set that used to be found in the DASL website, but appears to have been lost. I have a copy at my website.</p>
+<pre class="r"><code>fn &lt;- &quot;http://www.pmean.com/00files/heroin.txt&quot;
+heroin_raw &lt;- read.table(fn, header=FALSE, as.is=TRUE, skip=1)
+head(heroin_raw)</code></pre>
+<pre><code>##   V1 V2 V3  V4 V5 V6  V7 V8 V9 V10 V11 V12
+## 1  1  1  1 428  0 50 132  2  0 633   0  70
+## 2  2  1  1 275  1 55 133  2  1 661   0  40
+## 3  3  1  1 262  0 55 134  2  1 232   1  70
+## 4  4  1  1 183  0 30 135  2  1  13   1  60
+## 5  5  1  1 259  1 65 137  2  0 563   0  70
+## 6  6  1  1 714  0 55 138  2  0 969   0  80</code></pre>
+<pre class="r"><code>heroin1 &lt;- heroin_raw[ , 1:6]
+heroin2 &lt;- heroin_raw[ , 7:12]
+names(heroin2) &lt;- names(heroin1)
+heroin_rejoined &lt;- rbind(heroin1, heroin2)
+kn &lt;- &quot;~/survival-models/doc/keys/heroin_key.csv&quot;
+heroin_key &lt;- keyTemplate(heroin_rejoined, file=kn)
+cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
+<pre><code>## &quot;name_old&quot;,&quot;name_new&quot;,&quot;class_old&quot;,&quot;class_new&quot;,&quot;value_old&quot;,&quot;value_new&quot;,&quot;missings&quot;,&quot;recodes&quot;
+## &quot;V1&quot;,&quot;V1&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V2&quot;,&quot;V2&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;1|2|.&quot;,&quot;1|2|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V3&quot;,&quot;V3&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;0|1|.&quot;,&quot;0|1|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V4&quot;,&quot;V4&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V5&quot;,&quot;V5&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;0|1|.&quot;,&quot;0|1|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V6&quot;,&quot;V6&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;20|30|35|40|45|50|55|60|65|70|75|80|90|100|110|.&quot;,&quot;20|30|35|40|45|50|55|60|65|70|75|80|90|100|110|.&quot;,&quot;&quot;,&quot;&quot;</code></pre>
+<pre class="r"><code>kn &lt;- &quot;~/survival-models/doc/keys/heroin_updated_key.csv&quot;
+cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
+<pre><code>## &quot;name_old&quot;,&quot;name_new&quot;,&quot;class_old&quot;,&quot;class_new&quot;,&quot;value_old&quot;,&quot;value_new&quot;,&quot;missings&quot;,&quot;recodes&quot;
+## &quot;V1&quot;,&quot;id&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V2&quot;,&quot;clinic&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;1|2|.&quot;,&quot;1|2|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V3&quot;,&quot;status&quot;,&quot;integer&quot;,&quot;factor&quot;,&quot;0|1|.&quot;,&quot;censored|departed|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V4&quot;,&quot;time&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V5&quot;,&quot;prison_record&quot;,&quot;integer&quot;,&quot;factor&quot;,&quot;0|1|.&quot;,&quot;no|yes|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V6&quot;,&quot;methadone_dose&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;</code></pre>
+<pre class="r"><code>heroin_key &lt;- keyImport(kn)</code></pre>
+<pre><code>## keyImport guessed that is a wide format key.</code></pre>
+<pre class="r"><code>heroin &lt;- keyApply(heroin_rejoined, heroin_key)</code></pre>
+<pre><code>## [1] &quot;Variable id has 20 unique values. Too large for a table.&quot;
+##       V2 (old var)
+## clinic   1   2
+##      1 163   0
+##      2   0  75
+##           V3 (old var)
+## status       0   1
+##   censored  88   0
+##   departed   0 150
+## [1] &quot;Variable time has 20 unique values. Too large for a table.&quot;
+##              V5 (old var)
+## prison_record   0   1
+##           no  127   0
+##           yes   0 111
+##               V6 (old var)
+## methadone_dose 20 30 35 40 45 50 55 60 65 70 75 80 90 100 110
+##            20   1  0  0  0  0  0  0  0  0  0  0  0  0   0   0
+##            30   0  2  0  0  0  0  0  0  0  0  0  0  0   0   0
+##            35   0  0  2  0  0  0  0  0  0  0  0  0  0   0   0
+##            40   0  0  0 30  0  0  0  0  0  0  0  0  0   0   0
+##            45   0  0  0  0 10  0  0  0  0  0  0  0  0   0   0
+##            50   0  0  0  0  0 27  0  0  0  0  0  0  0   0   0
+##            55   0  0  0  0  0  0 21  0  0  0  0  0  0   0   0
+##            60   0  0  0  0  0  0  0 52  0  0  0  0  0   0   0
+##            65   0  0  0  0  0  0  0  0 22  0  0  0  0   0   0
+##            70   0  0  0  0  0  0  0  0  0 24  0  0  0   0   0
+##            75   0  0  0  0  0  0  0  0  0  0  6  0  0   0   0
+##            80   0  0  0  0  0  0  0  0  0  0  0 35  0   0   0
+##            90   0  0  0  0  0  0  0  0  0  0  0  0  2   0   0
+##            100  0  0  0  0  0  0  0  0  0  0  0  0  0   3   0
+##            110  0  0  0  0  0  0  0  0  0  0  0  0  0   0   1</code></pre>
+<pre class="r"><code>heroin$time_yrs &lt;- heroin$time/365.25
+heroin$i_prison &lt;- as.numeric(heroin$prison_record==&quot;yes&quot;)
+cut_values &lt;- c(0, 40, 50, 60, 70, 999)
+cut_labels &lt;- c(&quot;20-40&quot;, &quot;45-50&quot;, &quot;55-60&quot;, &quot;65-70&quot;, &quot;75-110&quot;)
+heroin$dose_group &lt;- cut(
+  heroin$methadone_dose, 
+  cut_values, 
+  cut_labels)
+
+head(heroin)</code></pre>
+<pre><code>##   id clinic   status time prison_record methadone_dose  time_yrs i_prison
+## 1  1      1 departed  428            no             50 1.1718001        0
+## 2  2      1 departed  275           yes             55 0.7529090        1
+## 3  3      1 departed  262            no             55 0.7173169        0
+## 4  4      1 departed  183            no             30 0.5010267        0
+## 5  5      1 departed  259           yes             65 0.7091034        1
+## 6  6      1 departed  714            no             55 1.9548255        0
+##   dose_group
+## 1      45-50
+## 2      55-60
+## 3      55-60
+## 4      20-40
+## 5      65-70
+## 6      55-60</code></pre>
+<pre class="r"><code>str(heroin)</code></pre>
+<pre><code>## 'data.frame':    238 obs. of  9 variables:
+##  $ id            : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ clinic        : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ status        : Factor w/ 2 levels &quot;censored&quot;,&quot;departed&quot;: 2 2 2 2 2 2 2 1 2 2 ...
+##  $ time          : int  428 275 262 183 259 714 438 796 892 393 ...
+##  $ prison_record : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 1 2 1 1 2 1 2 2 1 2 ...
+##  $ methadone_dose: int  50 55 55 30 65 55 65 60 50 65 ...
+##  $ time_yrs      : num  1.172 0.753 0.717 0.501 0.709 ...
+##  $ i_prison      : num  0 1 0 0 1 0 1 1 0 1 ...
+##  $ dose_group    : Factor w/ 5 levels &quot;20-40&quot;,&quot;45-50&quot;,..: 2 3 3 1 4 3 4 3 2 4 ...</code></pre>
+<pre class="r"><code>fn &lt;- &quot;~/survival-models/bin/heroin.RData&quot;
+save(heroin, file=fn)</code></pre>
+</div>
+<div id="psychiatric-patients" class="section level2">
+<h2>psychiatric patients</h2>
+<p>This is a data set of patients admitted to a psychiatric unit.</p>
+<p>“Survival data on 26 psychiatric inpatients admitted to the University of Iowa hospitals during the years 1935–1948. This sample is part of a larger study of psychiatric inpatients discussed by Tsuang and Woolson (1977). Data for each patient consists of age at first admission to the hospital, sex, number of years of follow-up (years from admission to death or censoring) and patient status at the follow-up time. Ultimately we want to know if male psychiatric patients and female psychiatric patients are more likely to die than the general public. The data from the hospitals are displayed in the table below (Klein).”</p>
+<p>math.usu.edu/jrstevens/biostat/projects2013/pres_LeftTruncation.pdf</p>
+<pre class="r"><code>fn &lt;- &quot;~/survival-models/data/psychiatric patients.csv&quot;
+psychiatric_raw &lt;- read.csv(fn, header=FALSE, as.is=TRUE, skip=1)
+head(psychiatric_raw)</code></pre>
+<pre><code>##   V1 V2 V3 V4
+## 1  2 51  1  1
+## 2  2 58  1  1
+## 3  2 55  2  1
+## 4  2 28 22  1
+## 5  1 21 30  0
+## 6  1 19 28  1</code></pre>
+<pre class="r"><code>kn &lt;- &quot;~/survival-models/doc/keys/psychiatric_key.csv&quot;
+psychiatric_key &lt;- keyTemplate(psychiatric_raw, file=kn)
+cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
+<pre><code>## &quot;name_old&quot;,&quot;name_new&quot;,&quot;class_old&quot;,&quot;class_new&quot;,&quot;value_old&quot;,&quot;value_new&quot;,&quot;missings&quot;,&quot;recodes&quot;
+## &quot;V1&quot;,&quot;V1&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;1|2|.&quot;,&quot;1|2|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V2&quot;,&quot;V2&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V3&quot;,&quot;V3&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V4&quot;,&quot;V4&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;0|1|.&quot;,&quot;0|1|.&quot;,&quot;&quot;,&quot;&quot;</code></pre>
+<pre class="r"><code>kn &lt;- &quot;~/survival-models/doc/keys/psychiatric_updated_key.csv&quot;
+cat(readLines(kn), sep=&quot;\n&quot;)</code></pre>
+<pre><code>## &quot;name_old&quot;,&quot;name_new&quot;,&quot;class_old&quot;,&quot;class_new&quot;,&quot;value_old&quot;,&quot;value_new&quot;,&quot;missings&quot;,&quot;recodes&quot;
+## &quot;V1&quot;,&quot;sex&quot;,&quot;integer&quot;,&quot;factor&quot;,&quot;1|2|.&quot;,&quot;male|female|.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V2&quot;,&quot;age&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V3&quot;,&quot;time&quot;,&quot;integer&quot;,&quot;integer&quot;,&quot;.&quot;,&quot;.&quot;,&quot;&quot;,&quot;&quot;
+## &quot;V4&quot;,&quot;death&quot;,&quot;integer&quot;,&quot;factor&quot;,&quot;0|1|.&quot;,&quot;censor|death|.&quot;,&quot;&quot;,&quot;&quot;</code></pre>
+<pre class="r"><code>psychiatric_key &lt;- keyImport(kn)</code></pre>
+<pre><code>## keyImport guessed that is a wide format key.</code></pre>
+<pre class="r"><code>psychiatric &lt;- keyApply(psychiatric_raw, psychiatric_key)</code></pre>
+<pre><code>##         V1 (old var)
+## sex       1  2
+##   male   10  0
+##   female  0 15
+##     V2 (old var)
+## age  19 21 24 25 28 29 30 31 32 33 35 36 41 43 45 47 48 51 55 58
+##   19  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   21  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   24  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   25  0  0  0  2  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   28  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   29  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   30  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   31  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0
+##   32  0  0  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0  0  0  0
+##   33  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
+##   35  0  0  0  0  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0  0
+##   36  0  0  0  0  0  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0
+##   41  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0
+##   43  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+##   45  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0
+##   47  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0
+##   48  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0
+##   51  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0
+##   55  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0
+##   58  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+##     V3 (old var)
+## time 1 2 11 14 22 24 25 26 28 30 31 32 33 34 35 36 37 39 40
+##   1  2 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   2  0 1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   11 0 0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   14 0 0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   22 0 0  0  0  2  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   24 0 0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   25 0 0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0
+##   26 0 0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+##   28 0 0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
+##   30 0 0  0  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0  0
+##   31 0 0  0  0  0  0  0  0  0  0  2  0  0  0  0  0  0  0  0
+##   32 0 0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0
+##   33 0 0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+##   34 0 0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0
+##   35 0 0  0  0  0  0  0  0  0  0  0  0  0  0  3  0  0  0  0
+##   36 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0
+##   37 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0
+##   39 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0
+##   40 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+##         V4 (old var)
+## death     0  1
+##   censor 11  0
+##   death   0 14</code></pre>
+<pre class="r"><code>psychiatric$age2 &lt;- psychiatric$age+psychiatric$time
+head(psychiatric)</code></pre>
+<pre><code>##      sex age time  death age2
+## 1 female  51    1  death   52
+## 2 female  58    1  death   59
+## 3 female  55    2  death   57
+## 4 female  28   22  death   50
+## 5   male  21   30 censor   51
+## 6   male  19   28  death   47</code></pre>
+<pre class="r"><code>str(psychiatric)</code></pre>
+<pre><code>## 'data.frame':    25 obs. of  5 variables:
+##  $ sex  : Factor w/ 2 levels &quot;male&quot;,&quot;female&quot;: 2 2 2 2 1 1 2 2 2 2 ...
+##  $ age  : int  51 58 55 28 21 19 25 48 47 25 ...
+##  $ time : int  1 1 2 22 30 28 32 11 14 36 ...
+##  $ death: Factor w/ 2 levels &quot;censor&quot;,&quot;death&quot;: 2 2 2 2 1 2 2 2 2 1 ...
+##  $ age2 : int  52 59 57 50 51 47 57 59 61 61 ...</code></pre>
+<pre class="r"><code>fn &lt;- &quot;~/survival-models/bin/psychiatric.RData&quot;
+save(psychiatric, file=fn)</code></pre>
 </div>
 
 

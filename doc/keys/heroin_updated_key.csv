@@ -1,0 +1,7 @@
+"name_old","name_new","class_old","class_new","value_old","value_new","missings","recodes"
+"V1","id","integer","integer",".",".","",""
+"V2","clinic","integer","integer","1|2|.","1|2|.","",""
+"V3","status","integer","factor","0|1|.","censored|departed|.","",""
+"V4","time","integer","integer",".",".","",""
+"V5","prison_record","integer","factor","0|1|.","no|yes|.","",""
+"V6","methadone_dose","integer","integer",".",".","",""

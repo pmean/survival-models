@@ -1,0 +1,46 @@
+---
+title: "supplement 8"
+author: "Steve Simon"
+date: "June 3, 2018"
+output: html_document
+---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-8.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+```{r render, eval=FALSE, echo=FALSE}
+# run the commands in this section to store the output
+# in the results folder.
+library(rmarkdown)
+f <- "~/survival-models/src/supplement-8.Rmd"
+o <- "~/survival-models/results"
+render(f, output_dir=o)
+```
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## competing risks
+
+The leader data set is described in Chapter 6 of Alison. You can get the data, and the SAS code at
+
+http://ftp.sas.com/samples/A55233
+
+The prostate survival data set is available in the asaur package.
+
+```{r prostate}
+head(prostateSurvival)
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/supplement-8.RData")
+```
