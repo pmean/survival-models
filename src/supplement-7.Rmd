@@ -20,6 +20,7 @@ This file does not need any special libraries other than the ones listed below. 
 
 ```{r load-libraries}
 library(broom)
+library(coxme)
 library(dplyr)
 library(ggplot2)
 library(magrittr)
@@ -78,6 +79,22 @@ lines(
   type="s", col="red")
 ```
 
+## Sandwich estimate
+
+You can account for frailty effects by modifying the variance-covariance of the coefficients. For the normal model without frailty effects, the information matrix is
+
+$I(\beta) = \frac{\partial^2 L_p}{(\partial \beta)^2}$
+
+and the estimated variance covariance matrix, $\hat{V}$, is
+
+$\hat{V}(\hat{\beta}) = I(\beta)^{-1}$
+
+The robust sandwich estimator (similar to the sandwich estimator in Generalized Estimating Equations) is
+
+$\hat{R}(\hat{\beta})=$
+
+## Frailty model
+
 The asaur package has all the data sets using in the book Applied Survival Analysis Using R, by Dirk F. Moore.
 
 ```{r ashkenazi}
@@ -88,8 +105,34 @@ table(ashkenazi$brcancer)
 table(ashkenazi$mutant)
 summary(ashkenazi$age)
 bc_surv <- Surv(ashkenazi$age, ashkenazi$brcancer)
-bc_km <- survfit(bc_surv~ashkenazi$mutant)
-plot(bc_km)
+km_overall <- survfit(bc_surv~1)
+plot(km_overall, conf.int=FALSE)
+km_mutant <- survfit(bc_surv~ashkenazi$mutant)
+plot(km_mutant)
+
+coxph(bc_surv~mutant+cluster(famID), data=ashkenazi)
+cox_frailty <- coxph(
+  bc_surv~mutant+frailty(famID),
+  data=ashkenazi)
+cox_frailty
+cox_frailty2 <- coxme(
+  bc_surv~mutant+(1 | famID),
+  data=ashkenazi)
+cox_frailty2
+```
+
+```{r rats}
+head(rats)
+summary(rats)
+rats_surv <- Surv(rats$time, rats$status)
+overall_km <- survfit(rats_surv~1)
+plot(overall_km, conf.int=FALSE)
+coxph(
+  rats_surv~rx+sex+cluster(litter),
+  data=rats)
+coxph(
+  rats_surv~rx+sex+frailty(litter),
+  data=rats)
 ```
 
 ```{r}
@@ -103,11 +146,21 @@ table(diabetes$trteye)
 table(diabetes$treat)
 table(diabetes$adult)
 summary(diabetes$agedx)
+diabetes_surv <- Surv(diabetes$time, diabetes$status)
+km_overall <- survfit(diabetes_surv~1)
+plot(km_overall, conf.int=FALSE)
+coxph(
+  diabetes_surv~treat+agedx+cluster(id),
+  data=diabetes)
+coxph(
+  diabetes_surv~treat+agedx+frailty(id),
+  data=diabetes)
 ```
 
 The kidney data set contains information on catheter infections, and is available within the survival package of R.
 
-```{r kidney}
+```{r kidney, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
 head(kidney)
 table(table(kidney$id))
 table(kidney$status)
@@ -116,6 +169,73 @@ table(kidney$disease)
 summary(kidney$time)
 summary(kidney$age)
 summary(kidney$frail)
+kidney2 <- kidney
+kidney2$s <- rep(1:2, 38)
+kidney_surv <- Surv(kidney2$time, kidney2$status)
+overall_km <- survfit(kidney_surv~kidney2$s)
+plot(overall_km, conf.int=FALSE)
+coxph(
+  kidney_surv~age+sex+disease+cluster(id),
+  data=kidney2)
+coxph(
+  kidney_surv~age+sex+disease+strata(s)+cluster(id),
+  data=kidney2)
+```
+
+```{r three-models, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot_sequence <- function(i) {
+  c1 <- "darkred"
+  c2 <- "darkgreen"
+  kidney2$lb <- ifelse(kidney2$status==1, kidney2$s, "C")
+  kidney2                %>%
+    filter(id==i)        %>%
+    filter(s==1)         %>%
+    select(time, lb)     -> t1
+  kidney2                %>%
+    filter(id==i)        %>%
+    filter(s==2)         %>%
+    select(time, lb)     -> t2
+  t2$time <- ifelse(t1$lb=="C", NA, t2$time)
+  tmax <- sum(t1$time,t2$time, na.rm=TRUE)
+  plot(c(0, 1.4*tmax), c(10, 50), type="n", axes=FALSE)
+  axis(side=1, at=c(0, t1$time, t2$time, tmax))
+  segments(0, 50, t1$time, 50, col=c1)
+  segments(t1$time, 50, tmax, 50, col=c2)
+  text(t1$time, 50, t1$lb, col=c1)
+  text(tmax,    50, t2$lb, col=c2)
+  text(1.2*tmax, 45, "start", adj=1)
+  text(1.4*tmax, 45, "stop", adj=1)
+
+  segments(0, 40, t1$time, 40, col=c1)
+  segments(0, 36, t2$time, 36, col=c2)
+  text(t1$time, 40, t1$lb, col=c1)
+  text(t2$time, 36, t2$lb, col=c2)
+  text(1.2*tmax, 40, 0, col=c1, adj=1)
+  text(1.4*tmax, 40, t1$time, col=c1, adj=1)
+  text(1.2*tmax, 36, 0, col=c2, adj=1)
+  text(1.4*tmax, 36, t2$time, col=c2, adj=1)
+  
+  segments(0, 30, t1$time, 30, col=c1)
+  segments(t1$time, 26, tmax, 26, col=c2)
+  text(t1$time, 30, t1$lb, col=c1)
+  text(tmax, 26, t2$lb, col=c2)
+  text(1.2*tmax, 30, 0, col=c1, adj=1)
+  text(1.4*tmax, 30, t1$time, col=c1, adj=1)
+  text(1.2*tmax, 26, t1$time, col=c2, adj=1)
+  text(1.4*tmax, 26, tmax, col=c2, adj=1)
+
+  segments(0, 20, t1$time, 20, col=c1)
+  segments(0, 16, tmax, 16, col=c2)
+  text(t1$time, 20, t1$lb, col=c1)
+  text(tmax, 16, t2$lb, col=c2)
+  text(1.2*tmax, 20, 0, col=c1, adj=1)
+  text(1.4*tmax, 20, t1$time, col=c1, adj=1)
+  text(1.2*tmax, 16, 0, col=c2, adj=1)
+  text(1.4*tmax, 16, tmax, col=c2, adj=1)
+}
+plot_sequence(30)
+```
 
 Save everything for possible later re-use.
 
