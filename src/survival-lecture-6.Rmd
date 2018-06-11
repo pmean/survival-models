@@ -5,15 +5,6 @@ date: "May 20, 2018"
 output: html_document
 ---
 
-```{r render, eval=FALSE, echo=FALSE}
-# run the commands in this section to store the output
-# in the results folder.
-library(rmarkdown)
-f <- "~/survival-models/src/survival-lecture-6.Rmd"
-o <- "~/survival-models/results"
-render(f, output_dir=o)
-```
-
 Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
@@ -66,8 +57,6 @@ heroin                                      %$%
 km_dose                                     %>%
   ggplot(aes(time, estimate, color=strata))  +
     geom_step()
-
-
 ```
 
 ## Complementary log-log plot
@@ -145,7 +134,8 @@ lines(
 
 ## Time-varying covariates
 
-```{r time-transfer}
+```{r time-transfer, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
 tt_clinic <- coxph(
   heroin_surv~
     clinic +
@@ -156,6 +146,21 @@ tt_clinic <- coxph(
   data=heroin)
 tt_clinic
 summary(tt_clinic)
+tt_coef <- tidy(tt_clinic)
+beta_clinic <- tt_coef[tt_coef$term=="clinic", "estimate"]
+beta_interaction <- tt_coef[tt_coef$term=="tt(clinic)", "estimate"]
+t <- seq(0, 2.5, by=0.5)
+log_hr <- beta_clinic+t*beta_interaction
+hr <- exp(log_hr)
+round(
+  data.frame(
+    beta_clinic, 
+    beta_interaction, 
+    t, 
+    log_hr,
+    hr),
+  3)
+plot(t, hr, ylim=c(0, 1.1))
 ```
 
 ## Stanford Heart Transplant study

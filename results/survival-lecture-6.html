@@ -329,7 +329,8 @@ lines(
 </div>
 <div id="time-varying-covariates" class="section level2">
 <h2>Time-varying covariates</h2>
-<pre class="r"><code>tt_clinic &lt;- coxph(
+<pre class="r"><code>par(mar=c(2.6, 2.6, 0.6, 0.6))
+tt_clinic &lt;- coxph(
   heroin_surv~
     clinic +
     tt(clinic) +
@@ -378,6 +379,29 @@ tt_clinic</code></pre>
 ## Likelihood ratio test= 76.13  on 4 df,   p=1.11e-15
 ## Wald test            = 57.76  on 4 df,   p=8.565e-12
 ## Score (logrank) test = 67.09  on 4 df,   p=9.348e-14</code></pre>
+<pre class="r"><code>tt_coef &lt;- tidy(tt_clinic)
+beta_clinic &lt;- tt_coef[tt_coef$term==&quot;clinic&quot;, &quot;estimate&quot;]
+beta_interaction &lt;- tt_coef[tt_coef$term==&quot;tt(clinic)&quot;, &quot;estimate&quot;]
+t &lt;- seq(0, 2.5, by=0.5)
+log_hr &lt;- beta_clinic+t*beta_interaction
+hr &lt;- exp(log_hr)
+round(
+  data.frame(
+    beta_clinic, 
+    beta_interaction, 
+    t, 
+    log_hr,
+    hr),
+  3)</code></pre>
+<pre><code>##   beta_clinic beta_interaction   t log_hr    hr
+## 1       0.019           -1.103 0.0  0.019 1.020
+## 2       0.019           -1.103 0.5 -0.532 0.587
+## 3       0.019           -1.103 1.0 -1.084 0.338
+## 4       0.019           -1.103 1.5 -1.636 0.195
+## 5       0.019           -1.103 2.0 -2.187 0.112
+## 6       0.019           -1.103 2.5 -2.739 0.065</code></pre>
+<pre class="r"><code>plot(t, hr, ylim=c(0, 1.1))</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA2AAAAHgCAMAAAD0Y/5nAAAArlBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrY6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kNtmAABmOgBmOjpmZjpmZmZmZpBmkLZmkNtmtttmtv+QOgCQZjqQZmaQtraQttuQ2/+2ZgC2Zjq2kDq2kGa2tpC2tra2ttu229u22/+2///bkDrbkGbbtmbbtpDbtrbb25Db27bb29vb2//b////tmb/25D/27b/29v//7b//9v///+48S7kAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAPhUlEQVR4nO3da3vT1p6HYZkNpOxNC9MM5VAOHWqgKTCkhIDz/b/Y2DEHJbaVyPJvWdLc95tC3Otaf1byxI4kK9UZEFPtewAYM4FBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCCoRWAVjt8fA9v1PhwL2GVh+DdgrgUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAjqZWBX/F4KGIw+Bnblb36BoehhYN/DUhiD17/AalkJjKHrY2BX/R8wGAKDIIFBkMAgSGAQJDAI6mNgDtMzGv0LzIlmRqRcYNUaV/2fu54BCutjYC72ZTR6+BIRxkNgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBOwps9uHVP7tbG8aiU2Dvp9M3i/+e3q/mJr/tam0Yiw6BvT1YZHXr49nJ+R+Wf97J2jAW2wd29LWq21/uzZ+9Dg9/Wvx5N2vDWGwd2Kf509bNp3/OXxz+WlW/LD6yKO7RTtaGsdg6sBfLV4Szxz+euF60fAoTGKO3bWCLsM6frk7mrw+fLz82f1Jr9VOYwBi9bQOb/+B1468Lf7jwx25rw1gIDII6vERcvjKcvy70EhE26HKQ4/bX/y4PIp4fRnSQA+q2DuxkHtbPx8d/VNWdH89lDtPDBdufaH7x7fKN/52HdXc6fdL6Ug6BMXrbBzb747yv+bPXt2s62h3iEBj/D3S52PfD73f+/WDxnPX38mLEu+0uRRQY47ebt6vM3v9++LT1+1UExuh5wyUECQyCBAZBAoOgXQbWfC1itUb7NWBQBAZB5QJrsTaMxU5/Bvt83OpcmMAYPQc5IEhgECQwCOoa2Oz4/XQ6fXXc8jrf5rVhLDoF9uFJ7ZD73dc7WxvGokNgyzvS19x8vqO1YSy2D2x5R/o7h0s/nb/5stUdAwTG+G0d2Pkd6Z/VPvDuoO1bmgXG6G0d2NFKTovkftnJ2jAWnW+dXXPS8q43AmP0Ot/Z94qPbbU2jIXAIKjzrbNrvESES7r+frCaxY9lbp0NdZ1+w+WtN7UPnD6uVp/UtlsbxqLj72ieHD6dLvy5PNPc6ii9wBi/DpdKvT24dKnU5OGO1oax6HKx7+xlPbHJg7ZX1AuM0ev4dpXZh+nLw8PDB9PXW7xfRWCMnjdcQpDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJLAm337B+77nYLAE1qCqFEY35QKr1tj1Grv1fcDeT0pvCWyj2nw9n5T+8hJxo/p4PR+V3hLYRgKjO4FtJDC6E9hGAqM7gW0kMLoT2EYCozuBbeQwPd0JbDMnmulMYA0GckacHhNYE33RkcAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgE7Siw2fvpq487WxvGYkeBfblX3fhrZ2vDWAgMgrYO7PNx3Yd5YK/n//1nJ2vDWGwb2Pwpa51WT2MCY/QEBkFbv0R8e1BVk8Nvfj2oJv+Z//e/2xxKFBijt/1BjtPHVXXzzde/OMgB63Q5ivj3/Gnrt+UfBQbrdDpMf3q/qm6dP4kJDNbpdh5s9j/zH8QengkM1ut6ovnT/Ens7keBwVqdr+SY/TF/EnsmMFhnB5dKLQ7Y/+dAYLBqF9ciLg7YtzzH3Lw2jMVuLvb9+0BgsMaOrqY//b3dRRzNa8NYeEczBAkMggQGQbsMrPlk2Lp3t7RfAwZFYBBULrAWa8NY7PRnsM/uyQEXOMgBQQKDIIFBUNfAZsfvp9Ppq+PW10k1rQ1j0SmwD09qh9zvvt7Z2jAWHQJb3JHjgpvPd7Q2jMX2gZ0cLKK68/XGiD8t/jJ5tJu1YSy2Dmxxa9/Js9oH3rV+T5jAGL2tAztayWmR3C87WRvGYtvAZo+r6vILwpOquuXW2REu3hyqDr/8YeX1oGsRU1wePVgCG4DvYSlscDq8RJxcPirvJWJGLStbNjRbH+R4sVLT4sey2ztZmwvq+2TPBmbrwD4dfPvFD18t7o648qS23dpcILAB2/5E89H5qeXDp9OFP5dnmlsdpffFck0CG7AOl0q9Pbh0qdT571nZxdpcILAB63Kx7+xlPbHJg7ZX1PtiuR6BDVjHt6vMPkxfHh4ePpi+3uL9Kr5YrkdgA+YNl/3nMP2ACWwAnGgeLoENgUulBktgg6CvoRIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMBoxe95aUdgtOE3lbUkMFrwuzbbEhjX57dFt1YusGqNXa9BVv0z5rN3LQLj+gTWmpeIXJ/AWhMY1yew1gTG9QmsNYFxfQJrTWBcn8P0rQmMFpxobktgtOEUS0sCoxV9tSMwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBMYwDeSiSIExSEO5rF9gDNFg3pgmMAZoOG+tFhgDNJybgwiMARJYp7WhmcA6rQ3NBNZpbWgmsE5rQzOBdVobmjlM32ltuIITzV3Whqu4VKrD2nClYfQlMOimuXSBQRdXvFYVGHRw1dEWgcH2rjxfIDDY3pVnvLsGNjt+P51OXx1/bDtZ09owENnAPjz58RNedfd1l+FgiJKBnd6vLrr5fPvhYIiCgZ0cLKK6c7j00+Ivk0dbDwdDlAvsy715UM9qH3g3D+7GX9sOB0OUC+xoJadFcr9sOxwMUeww/exxVV1+QXhSVbfaHE0UGIOXOtE8f7paeT247mPNs7X4n6GXQpdKCQzOZS72nb9EnFw+Ku8lIlyy9UGOFys1LX4su72TtWEstg7s08G8sDe1D5zO+1p5UttubRiL7U80H52fWj58Ol34c3mmudVReoExfh0ulXp7cOlSqcnDHa0NY9HlYt/Zy3pikwdtr6gXGKPX8e0qsw/Tl4eHhw+mr7d4v4rAGD1vuIQggUGQwCBIYBC0y8Car0Ws1mi/BgyKwCCoXGAt1oax2OnPYJ+P/9nJ2jAWDnJAkMAgSGAQ5NbZEOTW2RDk1tkQ5NbZEOTW2RDk1tkQ5NbZELTfO/vC6AkMgrYLbBe3zm7Sm5ePBlnRm0kGPUiBW2c3Lj/kvYvozSD9mWTQgxS4dXbj8kPeu4jeDNKfSQY9SIFbZzcuP+S9i+jNIP2ZZNCDFLh1duPyQ967iN4M0p9JBj1IgVtnNy4/5L2L6M0g/Zlk0IMUuHV24/JD3ruI3gzSn0kGPcieZx/03kX0ZpD+TDLoQQS2ZJAVvZlk0IMIbMkgK3ozyaAHEdiSQVb0ZpJBDyKwJYOs6M0kgx5EYEsGWdGbSQY9iMCWDLKiN5MMehCBLRlkRW8mGfQgAlsyyIreTDLoQQS2ZJAVvZlk0IMIbMkgK3ozyaAHEdiSQVb0ZpJBD9KX2WGUBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoOgsoGdPjmoqsndN+0eKjnI7HH13aMys5x9uXfjrzUfLrsjmycpvCWzl3fmC/1r/18kmwdpsyNFA3t7sBxq8lubh4oO8uVe8cDmn651gZXdkYZJym7Jt392Vf288bEiW9IwSJsdKRnYyeaxGh7a2yCFApu9qNZ9WZfdkWtOkh+lvtjtzY/lt+Sag/QpsEX3N+fPtx/ur3weGx4qO8jZUbmv56Xzlxur/+ayO9I0SdEtOf9nvz5b/rsnz1cfK7UlTYO02pGCgc3HuvVx8YfFZ/KX6z5UdpCzF6W+nL96d/5CZHXNsjvSNEnRLTn5/nSx+HdffOYouiVNg7TakXKBzQf99p3g08HXrbr6obKDLB5LL193Ov/2WN29v/r5KrsjTZOcFd2SFz+eG/b7RdIwyFmrHSkX2PxJ99tYtb266qGygyweu/yCO2n+TXnycN2hhbI70jRJ6S2pr3vhy7j4lmwapN2OlAvspPZM++Lii9iGh8oOsnjs0el/zb+Z//tZdoilo8nPH8/WfVmX3ZGmSUpvyXeXv66Lb8mmQdrtSNHAvr9wPloJbNNDZQeZ/33y69fDQ3cLvC76vFhjQ2AFd6RpktJb8t3JpR99im/JpkHa7Ui5wOqbcnLxp9SGh8oOsvjW+F2pnzzWfVmX3ZGmSfayJWfnzxsXXwbuZ0vWDNJuRwRWX21xxGjy4OPikoFqr1/W/QlsL1uyPCe3chBxH4GtDtJuRwRWX6323eqo5PmnHge2ly1Zd857T1uyOki7HRHYhtUW36cKXcrR68AuPlxuSxrP7hbbknWDXHr4ih0R2KbVjgp+EocRWLEtOV1z9cRetmTtIHVX74ijiJtWK/ldcv9HETdOUldoSxaX2d5cd7qg9JasH6Tu6h1xHqyvge3hpE8/ApvXU/28enCu/JZsGKSuT4EN4kqOmmJPHL24kmPjJHVFtuSPDYfmim/JpkHqrt4R1yLWV6u9pF49/RGcZ//XIm6cpPSWHG36qaf0lmwcpN2OuJq+/sj8M/f1K2z19EfMhusnSl9Nv2GSwlsyf811Y8MblstuyeZB2u1I6feDvd78frD1DxUd5Pyo7MOP698FlLLpEtuCO9IwSdktaXpKKLolDYO025G9vqP5x79iz+9o/j7Ip4MfD+3jeWNfO9IwSdEtOarqzgfYz5Y0DdJqR4rek+PvS/dUqH2buPzQvgb5dL8qOcjC+sAK70jDJAW3pH43mdXACm5J8yBtdmSvd5WqPw/v9a5StUFm7xZvRPjXg3/KDHK2MbA93FVqwyTltqR+N5k1gZXbkisGabEj7osIQQKDIIFBkMAgSGAQJDAIEhgECQyCBAZBAoMggUGQwCBIYBAkMAgSGAQJDIIEBkECgyCBQZDAIEhgECQwCBIYBAkMggQGQQKDIIFBkMAgSGAQJDAI+j/6mMoEgdbBbgAAAABJRU5ErkJggg==" width="432" /></p>
 </div>
 <div id="stanford-heart-transplant-study" class="section level2">
 <h2>Stanford Heart Transplant study</h2>
