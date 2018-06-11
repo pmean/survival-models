@@ -127,7 +127,8 @@ plot(x, dgamma(x, alpha, rate=alpha),
 
 The asaur package has all the data sets using in the book Applied Survival Analysis Using R, by Dirk F. Moore.
 
-```{r ashkenazi}
+```{r ashkenazi, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
 library(asaur)
 head(ashkenazi)
 table(table(ashkenazi$famID))
@@ -151,7 +152,8 @@ cox_frailty2 <- coxme(
 cox_frailty2
 ```
 
-```{r rats}
+```{r rats, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
 head(rats)
 summary(rats)
 rats_surv <- Surv(rats$time, rats$status)
@@ -202,8 +204,8 @@ summary(kidney$frail)
 kidney2 <- kidney
 kidney2$s <- rep(1:2, 38)
 kidney_surv <- Surv(kidney2$time, kidney2$status)
-overall_km <- survfit(kidney_surv~kidney2$s)
-plot(overall_km, conf.int=FALSE)
+km_sex <- survfit(kidney_surv~kidney2$sex)
+plot(km_sex, conf.int=FALSE)
 coxph(
   kidney_surv~age+sex+disease+cluster(id),
   data=kidney2)
