@@ -1,0 +1,12 @@
+~/survival-models/doc/homework-6.txt
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+a. Calculate and graph on the same graph a Kaplan-Meier curve for the three cohorts associated with year. Does it appear as if these survival curves differ? If so, do they appear to violate the assumption of proportional hazards?
+
+b. Calculate and interpret the complementary log-log plots.
+
+c. Calculate, plot, and interpret the Schoenfeld residuals from a Cox regression model with year as the only independent variable. 
+
+d. Fit a Cox regression model with gender as an independent variable and include year as a strata. Create estimated survival plots for each strata comparing males to females.
