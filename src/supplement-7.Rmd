@@ -81,19 +81,49 @@ lines(
 
 ## Sandwich estimate
 
-You can account for frailty effects by modifying the variance-covariance of the coefficients. For the normal model without frailty effects, the information matrix is
+You can account for cluster effects by modifying the variance-covariance of the coefficients. For the normal model without frailty effects, the information matrix is
 
 $I(\beta) = \frac{\partial^2 L_p}{(\partial \beta)^2}$
 
 and the estimated variance covariance matrix, $\hat{V}$, is
 
-$\hat{V}(\hat{\beta}) = I(\beta)^{-1}$
+$\hat{V} = I(\hat{\beta})^{-1}$
 
 The robust sandwich estimator (similar to the sandwich estimator in Generalized Estimating Equations) is
 
-$\hat{R}(\hat{\beta})=$
+$\hat{R} = \hat{V} (\hat{L}'\hat{L}) \hat{V}$
+
+where $\hat{L}$ is the vector of Schoenfeld residuals. The middle of this sandwich, the $\hat{L}'\hat{L}$, adjusts the variance covariance matrix to account for the correlation within clusters.
 
 ## Frailty model
+
+The frailty model introduces a random effect, called a frailty term, $z_f$. Recall that the proportional hazards model assumes that the hazard function of a given patient,
+
+$h(t, X, \beta) = h_0(t) e^{X \beta}$
+
+The frailty model multiplies all the hazards within a family f by $z_f$. In other words,
+
+$h(t, X, \beta) = z_f h_0(t) e^{X \beta}$
+
+Typically, $z_f$ is given a gamma distribution with a mean of 1 and a variance of $\theta$.
+
+```{r graph-gamma, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+alpha <- 10
+x <- seq(0.001, 4, length=1000)
+plot(x, dgamma(x, alpha, rate=alpha), 
+  type="l", xlim=c(0, 4), ylim=c(0, 1.3))
+
+alpha <- 5
+plot(x, dgamma(x, alpha, rate=alpha), 
+  type="l", xlim=c(0, 4), ylim=c(0, 1.3))
+
+alpha <- 2
+plot(x, dgamma(x, alpha, rate=alpha), 
+  type="l", xlim=c(0, 4), ylim=c(0, 1.3))
+```
+
+## Examples
 
 The asaur package has all the data sets using in the book Applied Survival Analysis Using R, by Dirk F. Moore.
 
