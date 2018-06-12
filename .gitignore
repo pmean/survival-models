@@ -1,7 +1,7 @@
 .Rproj.user
 .Rhistory
-*.RData
 *.Rproj
+*.RData
 bin/~*.*
 data/wiley/*.txt
 data/wiley/*.dat
