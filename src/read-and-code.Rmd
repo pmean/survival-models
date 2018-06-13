@@ -95,13 +95,16 @@ save(whas500, file=fn)
 
 That was so much fun, let's do it again with the whas100 data set.
 
-```{r whas100}
+```{r whas100-raw}
 fn <- "~/survival-models/data/wiley/whas100.dat"
 whas100_raw <- read.table(fn, header=FALSE, as.is=TRUE)
 library(kutils)
 kn <- "~/survival-models/doc/keys/whas100_key.csv"
 whas_key <- keyTemplate(whas100_raw, file=kn)
 cat(readLines(kn), sep="\n")
+```
+
+```{r whas100-updated}
 kn <- "~/survival-models/doc/keys/whas100_updated_key.csv"
 cat(readLines(kn), sep="\n")
 whas_key <- keyImport(kn)
@@ -119,7 +122,7 @@ save(whas100, file=fn)
 
 Here's a data set that used to be found in the DASL website, but appears to have been lost. I have a copy at my website.
 
-```{r heroin}
+```{r heroin-raw}
 fn <- "http://www.pmean.com/00files/heroin.txt"
 heroin_raw <- read.table(fn, header=FALSE, as.is=TRUE, skip=1)
 head(heroin_raw)
@@ -130,6 +133,9 @@ heroin_rejoined <- rbind(heroin1, heroin2)
 kn <- "~/survival-models/doc/keys/heroin_key.csv"
 heroin_key <- keyTemplate(heroin_rejoined, file=kn)
 cat(readLines(kn), sep="\n")
+```
+
+```{r heroin-updated}
 kn <- "~/survival-models/doc/keys/heroin_updated_key.csv"
 cat(readLines(kn), sep="\n")
 heroin_key <- keyImport(kn)
@@ -157,13 +163,16 @@ This is a data set of patients admitted to a psychiatric unit.
 
 math.usu.edu/jrstevens/biostat/projects2013/pres_LeftTruncation.pdf
 
-```{r psychiatric-patients}
+```{r psychiatric-patients-raw}
 fn <- "~/survival-models/data/psychiatric patients.csv"
 psychiatric_raw <- read.csv(fn, header=FALSE, as.is=TRUE, skip=1)
 head(psychiatric_raw)
 kn <- "~/survival-models/doc/keys/psychiatric_key.csv"
 psychiatric_key <- keyTemplate(psychiatric_raw, file=kn)
 cat(readLines(kn), sep="\n")
+```
+
+```{r psychiatric-patients-updated}
 kn <- "~/survival-models/doc/keys/psychiatric_updated_key.csv"
 cat(readLines(kn), sep="\n")
 psychiatric_key <- keyImport(kn)
@@ -173,4 +182,33 @@ head(psychiatric)
 str(psychiatric)
 fn <- "~/survival-models/bin/psychiatric.RData"
 save(psychiatric, file=fn)
+```
+
+## leaders data set
+
+This is a data set of 
+
+"(description)"
+
+(source)
+
+```{r leaders-raw}
+fn <- "~/survival-models/data/leader.txt"
+leader_raw <- read.table(fn, header=FALSE, as.is=TRUE, skip=1)
+head(leader_raw)
+kn <- "~/survival-models/doc/keys/leader_key.csv"
+leader_key <- keyTemplate(leader_raw, file=kn)
+cat(readLines(kn), sep="\n")
+```
+
+```{r leaders-updated}
+kn <- "~/survival-models/doc/keys/leader_updated_key.csv"
+cat(readLines(kn), sep="\n")
+leader_key <- keyImport(kn)
+leader <- keyApply(leader_raw, leader_key)
+leader$start <- 1000 + leader$start
+head(leader)
+str(leader)
+fn <- "~/survival-models/bin/leader.RData"
+save(leader, file=fn)
 ```
