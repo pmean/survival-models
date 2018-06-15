@@ -1,0 +1,21 @@
+---
+title: "homework answers 7"
+author: "Steve Simon"
+date: "June 14, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-7.RData")
+```

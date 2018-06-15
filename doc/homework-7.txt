@@ -7,9 +7,3 @@ a. Calculate and graph a Kaplan-Meier curve comparing treated to untreated eyes,
 b. Calculate and interpret a Cox regression model using treat as an independent variable and id as a cluster effect.
 
 c. Calculate and interpret a Cox regression model using treat as an independent variable and id as a frailty effect.
-
-c. Calculate the complementary log-log plots.
-
-c. Calculate, plot, and interpret the Schoenfeld residuals from a Cox regression model with year as the only independent variable. 
-
-d. Fit a Cox regression model with gender as an independent variable and include year as a strata. Create estimated survival plots for each strata comparing males to females.
