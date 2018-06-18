@@ -44,11 +44,12 @@ summary(leader$literacy)
 table(leader$region)
 ```
 
-First, let's look at this model in a binary fashion, with lost = "still in power" and "natural death" as censored observations and "constitutional exit" and "non-constitutional exist" as events.
+First, let's look at this model in a binary fashion, with lost = "still in power" as censored observations and "constitutional exit" and "natural death" and "non-constitutional exist" as events.
 
 ```{r binary-survival}
 leader$event <- 
   (leader$lost=="constitutional exit") +
+  (leader$lost=="natural death") +
   (leader$lost=="nonconstitutional exit")
 
 table(leader$lost, leader$event, useNA="ifany")
@@ -258,7 +259,8 @@ plot(leader_residuals)
 
 ## Competing risk models
 
-```{r simple-km-curves}
+```{r simple-km-curves, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
 surv_object <- 
   Surv(
     leader$years, 
@@ -266,10 +268,33 @@ surv_object <-
     type="mstate")
 
 km_overall <- survfit(surv_object~1)
-plot(km_overall$time, km_overall$pstate[ , 1], type="s")
-plot(km_overall$time, km_overall$pstate[ , 2], type="s")
-plot(km_overall$time, km_overall$pstate[ , 3], type="s")
-plot(km_overall$time, km_overall$pstate[ , 4], type="s")
+plot(
+  km_overall$time, 
+  km_overall$pstate[ , 1], 
+  ylim=0:1, type="s")
+plot(
+  km_overall$time,
+  km_overall$pstate[ , 2], 
+  ylim=0:1, type="s")
+plot(
+  km_overall$time,
+  km_overall$pstate[ , 3],
+  ylim=0:1, type="s")
+plot(
+  km_overall$time,
+  km_overall$pstate[ , 4],
+  ylim=0:1, type="s")
+
+km_single <-
+  survfit(
+    Surv(
+      leader$years, 
+      leader$lost!="still in power")~1)
+plot(km_single, ylim=0:1, conf.int=FALSE)
+points(
+  km_overall$time, 
+  km_overall$pstate[ , 4], 
+  col="red")
 head(tidy(km_overall))
 ggplot(
   data=tidy(km_overall),

@@ -16,6 +16,42 @@ library(survival)
 library(tidyr)
 ```
 
+1. Open the file, diabetes.csv.
+
+```{r load}
+library(timereg)
+data(diabetes)
+head(diabetes)
+diabetes_surv <- Surv(diabetes$time, diabetes$status)
+```
+
+a. Calculate and graph a Kaplan-Meier curve comparing treated to untreated eyes, ignoring for now the correlations inherent in this data set. Does it appear as if these survival curves differ? If so, do they appear to violate the assumption of proportional hazards?
+
+```{r km, fig.width=4.5, fig.height=2.5}
+survfit(diabetes_surv~treat, data=diabetes) %>%
+  tidy                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+  expand_limits(y=0)                         +
+  geom_step()
+```
+
+b. Calculate and interpret a Cox regression model using treat as an independent variable and id as a cluster effect.
+
+```{r cluster}
+coxph(
+  diabetes_surv~treat+agedx+cluster(id),
+  data=diabetes)
+```
+
+c. Calculate and interpret a Cox regression model using treat as an independent variable and id as a frailty effect.
+
+```{r frailty}
+coxph(
+  diabetes_surv~treat+agedx+frailty(id),
+  data=diabetes)
+```
+
+
 ```{r save-everything}
 save.image("~/survival-models/bin/homework-answers-7.RData")
 ```
