@@ -1,0 +1,31 @@
+~/survival-models/doc/homework-8.txt
+
+1. Open the file, leader.txt
+
+Here are the codes for the categorical variables:
+
+lost: 
+  0=still in power
+  1=constitutional exit
+  2=natural death
+  3=nonconstitutional exit
+  
+manner:
+ 0=constitutional ascent
+ 1=nonconstitutional ascent
+
+military
+  0=no
+  1=yes
+  
+conflict:
+  0=low conflict
+  1=medium/high conflict
+
+region:
+  0=middle east
+  1=africa
+  2=asia
+  3=latin america
+  
+Calculate a competing risk model comparing Latin America to the other three regions. What are the major differences?

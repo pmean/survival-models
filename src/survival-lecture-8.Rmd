@@ -44,7 +44,7 @@ summary(leader$literacy)
 table(leader$region)
 ```
 
-First, let's look at this model in a binary fashion, with lost = "still in power" as censored observations and "constitutional exit" and "natural death" and "non-constitutional exist" as events.
+First, let's look at this model in a binary fashion, with lost = "still in power" as censored observations and "constitutional exit" and "natural death" and "non-constitutional exit" as events.
 
 ```{r binary-survival}
 leader$event <- 
@@ -259,6 +259,40 @@ plot(leader_residuals)
 
 ## Competing risk models
 
+If there are two or more causes of death and you are interested in developing a model for the individual causes, then you need a competing risk model.
+
+The competing risk model assumes that the overal hazard function, h(t), can be written as
+
+$h(t) = \sum_j h_j(t)$,
+
+where $h_j(t)$ is the hazard function for the jth cause of death.
+
+This implies that the overall cumulative hazard, H(t), is equal to
+
+$H(t) = \sum_j H_j(t)$
+
+where $H_j(t)$ is the cumulative hazard for the jth cause of death.
+
+With a bit of math, you can easily show that the overall cumulative density function, F(t)=1-S(t), can be decomposed into
+
+$F(t) = \sum_j F_j(t)$
+
+where 
+
+$F_j(t) = \int_0^t f_j(u) S(u)dt$ 
+
+Notice that $F_j$ is not a cumulative distribution function. In fact, as t approaches infinity, $F_j(t)$ approaches $P_j$, the probability for the jth cause of death. $F_j$ is called the subdistribution or the cumulative incidence function.
+
+You can estimate $F_j$ with the formula
+
+$\hat{F}_j(t) = \sum_{t_{(i)}<t} \hat{h}_j(t_{(i)}) \hat{S}(t_{(i-1)})$
+
+where $\hat{S}$ is the overall Kaplan-Meier estimate of survival, 
+
+$\hat{h}_j(t_{(i)}) = \frac{d_{ij}}{n_i}$,
+
+and $d_{ij}$ and $n_j$ are the number of deaths at time $t_{(i)}$ due to cause j and the number of patients at risk at time $t_{(i)}$.
+
 ```{r simple-km-curves, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 surv_object <- 
@@ -284,7 +318,9 @@ plot(
   km_overall$time,
   km_overall$pstate[ , 4],
   ylim=0:1, type="s")
+```
 
+```{r show-equivalence, fig.width=4.5, fig.height=2.5}
 km_single <-
   survfit(
     Surv(
@@ -299,26 +335,47 @@ head(tidy(km_overall))
 ggplot(
   data=tidy(km_overall),
   aes(time, estimate, fill=state)) + 
+  expand_limits(y=1)               +
   geom_col(width=1)
+```
 
-km_manner <- survfit(surv_object~leader$manner)
-str(km_manner)
-km_tidy <- tidy(km_manner)
-head(km_tidy)
-categorical_list <- c(
-  "manner",
-  "military",
-  "conflict",
-  "region"
-)
-continuous_list <- c(
-  "start",
-  "loginc",
-  "growth",
-  "pop",
-  "land",
-  "literacy"
-)
+Let's look at a couple of subsets.
+
+```{r subsets, fig.width=4.5, fig.height=2.5}
+sb1 <- leader$manner=="constitutional ascent"
+km_sb1 <- survfit(surv_object~1, subset=sb1)
+ggplot(
+  data=tidy(km_sb1), 
+  aes(time, estimate, fill=state)) +
+  expand_limits(y=1)               +
+  expand_limits(x=27)              +
+  geom_col(width=1)
+sb1 <- leader$manner=="nonconstitutional ascent"
+km_sb2 <- survfit(surv_object~1, subset=sb1)
+ggplot(
+  data=tidy(km_sb2), 
+  aes(time, estimate, fill=state)) +
+  expand_limits(y=1)               +
+  expand_limits(x=27)              +
+  geom_col(width=1)
+```
+
+
+```{r average}
+n <- 1000
+y1 <- rexp(n, 1)
+y2 <- rexp(n, 2)
+y3 <- rexp(n, rep(1:2, n/2))
+y4 <- rexp(n, 1.5)
+cens <- rep(1, n)
+km1 <- tidy(survfit(Surv(y1, cens)~1))
+km2 <- tidy(survfit(Surv(y2, cens)~1))
+km3 <- tidy(survfit(Surv(y3, cens)~1))
+km4 <- tidy(survfit(Surv(y4, cens)~1))
+plot(km1$time, km1$estimate, type="l", col="red")
+lines(km2$time, km2$estimate, col="blue")
+lines(km3$time, km3$estimate, col="purple")
+lines(km4$time, km4$estimate, col="purple", lty="dotted")
 ```
 
 Save everything for possible later re-use.

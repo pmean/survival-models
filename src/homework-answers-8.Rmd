@@ -1,0 +1,56 @@
+---
+title: "homework answers 8"
+author: "Steve Simon"
+date: "June 18, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+~/survival-models/doc/homework-8.txt
+
+1. Open the file, leader.txt
+
+Calculate a competing risk model comparing Latin America to the other three regions. What are the major differences?
+
+```{r read}
+fn <- "~/survival-models/bin/leader.RData"
+load(fn)
+leader <- leader[is.finite(leader$age), ]
+surv_object <- 
+  Surv(
+    leader$years, 
+    leader$lost,
+    type="mstate")
+```
+
+```{r subsets-2, fig.width=4.5, fig.height=2.5}
+sb3 <- leader$region=="latin america"
+km_sb3 <- survfit(surv_object~1, subset=sb3)
+ggplot(
+  data=tidy(km_sb3), 
+  aes(time, estimate, fill=state)) +
+  expand_limits(y=1)               +
+  geom_col(width=1)
+sb4 <- leader$region!="latin america"
+km_sb4 <- survfit(surv_object~1, subset=sb4)
+ggplot(
+  data=tidy(km_sb4), 
+  aes(time, estimate, fill=state)) +
+  expand_limits(y=1)               +
+  geom_col(width=1)
+```
+
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-8.RData")
+```
