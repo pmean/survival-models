@@ -7,15 +7,6 @@ output: html_document
 
 This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-8.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
 
-```{r render, eval=FALSE, echo=FALSE}
-# run the commands in this section to store the output
-# in the results folder.
-library(rmarkdown)
-f <- "~/survival-models/src/supplement-8.Rmd"
-o <- "~/survival-models/results"
-render(f, output_dir=o)
-```
-
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May.
 
 ```{r load-libraries}
@@ -27,16 +18,25 @@ library(survival)
 library(tidyr)
 ```
 
-## competing risks
+```{r set-parameters}
+lambda <- 1.03
+```
 
-The leader data set is described in Chapter 6 of Alison. You can get the data, and the SAS code at
+Suppose you have a population of women with ages that are normally distributed with a mean of 50 and a standard deviation of 10. Also assume that the hazard increases by  factor of `r lambda` for each year of age. This is what the population of survival functions would look like.
 
-http://ftp.sas.com/samples/A55233
-
-The prostate survival data set is available in the asaur package.
-
-```{r prostate}
-head(prostateSurvival)
+```{r population, fig.width=4.5, fig.height=2.5}
+n <- 100
+m <- 20
+a <- rnorm(n, 50, 10)
+hist(a)
+t <- seq(0, 3, length=m)
+data.frame(id=rep(1:n, each=m)) %>%
+  mutate(age=rep(a, each=m))    %>%
+  mutate(time=rep(t, n))        %>%
+  mutate(hr=lambda^(age-20))    %>%
+  mutate(s=exp(-t*hr))          %>%
+  ggplot(aes(time, s, group=id)) +
+    geom_line(alpha=0.05)
 ```
 
 Save everything for possible later re-use.
