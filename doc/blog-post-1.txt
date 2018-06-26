@@ -1,0 +1,29 @@
+~/survival-models/doc/blog-post-1.txt
+
+Survival analysis is more than just death rates.
+
+The methods for survival analysis were developed to handle the complexities of mortality studies, but they can be used for so much more.
+
+You can study the "death" of mechanical devices, though the term "failure" is probably a better word to use for something that was never truly alive.
+
+You can also study other health related events like relapse or rehospitalization. The events do not even need to be events that you'd like to avoid. Survival models are used to model the time to pregnancy for couples treated for fertility problems.
+
+[Talk about applications in business like restaurant failures].
+
+Many of the statistical analyses of mortality mention the hazard rate or the hazard function. What is this, exactly?
+
+First, you have to remember the difference between a probability and a rate. Both involve counts, but a probability involves one count divided by another count. This ratio is always between zero and one because the count in the numerator represents the count of a subset.
+
+In contrast, a rate is a count divided by a measure of time. A rate can never be negative, but it can be larger than one, depending on the units of time that you use.
+
+The hazard rate is the short term rate of death (or the short term failure rate, if you are talking about a mechanical device).
+
+In some settings, the hazard rate increases with time. This means that the death or failure rate gets larger as the person/device gets older. This is the most common pattern for a hazard rate, and it implies that new is better than used.
+
+In some situations, the reverse is true and the hazard rate decreases with time. This implies that a person or device is likely to see early mortality or failure, but that the person or device toughens over time and becomes less likely to fail. This is a pattern you see with some electronic equipment, which if it doesn't fail early, is likely to last you through the long haul. This represents the case where used is better tha new.
+
+If the hazard rate is constant over time, you have a setting where the short term failure rate is independent of time. A new device is equivalent to a used device and it doesn't matter how long the device has been around. This is sometimes referred to as a "memoryless" process. THe device doesn't need to remember how old it is because its short term failure rate remains unchanged with age.
+
+
+
+meaning that the short term failure rate is the same for a brand new device as for a device
