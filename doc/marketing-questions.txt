@@ -1,0 +1,29 @@
+survival-models/marketing-questions.txt
+
+Why do people need to learn this?
+
+	The hallmark of survival analysis is that for each subject in your study, you are measuring the time until a particular event occurs. If you don’t properly account for subjects who never experience the event, you can seriously bias your analysis.
+
+Who is this workshop for?
+
+	This workshop is for intermediate users of statistics, who are comfortable with the basics of hypothesis testing and confidence intervals and who understand the basic structure of linear regression and simple analysis of variance models.
+
+What specific prerequisites should they have?
+
+	You should be comfortable with reading text files into a statistical software package like SAS, SPSS, Stata, or R and with producing simple summary statistics and basic graphs. Some familiarity with basic Calculus (integrals and derivatives) and with probability concepts like the density function are also helpful but not absolutely necessary.
+
+Who doesn't need this workshop?
+
+	If you do not measure time to events in your data sets or if you do not encounter censored data in your work, this class will not be helpful.
+
+What are your goals for this workshop?
+
+	I want you to understand survival curve is and how you can calculate it for a simple data set, define a hazard function and understand the practical distinctions between an increasing hazard and a decreasing hazard. You need to fit a Cox proportional hazards regression model, assess the underlying assumptions of this model and take corrective action when those assumptions are violated.
+
+What will participants gain (tangible or intangible) by investing in this workshop?
+
+	You will expand your toolbox by learning methods that apply to time to event models.
+
+What are your audience member's biggest frustrations in regard to this topic? What keeps them up at night?
+
+	The regression models for survival data are so much different than other regression models. The mathematical foundations, the diagnostic tools, and the extensions of the Cox regression model cannot rely on an underlying normal distribution. The process of censoring adds another layer of complexity.
