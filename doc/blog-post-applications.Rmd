@@ -1,0 +1,22 @@
+---
+title: "Blog post on applications"
+author: "Steve Simon"
+date: "July 6, 2018"
+output: html_document
+---
+
+# What is survival analysis and where can it be used?
+
+Survival analysis is more than just death rates.
+
+The methods for survival analysis were developed to handle the complexities of mortality studies, but they can be used for so much more.
+
+You can study the "death" of mechanical devices, though the term "failure" is probably a better word to use for something that was never truly alive.
+
+You can also study other health related events like relapse or rehospitalization. The events do not even need to be events that you'd like to avoid. Survival models are used to model the time to pregnancy for couples treated for fertility problems.
+
+There are two features of survival models. First is the process of measuring the time in a sample of people, animals, or machines until a specific event occurs. In fact, many people use the term "time to event analysis" instead of "survival analysis" to emphasize the broad range of areas where you can apply these techniques.
+
+Second, is the recognition that not everyone/everything in your sample will experience the event. Those not experiencing the event, either because the study ended before they had the event or because they were lost to follow-up are classified as censored observations.
+
+P.S. Interested in exploring this topic further? Check out our latest live workshop, ...

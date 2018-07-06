@@ -1,0 +1,22 @@
+---
+title: "Blog post on censoring"
+author: "Steve Simon"
+date: "July 6, 2018"
+output: html_document
+---
+
+# What is censoring and why do you have to worry about it?
+
+One of the hallmarks of survival analysis is censoring. You are measuring the time until a certain event occurs in a sample of people, animals, or machines, and some of those in your sample never experience the event, at least not while you were studying them.
+
+Consider a hypothetical experiment involving the survival times of a sample of 25 fruit flies. You wathc these flies daily and whenever a fly drops to the bottom of the cage, you give it a proper burial and record the number of days it was alive.
+
+Suppose that you've done this for 15 of the flies, but on day 70 of the experiment, you carelessly leave the cage open and the 10 flies who are still alive bug out.
+
+You might think that your experiment is ruined, but not so fast. You can still estimate the median survival time, because the median fly (#13) died before your gaffe occurred. Just be careful about this. The censored observations are not missing observations. You know something about these ten flies. They were the senior citizens in your sample and last longer than most of the other flies. You don't ignore this information because ignoring information about the toughest ten flies in your sample seriously biases your outcome.
+
+How do you handle censored observations? You use the censored observations to estimate survival probabilities up to the time of the great escape. Since these flies were alive through day seventy, they contribute to the denominator of the survival probabilty over time up to day seventy itself. After day seventy, they no longer contribute information about survival.
+
+So censored observations represent data that is only partially missing and they can and should be incorporated into your statistical analysis.
+
+P.S. Interested in exploring this topic further? Check out our latest live workshop, ...
