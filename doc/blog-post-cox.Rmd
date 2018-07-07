@@ -1,0 +1,24 @@
+---
+title: "Blog post on parametric and semi-parametric models"
+author: "Steve Simon"
+date: "July 6, 2018"
+output: html_document
+---
+
+## Parametric or semi-parametric?
+
+It was Casey Stengel who offered the sage advice, "If you come to a fork in the road, take it." When you need to fit a regression model to survival data, you have to take a fork in the road. One road asks you to make a distributional assumption about your data and the other does not.
+
+Parametric models for survival data don't work well with the normal distribution. They typically use a non-negative distribution, because if you have negative survival times in your study, it is a sign that the zombie apocalypse has started.
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3519189/
+
+The distributions that work well for survival data include the exponential, Weibull, gamma, and lognormal distributions among others. These distributions give you a broad range of hazard functions. You can choose the one that best matches your a priori beliefs about the hazard function or you can compare different parametric models and choose among them using a criteria like AIC. 
+
+The alternative fork estimates the hazard function from the data. This approach is referred to as a semiparametric approach because while the hazard function is estimated nonparametrically, the functional form of the covariates is parametric. The semiparametric model relies on some very clever partial likelihood calculations by Sir David Cox in 1972 and the method is often called Cox regression in his honor. It is also often referred to as proportional hazards regression to highlight a major assumption of this model.
+
+Cox regression is a much more popular choice than parametric regression, because the nonparametric estimate of the hazard function offers you much greater flexibility than most parametric approaches. Nevertheless, a parametric model, assuming that it is the correct parametric model, does offer some advantages.
+
+A parametric model will provide somewhat greater efficiency, because you are estimating fewer parameters. It also provides you with the ability to extrapolate beyond the range of the data. Finally, if the parametric model matches some underlying mechanism associated with your data, you end up with more relevant interpretations of your model.
+
+P.S. Interested in exploring this topic further? Check out our latest live workshop, ...
