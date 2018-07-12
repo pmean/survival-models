@@ -121,6 +121,15 @@ leader$literacy_c <-
 table(leader$literacy_c)
 ```
 
+Take a look at the calculations involved.
+
+```{r calculations-km}
+leader_tally <- table(leader$years, leader$lost)
+leader_tally
+fn <- "~/survival-models/data/leader_tally.csv"
+write.csv(leader_tally, file=fn, row.names=FALSE)
+```
+
 ```{r binary-km, fig.width=4.5, fig.height=2.5}
 binary_surv <- Surv(leader$years, leader$event)
 
@@ -332,9 +341,15 @@ points(
   km_overall$pstate[ , 4], 
   col="red")
 head(tidy(km_overall))
+km_overall %>% tidy -> km_overall_tidy
+km_overall_tidy %>%
+  filter(time==24) %>%
+  mutate(time=25) %>%
+  bind_rows(km_overall_tidy) -> km_overall_tidy
 ggplot(
-  data=tidy(km_overall),
+  data=km_overall_tidy,
   aes(time, estimate, fill=state)) + 
+  scale_y_reverse()                +
   expand_limits(y=1)               +
   geom_col(width=1)
 ```
@@ -344,17 +359,35 @@ Let's look at a couple of subsets.
 ```{r subsets, fig.width=4.5, fig.height=2.5}
 sb1 <- leader$manner=="constitutional ascent"
 km_sb1 <- survfit(surv_object~1, subset=sb1)
+km_sb1 %>% tidy -> km_sb1_tidy
+km_sb1_tidy %>%
+  filter(time==20) %>%
+  mutate(time=21) %>%
+  bind_rows(km_sb1_tidy) -> km_sb1_tidy
+km_sb1_tidy %>%
+  filter(time==24) %>%
+  mutate(time=25) %>%
+  bind_rows(km_sb1_tidy) -> km_sb1_tidy
 ggplot(
-  data=tidy(km_sb1), 
+  data=km_sb1_tidy, 
   aes(time, estimate, fill=state)) +
+  scale_y_reverse()                +
   expand_limits(y=1)               +
   expand_limits(x=27)              +
   geom_col(width=1)
-sb1 <- leader$manner=="nonconstitutional ascent"
-km_sb2 <- survfit(surv_object~1, subset=sb1)
+sb2 <- leader$manner=="nonconstitutional ascent"
+km_sb2 <- survfit(surv_object~1, subset=sb2)
+km_sb2 %>% tidy -> km_sb2_tidy
+for (i in 22:27) {
+  km_sb2_tidy %>%
+    filter(time==21) %>%
+    mutate(time=i) %>%
+    bind_rows(km_sb2_tidy) -> km_sb2_tidy
+}
 ggplot(
-  data=tidy(km_sb2), 
+  data=km_sb2_tidy, 
   aes(time, estimate, fill=state)) +
+  scale_y_reverse()                +
   expand_limits(y=1)               +
   expand_limits(x=27)              +
   geom_col(width=1)
