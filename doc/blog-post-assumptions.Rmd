@@ -1,0 +1,38 @@
+---
+title: "Blog post on alternative assumptions"
+author: "Steve Simon"
+date: "July 7, 2018"
+output: html_document
+---
+
+## What are the assumptions for Cox regression models and what are the consequences if they are not met?
+
+The Cox regression model has a fairly minimal set of assumptions, but how do you check those assumptions and what happens if those assumptions are not satisfied?
+
+## Non-proportional hazards
+
+The proportional hazards assumption is so important to Cox regression that we often include it in the name (the Cox proportional hazards model). There are several graphical methods for spotting this violation, but the simplest is just an examination of the Kaplan-Meier curves. If the curves cross, as shown below, then you know you have problems.
+
+![Figure 1. Graph of crossing survival curves](../bin/crossing-survival-curves.png)
+
+If one curve tends to level off while the other continues to drop to zero, you have a problem.
+
+![Figure 2. Kaplan-Meier curve with only one curve leveling off](../bin/leveling-off.png)
+
+You might think of non-proportional hazards as an interaction of your independent variable with time. It means that you have to do more work in interpreting your model. If you ignore this problem, you may also experience a serious loss in power.
+
+If you have evidence of non-proportional hazards, don't despair. There are several fairly simple modifications to the Cox regression model that will work for you.
+
+## Nonlinear covariate relationships
+
+The Cox model assumes that each variable makes a linear contribution to the model, but sometimes the relationship may be more complex. You can diagnose this problem graphically using residual plots. The residual in a Cox regression model is not as simple to compute as the residual in linear regression, but you look for the same sort of pattern as in linear regression.
+
+If you have a nonlinear relationship, you have several options that parallel your choices in a linear regression model.
+
+## Lack of independence
+
+Lack of independence is something that you may know about even before your data is collected. Certain features of your research design, such as centers in a multi-center study are likely to produce correlated outcomes. These are the same issues that hound you with a linear regression model in a multi-center study.
+
+There are several ways to account for lack of independence, but this is one problem you don't want to ignore. An invalid model will ruin all your confidence intervals and p-values.
+
+P.S. Interested in exploring this topic further? Check out our latest live workshop, ...
