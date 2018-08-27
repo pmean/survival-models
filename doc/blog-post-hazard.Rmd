@@ -1,0 +1,46 @@
+---
+title: "Blog post on the hazard function"
+author: "Steve Simon"
+date: "July 6, 2018"
+output: html_document
+---
+
+## What is a hazard function?
+
+Many of the statistical analyses of mortality mention the hazard function. What is this, exactly?
+
+First, you have to remember the difference between a probability and a rate. Both involve counts, but a probability is a count of actual events divided by a count of possible events. A probability is always between zero and one.
+
+In contrast, a rate involves division of two quantities with different units. Usually it is a count divided by a measure of time. A rate can never be negative, but it can be larger than one, depending on the units of time that you use.
+
+The hazard function is the short-term rate of death, the short-term failure rate (if you are talking about a mechanical device), or the short-term event rate (if you are talking about any other type of outcome).
+
+The mathematical definition is
+
+$h(t) = \lim_{\Delta t \rightarrow 0} \frac{P[t \leq T < t+\Delta t] / \Delta t}{P[T \geq t]}$
+
+where T is a random variable representing the time when your event occurs. 
+
+Notice that there are TWO divisions in this calculation. The division by $\Delta t$ is an adjustment for time, and you want the time interval to be very small. It's this adjustment for time that makes the hazard function a rate, so don't get upset if you see a hazard function that is sometimes larger than one.
+
+The division by $P[T \geq t]$ restricts your attention to only those individuals who "survived" up to time t. This is effectively a conditional probability.
+
+$h(t) = \lim_{\Delta t \rightarrow 0} P[t \leq T < t+\Delta t | T \geq t] / \Delta t$
+
+A conditional probability is logical, at least if you are an insurance agent, because people who have already died normally don't visit your office asking for life insurance. A hazard rate estimates the short-term death rate only among those still living.
+
+It's helpful to understand the mathematical basis for a hazard function, but you can (and should) think about the hazard function without the rigor of mathematics.
+
+In some settings, the hazard function increases with time. This means that the death or failure rate gets larger as the person/device gets older. This is the most common pattern for a hazard function, and it implies that new is better than used.
+
+In some situations, the reverse is true, and the hazard function decreases with time. This implies that a person or device is likely to see early mortality or failure, but that the person or device toughens over time and becomes less likely to fail. This is a pattern you see with some electronic equipment, which if it doesn't fail early, is likely to last you through the long haul. This represents the case where used is better than new.
+
+If the hazard function is constant over time, you have a setting where the short-term failure rate is independent of time. A new device is equivalent to a used device and it doesn't matter how long the device has been around. This is sometimes referred to as a "memoryless" process. The device doesn't need to remember how old it is because its short-term failure rate remains unchanged with age.
+
+A good example (actually a bad example) is when I ask my 16 year old son when he is going to get off the XBox and clean up his room. His answer is "five more minutes." I poke my head in the room fifteen minutes later, ask the same question, and his answer is "five more minutes." An hour later, his answer is, you guessed it, "five more minutes."
+
+If you are a normal human being, you have a "bathtub" shaped hazard function. Your hazard starts out high. In fact, your first day of your life was your most dangerous one, and even the first week and month were quite perilous. The older you got, the tougher you got, and all was good until you hit your teenage years. Then, things started to slowly get worse again. Your hazard function slowly increased because you started doing dangerous adult things like driving a car. Then as the decades moved along, the aging process in your body contributed even more to the hazard.
+
+Why is the hazard function important? In an industrial setting, a hazard function tells you when to use a system of preventive replacement of aging parts. If you make some reasonable assumptions about the form of the hazard function, you can (carefully) extrapolate survival probabilities to longer time frames. If you are planning to study survival probabilities, knowledge of the hazard function can help you plan the sample size and duration of follow-up for your research. Finally, assumptions about the hazard function are critical for regression models of survival.
+
+P.S. Interested in exploring this topic further? Check out our latest live workshop, ...
