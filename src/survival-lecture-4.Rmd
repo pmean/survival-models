@@ -5,7 +5,7 @@ date: "April 8, 2018"
 output: html_document
 ---
 
-Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you'll work with more complex forms of the Cox model with multiple predictor variables. You'll include covariates in the Cox model to produce risk adjusted survival curves. You'll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
+Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you will work with more complex forms of the Cox model with multiple predictor variables. You'll include covariates in the Cox model to produce risk adjusted survival curves. You will also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
