@@ -15,13 +15,15 @@ libname survival
 
 ** whas100 **;
 
-* Read the data-dictionary-whas100.txt file in the doc 
-  subdirectory for information about this data set.
+* Read the data-dictionary-whas100.txt file in 
+  the doc subdirectory for information about 
+  this data set.
 
-  Out of respect for the book's copyright, I am not reproducing
-  the whas100.txt file in the git repository. See README.md in
-  the main folder or the data dictionary file mentioned above
-  for details about how to download this file.                    ;
+  Out of respect for the book's copyright, I am
+  not reproducing the whas100.txt file in the git
+  repository. See README.md in the main folder or
+  the data dictionary file mentioned above for
+  details about how to download this file.      ;
 
 filename whas100
   "c:/Users/simons/My Documents/survival-models/data/wiley/whas100.dat";
