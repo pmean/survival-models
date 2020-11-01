@@ -1,0 +1,143 @@
+---
+title: "Spline question"
+author: "Steve Simon"
+date: "11/17/2018"
+output: html_document
+graphics: yes
+---
+
+Hi Dr. Simon,
+
+I had a couple questions about the homework for module 4. In particular, question 1B, where we are calculating a cubic spline model for systolic blood pressure with four degrees of freedom.
+
+(note - I'm using R for my work)
+
+Please see the attachment.
+
+1) How do we interpret the coeff and p values here – do we say that the linear effect of sysbp is significant (p=.03) but that the spline effect of sysbp is not (p=.05)?
+
+2) However, when we plot the linear effect of sysbp against the spline effect, we see it deviates from being linear, which would suggest we want to make use of the spline effect… correct? Also, the loglik seems to indicate that the spline is the better fit…
+
+3) Lastly, why does R report the AIC and BIC for the spline as “NA”?
+
+Many thanks!
+Ethan
+
+
+```{r load-libraries}
+suppressMessages(suppressWarnings(library(broom)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(ggplot2)))
+suppressMessages(suppressWarnings(library(magrittr)))
+suppressMessages(suppressWarnings(library(survival)))
+suppressMessages(suppressWarnings(library(tidyr)))
+fn <- "../../data/whas500.RData"
+load(fn)
+head(whas500)
+```
+
+Fit a linear effect of sysbp and a penalized spline with four degrees of freedom.
+
+```{r calculate-spline}
+cox_sysbp <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp,
+    data=whas500)
+cox_pspline4 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    pspline(sysbp, df=4),
+      data=whas500)
+cox_sysbp
+cox_pspline4
+```
+
+First things first. The coefficients in any spline model are impossible to interpret. For the linear fit, the negative coefficient tells you that as sysbp increases, the hazard decreases. But the wide range of coefficients in a penalized spline are just plain confusing.
+
+```{r coef}
+coef(cox_sysbp)
+coef(cox_pspline4)
+```
+
+You should plot the spline function on the y-axis against the original variable on the x-axis.
+
+```{r plot-spline}
+terms_pspline4 <- predict(cox_pspline4, type="terms")
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+o <- order(whas500$sysbp)
+plot(whas500$sysbp[o], terms_pspline4[o , 1], type="l")
+```
+
+The problem with this plot is that you don't have standard errors to judge the statistical significance of the spline. Use the termplot function to get a plot with error bounds.
+
+```{r termplot}
+termplot(cox_pspline4, term=1, se=TRUE, col.term=1, col.se=1)
+```
+
+The summary statistics produced by the glance function in broom are a bit confusing.
+
+```{r summary}
+glance(cox_sysbp)                 %>%
+  bind_rows(glance(cox_pspline4)) %>%
+  mutate(lab=c(
+    "linear (df=1)",
+    "spline (df=4)"))             %>%
+  select(lab, logLik, AIC, BIC)   -> compare_splines
+compare_splines
+```
+
+It would be better to use the anova function. First compare the spline fit to a null model.
+
+```{r spline-vs-null}
+anova(cox_pspline4)
+```
+
+Next compare a spline model to a linear model.
+
+```{r spline-vs-linear}
+anova(cox_sysbp, cox_pspline4)
+```
+
+You can get the AIC for the linear model.
+
+```{r aic-linear}
+AIC(cox_sysbp)
+```
+
+but not for the penalized spline.
+
+```{r aic-pspline}
+AIC(cox_pspline4)
+```
+
+I'm not sure why this is, but I suspect it is related to the fact that a penalized spline only has an approximate degrees of freedom.
+
+The restricted cubic splines in Frank Harrell's rms package can provide an alternative to the penalized splines.
+
+```{r rcs}
+suppressMessages(suppressWarnings(library(rms)))
+cox_rcs <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    rcs(sysbp, df=4),
+      data=whas500)
+cox_rcs
+```
+
+The coefficients are still rather cryptic.
+
+```{r coeff-rcs}
+coef(cox_rcs)
+```
+
+The plot is somewhat similar to the penalized spline.
+
+```{r rcs-plot}
+termplot(cox_rcs, se=TRUE, col.term=1, col.se=1)
+```
+
+You can get a formal test and the AIC for the restricted cubic spline. The formulation of the restricted cubic spline provides an exact degrees of freedom.
+
+```{r rcs-aic}
+anova(cox_rcs)
+anova(cox_sysbp, cox_rcs)
+AIC(cox_sysbp)
+AIC(cox_rcs)
+```

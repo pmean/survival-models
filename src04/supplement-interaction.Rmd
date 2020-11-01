@@ -1,0 +1,232 @@
+---
+title: "Questions about interactions and goodness of fit"
+author: "Steve Simon"
+output: 
+  powerpoint_presentation
+---
+
+## A few extra details
+
+I got two interesting questions. The first was about a Cox regression model that involved the interaction of two categorical variables. The second was about measures of goodness of fit for the Cox model.
+
+```{r load-libraries, echo=FALSE}
+options(width=50)
+library(knitr)
+knitr::opts_chunk$set(echo=FALSE)
+library(broom)
+library(dplyr, warn.conflicts=FALSE)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr, warn.conflicts=FALSE, quietly=TRUE)
+```
+
+## Review the whas500 data set
+
+```{r read}
+fn <- "../../data/whas500.RData" 
+load(fn)
+whas500$time_yrs <- whas500$lenfol/365.25
+head(whas500, n=2)
+```
+
+## Interaction with age as a categorical variable
+
+In the lecture you saw an interaction between age (a continuous variable) and gender (a categorical variable). The interpretation of the interaction was not too difficult. The interaction meant that the difference in survival between men and women was very large at younger ages, but this difference shrunk for older patients. 
+
+## Turning age into a categorical variable
+
+```{r survival-40}
+load("../../data/class4.RData")
+whas500$g <- cut(whas500$age,
+  breaks=c(0, 60, 70, 80, 120), 
+  labels=c("0-60", "61-70", "71-80", "81+"))
+table(whas500$g, whas500$gender)
+```
+
+## Kaplan-Meier plot for ages 0-60
+
+```{r km60}
+sb60 <- whas500[whas500$g=="0-60", ]
+age60_km <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=sb60)
+age60_km %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step() +
+    expand_limits(y=0)
+```
+
+## Kaplan-Meier plot for ages 61-70
+
+```{r km70}
+sb70 <- whas500[whas500$g=="61-70", ]
+age70_km <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=sb70)
+age70_km %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step() +
+    expand_limits(y=0)
+```
+
+## Kaplan-Meier plot for ages 71-80
+
+```{r km80}
+sb80 <- whas500[whas500$g=="71-80", ]
+age80_km <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=sb80)
+age80_km %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step() +
+    expand_limits(y=0)
+```
+
+## Kaplan-Meier plot for ages 81+
+
+```{r km90}
+sb90 <- whas500[whas500$g=="81+", ]
+age90_km <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=sb90)
+age90_km %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step() +
+    expand_limits(y=0)
+```
+
+## Interaction with age_group
+
+```{r age-group-interaction}
+levels(whas500$gender) <- c("M", "F")
+cox_int3 <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~gender*g,
+    data=whas500)
+ic <- clean_table(cox_int3)
+ic
+x <- ic$hr
+```
+
+## Interpretation of interaction
+
+age |    M|   F
+----|-----|----
+0-60|1.00 (baseline)|genderF
+61-70|g61-70|genderF x g61-70 x genderF:g61-70
+71-80|g71-80|genderF x g71-80 x genderF:g71-80
+81+|g81+|genderF x g81+ x genderF:g81+
+
+## Interpretation of hazard ratios
+
+age |   Hazard Ratio
+----|-----
+0-60|genderF
+61-70|genderF x genderF:g61-70
+71-80|genderF x genderF:g71-80
+81+|genderF x genderF:g81+
+
+
+## Interaction in the WHAS500 data set
+
+age |    M|   F
+----|-----|----
+0-60|1.00 (baseline)|`r x[1]`
+61-70|`r x[2]`|`r round(x[2]*x[1]*x[5], 2)`
+71-80|`r x[3]`|`r round(x[3]*x[1]*x[6], 2)`
+81+|`r x[4]`|`r round(x[4]*x[1]*x[7], 2)`
+
+## Hazard ratios in the WHAS500 data set
+
+age |   Hazard Ratio
+----|-----
+0-60|`r x[1]`
+61-70|`r round(x[1]*x[5], 2)`
+71-80|`r round(x[1]*x[6], 2)`
+81+|`r round(x[1]*x[7], 2)`
+
+## Goodness of fit
+
+Many researchers want a number comparable to the $R^2$ value in linear regression. It should have several properties:
+
+1. It is always between 0 and 1.
+
+2. A value of 0 implies a "worthless" model.
+
+3. A value of 1 implies a "perfect" model.
+
+4. If one model has an $R^2$ value larger than another model, then the first model is a "better" model.
+
+## ROC approach to goodness of fit
+
+```{r roc-1}
+whas500 %>%
+  filter(fstat=="Dead") %>%
+  mutate(time_yrs=round(time_yrs, 3)) %>%
+  select(gender, time_yrs, fstat) %>%
+  sample_n(10) %>%
+  arrange(time_yrs) -> whas10
+whas10
+```
+
+## ROC approach to goodness of fit
+
+```{r roc-2}
+whas10 %>%
+  mutate(spec=(gender=="M")) %>%
+  mutate(spec=cumsum(spec)/sum(spec)) %>%
+  mutate(sens=(gender=="F")) %>%
+  mutate(sens=1-cumsum(sens)/sum(sens)) -> whas10
+whas10
+```
+
+## Concordant pairs
+
+```{r concordant}
+which_m <- whas10$gender=="M"
+which_f <- whas10$gender=="F"
+n_m <- sum(which_m)
+n_f <- sum(which_f)
+time_m <- whas10$time_yrs[which_m]
+time_f <- whas10$time_yrs[which_f]
+concordant <- matrix("X", nrow=n_m, ncol=n_f)
+dimnames(concordant) <- list(time_m, time_f)
+for (i in 1:n_m) {
+  for (j in 1:n_f) {
+    concordant[i, j] <- 
+      ifelse(time_m[i] < time_f[j], "C", "D")
+  }
+}
+concordant
+cat("\n\nC/(C+D) = ",
+  round(sum(concordant=="C")/ (n_m*n_f), 2))
+```
+
+## Concordant pairs with censoring
+
+```{r concordant-with-censoring}
+extra_row <- c(rep("D", n_f-1), "?")
+concordant <- rbind(concordant, extra_row)
+dimnames(concordant)[[1]] <- c(time_m, "2+")
+concordant
+```
+
+## Partial likelihood approach to goodness of fit
+
+There are several measures of goodness of fit that are based on partial likelihoods. The simplest of these is
+
+$R^2_p = 1-exp(\frac{2}{n} (L_0 - L_p))$
+
+where $L_0$ is the partial log likelihood under the model with no covariates. This measure and others based on the same principle are describes on pages 194-195 of Hosmer, Lemeshow, and May.
+
+## Why I dislike goodness of fit measures.
+
+1. In linear regression, $R^2$ has a concrete interpretation in terms of the proportion of explained variation. There is no similar analogy in survival analysis.
+
+2. All of the measures of goodness of fit are highly sensitive to the proportion of censored values.
+
+3. There is no consensus in the research community as to which measure of goodness of fit is best.
+
+```{r save-everything}
+save.image("../../data/xtra4.RData")
+```

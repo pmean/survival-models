@@ -1,0 +1,304 @@
+
+```{r one-at-a-time}
+cox_age <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age,
+    data=whas500)
+summary(cox_age)
+cox_gender <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~gender,
+    data=whas500)
+summary(cox_gender)
+n <- data.frame(gender=factor(1:2, labels=c("Male", "Female")))
+cox_predict <- survfit(cox_gender, newdata=n)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  cox_predict$time,
+  cox_predict$surv[, 2], 
+  type="s", ylim=c(0,1))
+lines(
+  cox_predict$time, 
+  cox_predict$surv[, 1], 
+  type="s", lty="dotted")
+five_year <- which.min(abs(cox_predict$time-5))
+y <- cox_predict$surv[five_year, ]+0.05
+text(5, y, c("M", "F"))
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age+gender,
+    data=whas500)
+summary(cox_mv)
+```
+
+The effect of gender disappears when you include age in the model.
+
+```{r boxplots, fig.width=4.5, fig.height=2.5}
+overall_mean <- mean(whas500$age)
+gender_means <- tapply(whas500$age, whas500$gender, mean)
+age_diff <- gender_means[2]-gender_means[1]
+overall_mean
+gender_means
+ggplot(whas500, aes(x=gender, y=age)) +
+  geom_boxplot()
+coef_mv <- tidy(cox_mv)
+coef_mv
+hr_age <- exp(coef_mv[coef_mv$term=="age", "estimate"])
+extrapolated_hr <- hr_age^age_diff
+```
+
+Notice that there is a `r round(age_diff, 1)` year difference between the average ages of men and women. The hazard ratio for age, `r round(hr_age, 3)`, can get extrapolated to a `r round(age_diff, 1)` year difference by exponentiating. That is `r round(hr_age, 3)`^`r round(age_diff, 1)` = `r round(extrapolated_hr, 2)` which is actually larger than the hazard ratio that we saw for the unadjusted model with just gender.
+
+```{r unadjusted-and-adjusted, fig.width=4.5, fig.height=2.5}
+n_unadjusted <- 
+  data.frame(
+    age=gender_means, 
+    gender=factor(1:2, labels=c("Male", "Female")))
+predict_unadjusted <- survfit(cox_mv, newdata=n_unadjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_unadjusted$time,
+  predict_unadjusted$surv[, 2], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_unadjusted$time, 
+  predict_unadjusted$surv[, 1], 
+  type="s", lty="dotted")
+five_year <- which.min(abs(predict_unadjusted$time-5))
+y <- predict_unadjusted$surv[five_year, ]+0.05
+text(5, y, c("M", "F"))
+
+n_adjusted <- 
+  data.frame(
+    age=overall_mean,
+    gender=factor(1:2, labels=c("Male", "Female")))
+predict_adjusted <- survfit(cox_mv, newdata=n_adjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_adjusted$time,
+  predict_adjusted$surv[, 2], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_adjusted$time, 
+  predict_adjusted$surv[, 1], 
+  type="s", lty="dotted")
+five_year <- which.min(abs(predict_adjusted$time-5))
+y <- predict_adjusted$surv[five_year, ]+0.05
+text(5, y, c("M", "F"))
+```
+
+```{r compare-age-and-bmi, fig.width=4.5, fig.height=2.5}
+whas500$i_female <- as.numeric(whas500$gender=="Female")
+cox_bmi <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~bmi,
+    data=whas500)
+summary(cox_bmi)
+n_bmi <- data.frame(bmi=c(20, 30, 40))
+predict_bmi <- survfit(cox_bmi, newdata=n_bmi)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_bmi$time,
+  predict_bmi$surv[, 1], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_bmi$time, 
+  predict_bmi$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_bmi$time, 
+  predict_bmi$surv[, 3], 
+  type="s", lty="dashed")
+five_year <- which.min(abs(predict_bmi$time-5))
+y <- predict_bmi$surv[five_year, ]+0.05
+text(5, y, c(20, 30, 40))
+ggplot(data=whas500) +
+  geom_boxplot(aes(x=gender, y=bmi))
+ggplot(data=whas500) +
+  geom_point(aes(x=age, y=bmi))
+cox_bmi_adj <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~bmi+age+i_female,
+    data=whas500)
+summary(cox_bmi_adj)
+n_bmi <- data.frame(age=overall_mean, i_female=1, bmi=c(20, 30, 40))
+predict_bmi <- survfit(cox_bmi_adj, newdata=n_bmi)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_bmi$time,
+  predict_bmi$surv[, 1], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_bmi$time, 
+  predict_bmi$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_bmi$time, 
+  predict_bmi$surv[, 3], 
+  type="s", lty="dashed")
+five_year <- which.min(abs(predict_bmi$time-5))
+y <- predict_bmi$surv[five_year, ]+0.05
+text(5, y, c(20, 30, 40))
+```
+
+Look at the interaction.
+
+```{r int}
+cox_int1 <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age*i_female,
+    data=whas500)
+summary(cox_int1)
+whas500$age_centered <- whas500$age-overall_mean
+cox_int2 <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age_centered*i_female,
+    data=whas500)
+summary(cox_int2)
+coef_int2 <- tidy(cox_int2)$estimate
+hr <- exp(coef_int2[2]+coef_int2[3]*((40:90)-overall_mean))
+plot(40:90, hr, type="l")
+abline(h=1)
+
+```
+
+You can use a sequence of Wald tests to compare different models for survival.
+
+```{r wald}
+cox_v1 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    gender,
+      data=whas500)
+
+cox_v2 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    age+gender,
+      data=whas500)                
+
+cox_v3 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    bmi+age+gender,
+      data=whas500)
+
+cox_v1                             %>%
+  tidy                             %>%
+  mutate(lab="gender only")        -> wald_v1
+
+cox_v2                             %>%
+  tidy                             %>%
+  mutate(lab="age, gender")        -> wald_v2
+
+cox_v3                             %>%
+  tidy                             %>%
+  mutate(lab="bmi, age, gender")   -> wald_v3
+
+wald_v1                            %>%
+  bind_rows(wald_v2)               %>%
+  bind_rows(wald_v3)               %>%  
+  select(lab, term, estimate, p.value) -> wald_all
+wald_all
+```
+
+You use the log partial likelihood and/or the AIC (Akaike Information Criteria) to compare models of different complexity.
+
+AIC = -2 log Likelihood + 2 k.
+
+AIC = -2 log Likelihood + log(n) k.
+
+```{r aic}
+cox_v1                           %>%
+  glance                         %>%
+  mutate(lab="gender only")      -> aic1
+
+cox_v2                           %>%
+  glance                         %>%
+  mutate(lab="gender, age")      -> aic2
+
+cox_v3                           %>%
+  glance                         %>%
+  mutate(lab="gender, age, bmi") -> aic3
+
+aic1                             %>%
+  bind_rows(aic2)                %>%
+  bind_rows(aic3)                %>%
+  select(lab, logLik, AIC, BIC)  -> aic_all
+aic_all
+```
+
+There are several residuals available for Cox regression. The Martingale residual is defined as
+
+$M(t_i) = \delta_i - H_0(t_i) e^{X\beta}$
+
+where $\delta_i$ = 0 if censored, 1 if dead.
+
+```{r residuals, fig.width=4.5, fig.height=2.5}
+whas500$r <- residuals(cox_v3)
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+ggplot(whas500, aes(age, r)) +
+  geom_point()
+ggplot(data=whas500, aes(age, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(hr, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(sysbp, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(diasbp, r)) +
+  geom_point() +
+  geom_smooth(se=TRUE)
+ggplot(data=whas500, aes(cvd, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(afb, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(sho, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(chf, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(av3, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(miord, r)) +
+  geom_boxplot()
+ggplot(data=whas500, aes(mitype, r)) +
+  geom_boxplot()
+```
+
+```{r spline, fig.width=4.5, fig.height=2.5}
+cox_pspline3 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    bmi+pspline(age, df=3)+gender,
+      data=whas500)
+
+cox_pspline8 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    bmi+pspline(age, df=8)+gender,
+      data=whas500)
+
+terms_pspline3 <- predict(cox_pspline3, type="terms")
+terms_pspline8 <- predict(cox_pspline8, type="terms")
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+o <- order(whas500$age)
+plot(whas500$age[o], terms_pspline3[o ,2], type="l")
+plot(whas500$age[o], terms_pspline8[o ,2], type="l")
+glance(cox_bmi_adj) %>%
+  bind_rows(glance(cox_pspline3)) %>%
+  bind_rows(glance(cox_pspline8)) %>%
+  mutate(lab=c(
+    "linear (df=1)",
+    "spline (df=3)",
+    "spline (df=8)"))             %>%
+  select(lab, logLik, AIC, BIC)   -> compare_splines
+compare_splines
+```
+
+Testing.
+
+```{r other-models}
+coxph(Surv(time_yrs, fstat=="Dead")~hr, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~sysbp, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~diasbp, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~cvd, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~afb, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~sho, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~chf, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~av3, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~miord, data=whas500)
+coxph(Surv(time_yrs, fstat=="Dead")~mitype, data=whas500)
+```
+
+Save everything for possible later re-use.
+

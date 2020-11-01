@@ -1,0 +1,147 @@
+---
+title: "homework answers 4"
+author: "Steve Simon"
+date: "May 17, 2018"
+output: html_document
+---
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+fn <- "../data/whas500.RData"
+load(fn)
+head(whas500)
+```
+
+a. Calculate a Cox regression model systolic blood 
+pressure (sysbp) by itself ...
+
+```{r cox-sysbp}
+whas500$time_yrs <- whas500$lenfol / 365.25
+cox_sysbp <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp,
+    data=whas500)
+summary(cox_sysbp)
+```
+
+... and then adjusted for gender and age.
+
+```{r cox-sysbp-adj}
+i_female <- as.numeric(whas500$gender=="Female")
+cox_sysbp_adj <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp+age+i_female,
+    data=whas500)
+summary(cox_sysbp_adj)
+```
+
+Is there evidence that systolic blood pressure
+shows any trends with respect to gender or age?
+
+```{r trends}
+ggplot(data=whas500, aes(age, sysbp)) +
+  geom_point()
+ggplot(data=whas500, aes(gender, sysbp)) +
+  geom_boxplot()
+```
+
+Calculate the unadjusted survival curves for patients
+with systolic blood pressures of 120, 140, and 160.
+
+```{r unadjusted-survival}
+n_unadjusted <- 
+  data.frame(
+    sysbp=c(120, 140, 160))
+predict_unadjusted <- survfit(cox_sysbp, newdata=n_unadjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_unadjusted$time,
+  predict_unadjusted$surv[, 3], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_unadjusted$time, 
+  predict_unadjusted$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_unadjusted$time, 
+  predict_unadjusted$surv[, 1], 
+  type="s", lty="dashed")
+```
+
+Then recalculate these survival curves with age set to the 
+overall average age, and to a population that is 30%
+female. Interpret your results.
+
+```{r adjusted-survival}
+n_adjusted <- 
+  data.frame(
+    i_female=0.3,
+    age=mean(whas500$age),
+    sysbp=c(120, 140, 160))
+predict_adjusted <- survfit(cox_sysbp_adj, newdata=n_adjusted)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(
+  predict_adjusted$time,
+  predict_adjusted$surv[, 3], 
+  type="s", ylim=c(0,1))
+lines(
+  predict_adjusted$time, 
+  predict_adjusted$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  predict_adjusted$time, 
+  predict_adjusted$surv[, 1], 
+  type="s", lty="dashed")
+```
+
+b. Calculate cubic spline model for systolic blood
+pressure with four degrees of freedom.
+
+```{r calculate-spline}
+cox_pspline4 <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ 
+    pspline(sysbp, df=4),
+      data=whas500)
+cox_pspline4
+```
+
+Plot this spline and offer an informal assessment as
+to whether your spline function deviates markedly 
+from a linear relationship.
+
+```{r plot-spline-risk}
+cox_pspline4 %>%
+  augment(data=whas500, type.predict="risk") %>%
+  ggplot(aes(x=sysbp, y=.fitted)) +
+    geom_point()
+```
+
+c. Calculate the Martingale residuals from your Cox
+model with a linear term for systolic blood pressure
+and for age and a term for gender. Plot these residuals
+versus diastolic blood pressure. Offer an informal
+assessment as to whether diastolic blood pressure adds
+any information to a model already including systolic
+blood pressure. Repeat this residual plot analysis using
+myocardial infection type (mitype).
+
+```{r martingale}
+i_female <- as.numeric(whas500$gender=="Female")
+cox_sysbp_adj <- coxph(
+  Surv(time_yrs, fstat=="Dead")~sysbp+age+i_female,
+    data=whas500)
+# I am re-including the code for the model here for clarity.
+martingale_residuals <-
+  residuals(cox_sysbp_adj, type="martingale")
+ggplot(whas500, aes(x=diasbp, y=martingale_residuals)) +
+  geom_point() +
+  geom_smooth()
+ggplot(whas500, aes(x=mitype, y=martingale_residuals)) +
+  geom_boxplot()
+```

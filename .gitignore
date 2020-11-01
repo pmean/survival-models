@@ -2,6 +2,6 @@
 .Rhistory
 *.Rproj
 *.RData
-bin/~*.*
-data/wiley/*.txt
-data/wiley/*.dat
+bin/*.*
+data/wiley/*.*
+data/wiley/*.*
