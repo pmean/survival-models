@@ -12,7 +12,7 @@
   footnote2 "of a dataset to orient yourself at the start.";
 
 options orientation=landscape;
-ods pdf file="../results/SA-04-Exercises-SAS-output.pdf";
+ods word file="test.docx";
 
 libname survival  "../data";
 
@@ -194,4 +194,4 @@ proc sgplot
   hbox martingale_residual / category=mitype;
 run;
 
-ods pdf close;
+ods word close;
