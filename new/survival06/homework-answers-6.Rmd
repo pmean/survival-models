@@ -1,0 +1,99 @@
+---
+title: "homework answers 6"
+author: "Steve Simon"
+date: "May 27, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+Open the WHAS500 data set in the software program of your choice.
+
+```{r read}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+```
+
+Calculate and graph on the same graph a Kaplan-Meier curve for the three cohorts associated with year. Does it appear as if these survival curves differ? If so, do they appear to violate the assumption of proportional hazards?
+
+```{r km-plots, fig.width=4.5, fig.height=2.5}
+whas500_surv <- Surv(whas500$time_yrs, whas500$fstat=="Dead")
+km_by_year <- survfit(whas500_surv~whas500$year)
+km_by_year                                 %>%
+  tidy                                     %>%
+  ggplot(aes(time, estimate, color=strata)) +
+  geom_step()
+```
+
+Calculate and interpret the complementary log-log plots.
+
+```{r log-log, fig.width=4.5, fig.height=2.5}
+km_by_year                            %>%
+  tidy                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+```
+
+Calculate, plot, and interpret the Schoenfeld residuals from a Cox regression model with year as the only independent variable. 
+
+```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_mv <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ year, data=whas500)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
+```
+
+Fit a Cox regression model with gender as an independent variable and include year as a strata. Create estimated survival plots for each strata comparing males to females.
+
+```{r stratified model, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_stratified <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~ gender + strata(year), data=whas500)
+n <- data.frame(
+  gender=c("Male", "Female", "Male", "Female", "Male", "Female"),
+  year= c("1997", "1997", "1999", "1999", "2001", "2001"))
+
+cox_predict <- survfit(cox_stratified, newdata=n)
+
+cox_predict                                            %>%
+  tidy                                                 %>%
+  filter(strata=="1" | strata=="2")                    %>%
+  mutate(gender=ifelse(strata=="1", "Male", "Female")) %>%
+  ggplot(aes(time, estimate, color=gender))             +
+    expand_limits(y=0)                                  +
+    geom_step()
+
+cox_predict                                            %>%
+  tidy                                                 %>%
+  filter(strata=="3" | strata=="4")                    %>%
+  mutate(gender=ifelse(strata=="3", "Male", "Female")) %>%
+  ggplot(aes(time, estimate, color=gender))             +
+    expand_limits(y=0)                                  +
+    geom_step()
+
+cox_predict                                            %>%
+  tidy                                                 %>%
+  filter(strata=="5" | strata=="6")                    %>%
+  mutate(gender=ifelse(strata=="5", "Male", "Female")) %>%
+  ggplot(aes(time, estimate, color=gender))             +
+    expand_limits(y=0)                                  +
+    geom_step()
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-6.RData")
+```

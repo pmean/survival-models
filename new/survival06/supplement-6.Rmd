@@ -1,0 +1,331 @@
+---
+title: "supplement 6"
+author: "Steve Simon"
+date: "May 20, 2018"
+output: html_document
+---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-6.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+
+```{r render, eval=FALSE, echo=FALSE}
+# run the commands in this section to store the output
+# in the results folder.
+library(rmarkdown)
+f <- "~/survival-models/src/supplement-6.Rmd"
+o <- "~/survival-models/results"
+render(f, output_dir=o)
+```
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## The Kaplan-Meier plot and proportional hazards.
+
+```{r equal, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+n <- 300
+t1 <- rexp(n, 0.6)
+t2 <- rexp(n, 0.6)
+censor <- as.numeric(c(t1, t2) < 3)
+eq <- data.frame(
+  time=pmin(c(t1, t2), 3), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+eq_surv <- Surv(eq$time, eq$censor)
+plot(survfit(eq_surv~eq$gp))
+
+```
+
+```{r diverging, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+n <- 300
+t1 <- rexp(n, 0.6)
+t2 <- rexp(n, 1.2)
+censor <- as.numeric(c(t1, t2) < 3)
+div03 <- data.frame(
+  time=pmin(c(t1, t2), 3), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+div03_surv <- Surv(div03$time, div03$censor)
+plot(survfit(div03_surv~div03$gp), xlim=c(0,10))
+```
+
+```{r diverging-10-years, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+n <- 300
+t1 <- rexp(n, 0.6)
+t2 <- rexp(n, 1.2)
+t1[1] <- 9.9
+t2[1] <- 9.9
+censor <- as.numeric(c(t1, t2) < 10)
+div10 <- data.frame(
+  time=pmin(c(t1, t2), 10), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+div10_surv <- Surv(div10$time, div10$censor)
+plot(survfit(div10_surv~div10$gp), xlim=c(0,10))
+```
+
+A key and very important deviation from proportional hazards is when one group has increased hazard early and a second group has increased hazard late. The Kaplan-Meier curves for the two groups will show this if they cross.
+
+```{r crossing, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+n <- 300
+t1 <- rexp(n, 0.6)
+t2 <- rgamma(n, 0.2, 0.02)
+censor <- as.numeric(c(t1, t2) < 3)
+cross <- data.frame(
+  time=pmin(c(t1, t2), 3), 
+  gp=rep(1:2, each=n), 
+  censor=censor)
+cross_surv <- Surv(cross$time, cross$censor)
+plot(survfit(cross_surv~cross$gp))
+```
+
+## Complementary log-log plot
+
+If the proportional hazards assumption holds then the survival curves for two different groups should be related by
+
+$S_2(t) = S_1(t)^{hr}$
+
+Take the logarithm of both sides to get
+
+$log(S_2(t)) = log(S_1(t)) hr$
+
+We'd like to take a second log here, but since $S_2$ and $S_1$ are always between 0 and 1, their logarithms would be negative. You have to flip this to a positive value and then take a second logarithm.
+
+$log(-log(S_2(t))) = log(-log(S_1(t))) + log(hr)$
+
+If this transformation, the complementary log-log transformation, produces two curves that are separated by a constant for all values of t, then you have evidence to support the proportional hazards assumption.
+
+```{r log-log-nice, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+div03_km <- survfit(div03_surv~div03$gp)
+g1 <- 1:div03_km$strata[1]
+g2 <- (div03_km$strata[1]+1):sum(div03_km$strata)
+plot(
+  div03_km$time, 
+  log(-log(div03_km$surv)), 
+  type="n")
+lines(
+  div03_km$time[g2], 
+  log(-log(div03_km$surv[g2])), 
+  type="s", lty="dotted")
+lines(
+  div03_km$time[g1], 
+  log(-log(div03_km$surv[g1])), 
+  type="s")
+```
+
+```{r log-log-nasty, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+cross_km <- survfit(cross_surv~cross$gp)
+g1 <- 1:cross_km$strata[1]
+g2 <- (cross_km$strata[1]+1):sum(cross_km$strata)
+plot(
+  cross_km$time, 
+  log(-log(cross_km$surv)), 
+  type="n")
+lines(
+  cross_km$time[g2], 
+  log(-log(cross_km$surv[g2])), 
+  type="s", lty="dotted")
+lines(
+  cross_km$time[g1], 
+  log(-log(cross_km$surv[g1])), 
+  type="s")
+```
+
+## Review the likelihood ratio test
+
+The partial likelihood is
+
+$l_p = \prod_i \frac{e^{X_{(i)} \beta}}{\sum_{j \in R_{(i)}} e^{X_{j}\beta}}$
+
+The log partial likelihood is
+
+$L_p=\sum_i \big( X_{(i)} \beta - log(\sum_{j \in R_{(i)}} e^{X_j \beta}) \big)$
+
+The derivative of the log partial likelihood is
+
+$\frac{\partial L_p}{\partial \beta}= \sum\limits_{i=1}^m \big( X_{(i)} - \bar{X}_i(\beta) \big)$
+
+where $\bar{X}_i(\beta)$ is a weighted average of all the X's remaining in the risk set and with weights equal to
+
+$w_{ij}=\frac{e^{X_j \beta}}{\sum_{l \in R_i} e^{X_l \beta}}$.
+
+A positive derivative implies that we could maximize the log partial likelihood by increasing from the current value of $\beta$ and a negative derivative implies the opposite.
+
+## Schoenfeld residuals.
+
+The slope of the likelihood function is zero at its maximum, which implies that 
+
+$\sum\limits_{i=1}^m \big( X_{(i)} - \bar{X}_i(\hat{\beta}) \big) = 0$.
+
+The individual terms in this sum,
+
+$X_{(i)} - \bar{X}_i(\hat{\beta})$,
+
+are called the Schoenfeld residuals. 
+
+Normally, the Schoenfeld residuals are standardized. If you see a time trend with respect to the Schoenfeld residuals, then this is evidence of a violation of the proportional hazards assumption.
+
+If the Schoenfeld residuals show a positive time trend (negative early and positive late), that means that you have a hazard ratio that is a bit too large early and a bit too small late.
+
+## Stratified analysis
+
+If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
+
+```{r stratified-analysis}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+year_km <- survfit(
+  Surv(whas500$time_yrs, whas500$fstat=="Dead")~whas500$year)
+plot(year_km)
+```
+
+## Time-varying covariates
+
+Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.
+
+```{r read-grace}
+fn <- "~/survival-models/data/wiley/GRACE1000.dat" 
+grace <- read.table(fn, header = FALSE) 
+names(grace) <- c(
+  "id",
+  "days",
+  "death",
+  "revasc",
+  "revascdays",
+  "los",
+  "age",
+  "sysbp",
+  "stchange")
+head(grace)
+```
+
+## Review the likelihood ratio test
+
+Consider a small data set with the following survival times:
+
+1 M   6 1
+
+2 F  14 1
+
+3 F  44 1
+
+4 M  45 0
+
+5 F  89 0
+
+6 M  98 1
+
+7 F  99 1
+
+8 F 104 1
+
+9 M 114 1
+
+the partial likelihood ratio is
+
+$l_p = \prod_i \frac{\psi_{(i)}}{\sum_{j \in R_{(i)}} \psi_j}$
+
+where the parentheses around the subscript implicitly excludes those patients who were censored,
+
+$\psi_{(i)} = e^{X_{(i)} \beta}$
+
+and $R_{(i)}$ is the set of  all patients at risk at time $t_{(i)}$.
+
+For a simple case with a binary predictor like gender, you would have $\psi_{(i)}$ equalling a constant $\psi$ for females and a constant 1 for males.
+
+It helps to keep tabs on the running number of men and women at risk at each time point.
+
+1 M   6 1 4/5
+
+2 F  14 1 3/5
+
+3 F  44 1 3/4
+
+4 M  45 0 3/3
+
+5 F  89 0 2/3
+
+6 M  98 1 2/2
+
+7 F  99 1 1/2
+
+8 F 104 1 1/1
+
+9 M 114 1 1/0
+
+At t=6, a male died, making the numerator 1. The denominator is 4+5$\psi$ because there are 4 males and 5 females in the risk set. The fraction is
+
+$\frac{1}{4+5\psi}$
+
+At t=14, a female died, making the numerator $\psi$ and the denominator is 3+5$\psi$ because there are 3 males and 5 females in the risk set. The second fraction in the product is
+
+$\frac{\psi}{3+5\psi}$
+
+At t=44, another female died, making the numerator $\psi$ again, but the denominator is 3+4$\psi$ because there are 3 males and 4 females in the risk set. This fraction is
+
+$\frac{\psi}{3+4\psi}$
+
+You skip the censored values of t=45 and t=89. The remaining fractions are
+
+$\frac{1}{2+2\psi}$
+
+$\frac{\psi}{1+2\psi}$
+
+$\frac{\psi}{1+\psi}$
+
+$\frac{1}{1}$
+
+The entire product works out to be
+
+$\frac{\psi^4}{(4+5\psi)(3+5\psi)(3+4\psi)(2+2\psi)(1+2\psi)(1+\psi)}$
+
+Let's plot this for various values of $\psi=e^\beta$.
+
+```{r plot-lr}
+lp <- function(beta) {
+  psi <- exp(beta)
+  f <- psi^4 / 
+    ((4+5*psi)*
+     (3+5*psi)*
+     (3+4*psi)*
+     (2+2*psi)*
+     (1+2*psi)*
+     (1+  psi))
+  return(log(f))
+}
+beta <- seq(-2, 2, length=100)
+plot(beta, lp(beta), type="l")
+beta[which.max(lp(beta))]
+```
+
+The second derivative of the log partial likelihood is
+
+$\frac{\partial L_p}{\partial \beta}= -\sum_i \sum_{j \in R_i}{} w_{ij}\big( X_j - \bar{X}_{w{(i)}} \big)^2$
+
+which is a weighted variance.
+
+The information matrix is the negative of the second derivative and the inverse of the information matrix gives you the variances and covariances of the maximum likelihood estimates.
+
+## Also for discussion
+
+* Stratified analysis. Stratify whas500 by year=1, 2, 3. This would use the actg320 data. Compare output to Table 7.1.
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/supplement-6.RData")
+```

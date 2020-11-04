@@ -1,0 +1,64 @@
+---
+title: "supplement 8"
+author: "Steve Simon"
+date: "June 3, 2018"
+output: html_document
+---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-8.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+```{r set-parameters}
+lambda <- 1.08
+```
+
+Suppose you have a population of women with ages that are normally distributed with a mean of 50 and a standard deviation of 10. Also assume that the hazard increases by  factor of `r lambda` for each year of age. This is what the population of survival functions would look like.
+
+```{r population, fig.width=4.5, fig.height=2.5}
+n <- 99
+m <- 301
+p <- (1:n)/(n+1)
+a <- qnorm(p, 50, 10)
+# a <- c(a, 0)
+ax <- rep(a, each=m)
+al <- rep(0.15, length(ax))
+co <- ifelse(ax==50, "red", "black")
+al <- ifelse(ax==50, 1, 0.15)
+# co[ax==0] <- "green"
+# al[ax==0] <- 1
+t <- seq(0, 3, length=m)
+data.frame(id=rep(1:n, each=m)) %>%
+  mutate(age=rep(a, each=m))    %>%
+  mutate(time=rep(t, n))        %>%
+  mutate(hr=lambda^(age-50))    %>%
+  mutate(s=exp(-t*hr))           -> df
+
+df %>%
+  group_by(time) %>%
+  summarize(s=mean(s)) %>%
+  ungroup -> dm
+
+df %>%
+  ggplot(aes(time, s, group=id)) +
+    geom_line(alpha=al, color=co) -> d0
+d0
+
+d0 + stat_summary(fun.y="mean", color="green", group=1, geom="line") +
+   stat_summary(fun.y="median", color="blue", group=1, geom="line") 
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/supplement-8.RData")
+```

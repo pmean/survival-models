@@ -1,0 +1,111 @@
+---
+title: "homework answers 5"
+author: "Steve Simon"
+date: "May 27, 2018"
+output: html_document
+---
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+Open the WHAS500 data set in the software program of 
+your choice.
+
+```{r open}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+head(whas500)
+```
+
+Calculate and graph on the same graph an overall Kaplan-Meier survival curve, a survival curve for an exponential model with no independent variables, and a survival curve for a Weibull model with no independent variables.
+
+```{r graph}
+whas500_surv <- Surv(whas500$time_yrs, whas500$fstat=="Dead")
+km_overall <- survfit(whas500_surv~1)
+
+exp_null_model <- survreg(whas500_surv~1, dist="exponential")
+pct <- (1:999)/1000
+exp_null_model %>%
+  predict(
+    newdata=data.frame(one=1),
+    type="quantile",
+    p=pct)                     %>%
+  data.frame                   %>%
+  set_names("time")            %>%
+  mutate(estimate=rev(pct))    %>%
+  mutate(grp="Exponential")        %>%
+  filter(time<=10)             -> exp_survival
+weibull_null_model <- survreg(whas500_surv~1, dist="weibull")
+weibull_null_model %>%
+  predict(
+    newdata=data.frame(one=1),
+    type="quantile",
+    p=pct)                     %>%
+  data.frame                   %>%
+  set_names("time")            %>%
+  mutate(estimate=rev(pct))    %>%
+  mutate(grp="Weibull")        %>%
+  filter(time<=10)             -> weibull_survival
+
+km_overall                     %>%
+  tidy                         %>%
+  mutate(grp="Kaplan-Meier")   %>%
+  bind_rows(exp_survival)      %>%
+  bind_rows(weibull_survival)  -> combined_survivals
+
+combined_survivals             %>%
+  ggplot(aes(time, estimate))   +
+    expand_limits(y=0)          +
+    geom_step(aes(color=grp))
+
+```
+
+Does there appear to be a difference between the exponential model and the Weibull model? Does either model match the Kaplan-Meier curve?
+
+Answer: The exponential model is a poor fit. It overestimates survival early and underestimates it late. The Weibull model is not perfect, but it matches much more closely.
+
+Calculate a Weibull regression model with bmi, age, gender, and a age by gender interaction. Estimate the impact of a 5 unit change in BMI on the survival percentiles, holding all of the other variables constant.
+
+```{r fit-weibull}
+weibull_full_model <- survreg(
+  whas500_surv~bmi + age*gender, 
+  data=whas500,
+  dist="weibull")
+summary(weibull_full_model)
+weibull_full_model          %>%
+  tidy                      %>%
+  filter(term=="bmi")       %>%
+  select(estimate)          %>%
+  mutate(hr=exp(estimate))  %>%
+  mutate(hr5=hr^5)
+```
+
+Calculate a confidence interval for the scale parameter of the Weibull model.
+
+```{r scale-ci}
+weibull_full_model                           %>%
+  tidy                                       %>%
+  filter(term=="Log(scale)")                 %>%
+  select(estimate, std.error)                %>%
+  mutate(scale=exp(estimate))                %>%
+  mutate(lo=exp(estimate-1.96*std.error))    %>%
+  mutate(hi=exp(estimate+1.96*std.error))
+```
+
+Interpret this interval.
+
+Answer: Since this interval excludes the value of 1, you can conclude that the exponential model is not a good fit for the data.
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/homework-answers-5.RData")
+```

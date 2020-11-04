@@ -1,0 +1,191 @@
+---
+title: "survival lecture 7"
+author: "Steve Simon"
+date: "May 27, 2018"
+output: html_document
+---
+
+Lecture 7. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(coxme)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Psychiatric dataset
+
+This data set can be found at 
+
+math.usu.edu/jrstevens/biostat/projects2013/pres_LeftTruncation.pdf
+
+It illustrates an application of left truncation.
+
+```{r psychiatric, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6), las=1)
+fn <- "~/survival-models/bin/psychiatric.RData"
+load(fn)
+
+head(psychiatric)
+table(psychiatric$sex)
+table(psychiatric$death)
+summary(psychiatric$age)
+summary(psychiatric$age2)
+summary(psychiatric$age2-psychiatric$age)
+
+psychiatric              %$%
+  Surv(age, age2, death=="death") -> psychiatric_surv
+survfit(psychiatric_surv~psychiatric$sex)    %>%
+  tidy                                       -> psychiatric_km
+m <- psychiatric_km$strata=="psychiatric$sex=male"
+f <- psychiatric_km$strata=="psychiatric$sex=female"
+
+# Males are the red line, females black.
+plot(c(0, 80), c(0, 1), type="n")
+lines(
+  psychiatric_km$time[f],
+  psychiatric_km$estimate[f], 
+  type="s")
+lines(
+  psychiatric_km$time[m], 
+  psychiatric_km$estimate[m], 
+  type="s", col="red")
+```
+
+## Examples
+
+The asaur package has all the data sets using in the book Applied Survival Analysis Using R, by Dirk F. Moore.
+
+```{r ashkenazi, fig.width=4.5, fig.height=2.5}
+# This dataset is found in the asaur package.
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+library(asaur)
+head(ashkenazi)
+table(table(ashkenazi$famID))
+table(ashkenazi$brcancer)
+table(ashkenazi$mutant)
+summary(ashkenazi$age)
+bc_surv <- Surv(ashkenazi$age, ashkenazi$brcancer)
+km_overall <- survfit(bc_surv~1)
+plot(km_overall, conf.int=FALSE)
+km_mutant <- survfit(bc_surv~ashkenazi$mutant)
+plot(km_mutant)
+
+coxph(bc_surv~mutant+cluster(famID), data=ashkenazi)
+ashkenazi_random <- coxph(
+  bc_surv~mutant+frailty(famID),
+  data=ashkenazi)
+ashkenazi_random
+```
+
+```{r rats, fig.width=4.5, fig.height=2.5}
+# This data set is found in the survival package.
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+head(rats)
+
+table(rats$rx)
+table(rats$status)
+table(rats$sex)
+summary(rats$time)
+
+rats_surv <- Surv(rats$time, rats$status)
+overall_km <- survfit(rats_surv~1)
+plot(overall_km, conf.int=FALSE)
+survfit(rats_surv~rx, data=rats)           %>%
+  tidy                                     %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+survfit(rats_surv~sex, data=rats)          %>%
+  tidy                                     %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+coxph(
+  rats_surv~rx+cluster(litter),
+  data=rats,
+  subset=(sex=="f"))
+rats_random <- coxph(
+  rats_surv~rx+frailty(litter),
+  data=rats,
+  subset=(sex=="f"))
+rats_random
+```
+
+```{r diabetes-dataset, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+# This data set is found in the timereg package.
+library(timereg)
+data(diabetes)
+head(diabetes)
+table(table(diabetes$id))
+summary(diabetes$time)
+table(diabetes$status)
+table(diabetes$trteye)
+table(diabetes$treat)
+table(diabetes$adult)
+
+diabetes_surv <- Surv(diabetes$time, diabetes$status)
+km_overall <- survfit(diabetes_surv~1)
+plot(km_overall, conf.int=FALSE)
+
+survfit(diabetes_surv~treat, data=diabetes) %>%
+  tidy                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+  expand_limits(y=0)                         +
+  geom_step()
+
+coxph(
+  diabetes_surv~treat+agedx+cluster(id),
+  data=diabetes)
+
+coxph(
+  diabetes_surv~treat+agedx+frailty(id),
+  data=diabetes)
+```
+
+The kidney data set contains information on catheter infections, and is available within the survival package of R.
+
+```{r kidney, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+head(kidney)
+table(table(kidney$id))
+table(kidney$status)
+table(kidney$sex)
+table(kidney$disease)
+summary(kidney$time)
+summary(kidney$age)
+summary(kidney$frail)
+
+kidney2 <- kidney
+kidney2$s <- rep(1:2, 38)
+
+kidney_surv <- Surv(kidney2$time, kidney2$status)
+survfit(kidney_surv~kidney2$sex)     %>%
+  tidy                               %>%
+  ggplot(aes(time, estimate, color=strata)) + 
+  geom_step()
+
+survfit(kidney_surv~kidney2$disease) %>%
+  tidy                               %>%
+  ggplot(aes(time, estimate, color=strata)) + 
+  geom_step()
+
+coxph(
+  kidney_surv~age+sex+disease+cluster(id),
+  data=kidney2)
+
+coxph(
+  kidney_surv~age+sex+disease+frailty(id),
+  data=kidney2)
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-7.RData")
+```

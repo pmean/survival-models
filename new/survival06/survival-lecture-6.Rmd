@@ -1,0 +1,337 @@
+---
+title: "survival lecture 6"
+author: "Steve Simon"
+date: "May 20, 2018"
+output: html_document
+---
+
+Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## The Kaplan-Meier plot and proportional hazards.
+
+```{r read}
+fn <- "~/survival-models/bin/whas500.RData"
+load(fn)
+fn <- "~/survival-models/bin/heroin.RData"
+load(fn)
+head(heroin)
+table(heroin$status)
+summary(heroin)
+```
+
+```{r km-plots, fig.width=4.5, fig.height=2.5}
+heroin                                      %$%
+  Surv(time_yrs, status=="departed")        -> heroin_surv
+
+heroin                                      %$%
+  survfit(heroin_surv~clinic)               %>%
+  tidy                                      -> km_clinic
+
+km_clinic                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+heroin                                      %$%
+  survfit(heroin_surv~prison_record)        %>%
+  tidy                                      -> km_prison
+
+km_prison                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+heroin                                      %$%
+  survfit(heroin_surv~dose_group)           %>%
+  tidy                                      -> km_dose
+
+km_dose                                     %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+```
+
+## Complementary log-log plot
+
+```{r log-log, fig.width=4.5, fig.height=2.5}
+km_clinic                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    expand_limits(y=0)                 +
+    geom_step()
+
+km_prison                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    expand_limits(y=0)                 +
+    geom_step()
+
+km_dose                               %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    expand_limits(y=0)                 +
+    geom_step()
+```
+
+## Schoenfeld residuals.
+
+```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 4.1, 0.6, 0.6))
+cox_mv <- coxph(
+  heroin_surv~clinic+i_prison+methadone_dose,
+  data=heroin)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
+```
+
+## Stratified analysis
+
+If one of the variables in your model is a nuisance variable, but it could possibly be the cause of the violation of the proportional hazards assumption, you can fit fix this by fitting a separate baseline hazard for each level of your nuisance variable.
+
+```{r stratified-analysis, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+cox_strata <- coxph(
+  heroin_surv ~
+    i_prison +
+    methadone_dose +
+  strata(clinic),
+  data=heroin)
+print(cox_strata)
+summary(cox_strata)
+
+n <- data.frame(
+  methadone_dose=mean(heroin$methadone_dose),
+  clinic=c(1, 1, 2, 2),
+  i_prison=c(0, 1, 0, 1))
+
+cox_predict <- survfit(cox_strata, newdata=n)
+plot(
+  cox_predict$time[1:147],
+  cox_predict$surv[1:147],
+  type="s", ylim=c(0,1))
+lines(
+  cox_predict$time[148:294], 
+  cox_predict$surv[148:294], 
+  type="s", lty="dotted")
+plot(
+  cox_predict$time[295:362], 
+  cox_predict$surv[295:362], 
+  type="s", ylim=c(0,1))
+lines(
+  cox_predict$time[363:430], 
+  cox_predict$surv[363:430], 
+  type="s", lty="dotted")
+```
+
+## Time-varying covariates
+
+```{r time-transfer, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+tt_clinic <- coxph(
+  heroin_surv~
+    clinic +
+    tt(clinic) +
+    i_prison +
+    methadone_dose,
+  tt=function(x, t, ...) x*t,
+  data=heroin)
+tt_clinic
+summary(tt_clinic)
+tt_coef <- tidy(tt_clinic)
+beta_clinic <- tt_coef[tt_coef$term=="clinic", "estimate"]
+beta_interaction <- tt_coef[tt_coef$term=="tt(clinic)", "estimate"]
+t <- seq(0, 2.5, by=0.5)
+log_hr <- beta_clinic+t*beta_interaction
+hr <- exp(log_hr)
+round(
+  data.frame(
+    beta_clinic, 
+    beta_interaction, 
+    t, 
+    log_hr,
+    hr),
+  3)
+plot(t, hr, ylim=c(0, 1.1))
+```
+
+## Stanford Heart Transplant study
+
+The Stanford Heart Transplant study has an interesting application of time-varying covariates.
+
+```{r read-heart, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6), las=1)
+ids <- 21:30
+vlist <- c(
+  "accept.dt",
+  "tx.date",
+  "fu.date",
+  "fustat",
+  "transplant"
+)
+jasa [ids, vlist]
+t0 <- as.Date("1969-01-01")
+t1 <- jasa$accept.dt[ids] - t0
+t2 <- jasa$tx.date[ids] - t0
+t3 <- jasa$fu.date[ids] - t0
+censor <- ifelse(jasa$fustat[ids]==1, "D", "C")
+plot(c(0, max(t3)), c(1,10), type="n", axes=FALSE)
+axis(side=1, at=(0:5)*365.25, labels=1969:1974)
+axis(side=2, at=1:10, label=ids)
+box()
+segments(t1, 1:10, t3, 1:10)
+text(t2, (1:10)+0.2, "T", col="darkgreen", cex=0.5)
+text(t3, 1:10, censor, col="red", adj=0, cex=0.5)
+data.frame(
+  id=ids,
+  time1=t2-t1, 
+  time2=t3-t1, 
+  event=censor,
+  transplant=jasa$transplant[ids])
+jasax <- jasa1
+row.names(jasax) <- NULL
+col.names <- c("id", "start", "stop", "event", "transplant")
+jasax[jasax$id %in% ids, col.names]
+```
+
+```{r naive-model}
+cox_naive <- coxph(
+  Surv(futime, fustat) ~ transplant + age + surgery,
+    data=jasa)
+
+print(cox_naive)
+
+cox_time_varying <- coxph(
+  Surv(start, stop, event, type="counting") ~
+    transplant+age+surgery,
+  data=jasa1)
+
+print(cox_time_varying)
+```
+
+Page 221 of Hosmer, Lemeshow, and May describes the grace data set, which you can use for time-varying covariates.
+
+
+```{r read-grace, eval=FALSE}
+fn <- "~/survival-models/data/wiley/GRACE1000.dat" 
+grace <- read.table(fn, header = FALSE) 
+names(grace) <- c(
+  "id",
+  "days",
+  "death",
+  "revasc",
+  "revascdays",
+  "los",
+  "age",
+  "sysbp",
+  "stchange")
+head(grace)
+```
+
+```{r extras, eval=FALSE}
+whas500 %$% Surv(time_yrs, fstat=="Dead") -> whas500_surv
+bmi_cuts <- c(0, 25, 30, 35, 99)
+whas500                                     %>%
+  mutate(bmi_categories=cut(bmi, bmi_cuts)) %$%
+  survfit(whas500_surv~bmi_categories)      %>%
+  tidy                                      -> km_bmi
+km_bmi                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+age_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(age_categories=cut(age, age_cuts)) %$%
+  survfit(whas500_surv~age_categories)      %>%
+  tidy                                      -> km_age
+km_age                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+hr_cuts <- c(0, 70, 85, 100, 999)
+whas500                                    %>%
+  mutate(hr_categories=cut(hr, hr_cuts))   %$%
+  survfit(whas500_surv~hr_categories)      %>%
+  tidy                                      -> km_hr
+km_hr                                       %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+diasbp_cuts <- c(0, 60, 70, 80, 999)
+whas500                                     %>%
+  mutate(
+    diasbp_categories=
+      cut(diasbp, diasbp_cuts))             %$%
+  survfit(whas500_surv~diasbp_categories)   %>%
+  tidy                                      -> km_diasbp
+km_diasbp                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~gender)              %>%
+  tidy                                      -> km_gender
+km_gender                                   %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+
+whas500                                     %$%
+  survfit(whas500_surv~chf)                 %>%
+  tidy                                      -> km_chf
+km_chf                                      %>%
+  ggplot(aes(time, estimate, color=strata))  +
+    geom_step()
+km_bmi                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_age                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_hr                                 %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_diasbp                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_gender                             %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+
+km_chf                                %>%
+  mutate(cll=log(-log(estimate)))     %>%
+  ggplot(aes(time, cll, color=strata)) +
+    geom_step()
+cox_mv <- coxph(
+  Surv(time_yrs, fstat=="Dead") ~
+    bmi +
+    age +
+    gender,
+  data=whas500)
+cox_schoenfeld <- cox.zph(cox_mv)
+print(cox_schoenfeld)
+plot(cox_schoenfeld)
+
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-6.RData")
+```

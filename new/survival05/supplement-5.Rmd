@@ -1,0 +1,437 @@
+---
+title: "supplement 5"
+author: "Steve Simon"
+date: "May 27, 2018"
+output: html_document
+---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-5.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Exponential model
+
+The exponential model is the simplest parametric model. The probability density function for the "standard" exponential distribution is
+
+$f(t)=e^{-t}$
+
+and the survival curve is
+
+$S(t)=e^{-t}$.
+
+The plot of the survival curve is 
+
+```{r density-1, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+t <- seq(0, 3, length=1000)
+plot(t, exp(-t), type="l", ylim=c(0,1))
+```
+
+You can include a rate parameter, $\lambda$, to create a density,
+
+$f(t; \lambda)=\lambda e^{-\lambda t}$
+
+and the survival curve is
+
+$S(t; \lambda)=e^{-\lambda t}$
+
+There is an equivalent form using a scale parameter, $\theta$,
+
+$f(t; \theta) = \frac{1}{\theta} e^{-t/\theta}$.
+
+$S(t; \theta) = e^{-t/\theta}$
+
+This is the density function for an exponential distribution with  $\theta=2$.
+
+```{r density-2, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 2
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
+```
+
+If theta is larger than 1, the effect is to stretch out the exponential and slow down time.
+
+This is the density function for an exponential distribution with  $\theta=0.5$.
+
+```{r density-0.5, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+theta <- 0.5
+plot(t, exp(-t/theta), type="l", ylim=c(0,1))
+lines(t, exp(-t), lty="dotted")
+```
+
+The accelerated time model replaces $\theta$ with
+
+$e^{(\beta_0+\beta_1 X)}$
+
+This produces the survival curve
+
+$S(t, X, \beta_0, \beta_1)=e^{-t/e^{(\beta_0+\beta_1 X)}}$
+
+The values of $\beta_0$ and $\beta_1$ will end up stretching or shrinking the time scale.
+
+The pth percentile of the accelerated time model is
+
+$-ln(1-p) e^{\beta_0+\beta_1 X}$ 
+
+and the ratio of two percentiles, one with X=$X_1$ and the other with X=$X_2$ is
+
+$\frac{-ln(1-p) e^{\beta_0+\beta_1 X_1}} {-ln(1-p) e^{\beta_0+\beta_1 X_2}} = e^{\beta_1 (X_1-X_2)}$
+
+If $X_1$ is one unit larger than $X_2$, this reduces to $e^{\beta_1}$.
+
+This may look quite different than the model we used for Kaplan-Meier curves and the Cox proportional hazards model, but it actually is not. The hazard function is 
+
+$h(t, x, \beta_0, \beta_1)=e^{-(\beta_0+\beta_1 x)}$.
+
+Notice that the hazard is constant with respect to t. The baseline hazard, the hazard when X=0 is
+
+$h_0(t)=e^{-\beta_0}$
+
+The hazard ratio for a subject with $x=x_1$ compared to a subject with $x=x_2$ is
+
+$e^{-\beta_1 (x_1-x_2)}$
+
+## Likelihood ratio test
+
+Here's a quick review of the likelihood ratio test, as it applies to the exponential accelerated time model.
+
+First, let's fit a null model.
+
+```{r null-model}
+fn <- "~/survival-models/bin/whas100.RData"
+load(fn)
+null_model <- survreg(
+  Surv(time_yrs, fstat=="Dead")~1,
+  data=whas100,
+  dist="exponential")
+summary(null_model)
+mean(whas100$time_yrs)
+table(whas100$fstat)
+n0 <- sum(whas100$fstat=="Alive")
+n1 <- sum(whas100$fstat=="Dead")
+tbar <- round(mean(whas100$time_yrs), 3)
+b0 <- round(log(tbar*(n0+n1)/n1), 3)
+```
+
+How do you arrive at this mathematically. For the null model, the density is
+
+$f(t) = \frac{1}{e^{\beta_0}} e^{-t/e^{\beta_0}}$
+
+and the survival curve is
+
+$S(t)=e^{-t/e^{\beta_0}}$ 
+
+The likelihood for any parametric regression model is
+
+$L(\beta)=\Pi_i f(t_i)^{c_i} S(t_i)^{1-c_i}$
+
+Note that for deaths, you use the density, but for censored observations, you use the survival function, which can be thought of as the "average" density from time $t_i$ to infinity.
+
+Let $n_0$ reprensent the number of censored observations and $n_1$ the number of deaths. Then
+
+$L(\beta_0) = \Pi_1 \frac{1}{e^{\beta_0}} e^{-t/e^{\beta_0}} \Pi_0 e^{-t/e^{\beta_0}}$
+
+Where $\Pi_1$ represents the product across all deaths and $\Pi_0$ represents the product across all censored observations. This simplifies to 
+
+$L(\beta_0) = \frac{1}{e^{n_1 \beta_0}}  e^{-(n_0+n_1) \bar{t}/e^{\beta_0}}$
+
+The log likelihood is
+
+$l(\beta_0)= -n_1 \beta_0 - (n_0+n_1) \bar{t} e^{-\beta_0}$
+
+To find the maximum, take the derivative and set it equal to zero.
+
+$\frac{\partial l}{\partial \beta_0} = -n_1 + (n_0+n_1)\bar{t} e^{-\beta_0} = 0$
+
+$(n_0+n_1)\bar{t} e^{-\hat{\beta_0}} = n_1$
+
+$e^{-\hat{\beta_0}} = \frac{n_1}{(n_0+n_1)\bar{t}}$
+
+$e^{\hat{\beta_0}} = \frac{n_0+n_1}{n_1} \bar{t}$
+
+$\hat{\beta_0} = log\left(\frac{n_0+n_1}{n_1} \bar{t}\right)$
+
+Notice that the overall mean is $\bar{t}$ = `r tbar` and that there are $n_0$ = `r n0` censored observations and $n_1$ = `r n1` deaths. The estimate of $\hat{\beta_0}$ is
+
+log((`r n0`+`r n1`) / `r n1` `r tbar`) = `r b0`.
+
+The second derivative of the log likelihood is 
+
+$\frac{\partial^2 l}{(\partial \beta_0)^2} = -(n_0+n_1)\bar{t} e^{-\beta_0}$
+
+If you compute this negative of this second derivative at the maximum likelihood estimate, $\hat{\beta_0}$, you get the information matrix, 
+
+$I(\hat{\beta_0}) = (n_0+n_1)\bar{t} e^{-log\left(\frac{n_0+n_1}{n_1} \bar{t}\right)}$
+
+$= (n_0+n_1)\bar{t} \left(\frac{n_1}{(n_0+n_1)\bar{t}} \right)$
+
+$= n_1$
+
+The standard error of the maximum likelihood estimate is 
+
+$\frac{1}{\sqrt{I(\hat{\beta_0})}}$ 
+
+which is simply 
+
+$\frac{1}{\sqrt{n_1}}$
+
+Note that the precision of the estimator is influenced only by deaths and not by censored observations.
+
+```{r null-calculations, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+f <- function(t, b) {
+  return(-b-t/exp(b))
+}
+s <- function(t, b) {
+  return(-t/exp(b))
+}
+li <- function(t, c, b0) {
+  # male, censored
+  if (c!="Dead") {return(s(t, b0))}
+  # male, death
+  if (c=="Dead")  {return(f(t, b0))}
+}
+n0 <- 99
+b0 <- seq(0, 2*2.09, length=n0)
+l <- rep(0, n0)
+for (i0 in 1:n0) {
+  for (k in 1:100) {
+    l[i0] <- l[i0] +
+      li(whas100$time_yrs[k], whas100$fstat[k], b0[i0])
+  }
+}
+m <- which.max(l)
+data.frame(b0=b0, l=l) %>%
+  ggplot(aes(b0, l)) +
+  geom_line() +
+  geom_label(aes(x=b0[m], y=l[m], label=round(l[m], 1)), size=2) +
+  geom_label(aes(x=b0[1], y=l[1], label=round(l[1], 1)), size=2)
+```
+
+Now let's fit a model with gender as an independent variable. The survival curve is
+
+$S(t)=e^{-t/e^{\beta_0}}$ 
+
+for males and
+
+$S(t)=e^{-t/e^{\beta_0+\beta_1}}$ 
+
+for females. The density functions for males and females are
+
+$f(t) = \frac{1}{e^{\beta_0}} e^{-t/e^{\beta_0}}$
+
+$f(t) = \frac{1}{e^{\beta_0+\beta_1}} e^{-t/e^{\beta_0+\beta_1}}$
+
+The likelihood for any parametric regression model is
+
+$L(\beta)=\Pi_i f(t_i)^{c_i} S(t_i)^{1-c_i}$
+
+For this particular model, partition the observations into four sets: female censored ($F_0$), female deaths ($F_1$), male censored ($M_0$), and male deaths ($M_1$), with $f_0$, $f_1$, $m_0$, and $m_1$ observations in each group. Then the likelihood becomes
+
+$L(\beta)=\Pi_{F_0} e^{-t_i/e^{\beta_0+\beta_1}} \Pi_{F_1}\frac{1}{e^{\beta_0+\beta_1}} e^{-t_i/e^{\beta_0+\beta_1}} \Pi_{M_0} e^{-t_i/e^{\beta_0}} \Pi_{M_1}\frac{1}{e^{\beta_0}} e^{-t_i/e^{\beta_0}}$
+
+$L(\beta)=\frac{1}{e^{(f_1+m_1)\beta_0+f_1\beta_1}} e^{-\frac{(f_0+f_1)\bar{t}_F}{e^{\beta_0+\beta_1}} -\frac{(m_0+m_1)\bar{t}_M}{e^{\beta_0}}}$
+
+Take the log of both sides to get a log likelihood.
+
+$l(\beta)=-(f_1+m_1)\beta_0-f_1\beta_1 -(f_0+f_1)\bar{t}_F e^{-\beta_0-\beta_1} - (m_0+m_1)\bar{t}_M e^{-\beta_0}$
+
+To find the maximum, take the two partial derivates and set them equal to zero.
+
+$\frac{\partial l}{\partial \beta_0}=-(f_1+m_1) +(f_0+f_1)\bar{t}_F e^{-\beta_0-\beta_1} + (m_0+m_1)\bar{t}_M e^{-\beta_0}=0$
+
+$\frac{\partial l}{\partial \beta_1}=-f_1 + (f_0+f_1)\bar{t}_F e^{-\beta_0-\beta_1}=0$
+
+The solution to these two equations is 
+
+$\hat\beta_0=log(\frac{m_0+m_1}{m_1}\bar{t}_M)$
+
+$\hat\beta_1=log(\frac{f_0+f_1}{f_1}\bar{t}_F - \frac{m_0+m_1}{m_1}\bar{t}_M)$
+
+```{r gender-model}
+gender_model <- survreg(
+  Surv(time_yrs, fstat=="Dead")~gender,
+  data=whas100,
+  dist="exponential")
+summary(gender_model)
+tapply(whas100$time_yrs, whas100$gender, mean)
+table(whas100$gender, whas100$fstat)
+```
+
+You can calculate the likelihoods yourself.
+
+$L(\beta)=\Pi_i f(t_i, X_i, \beta)^{c_i} S(t_i, X_i, \beta)^{1-c_i}$
+
+Create a function for the likelihood.
+
+```{r create-function}
+li <- function(t, c, g, b0, b1) {
+  # male, censored
+  if (c!="Dead" & g!="Female") {return(s(t, b0))}
+  # male, death
+  if (c=="Dead" & g!="Female")  {return(f(t, b0))}
+  # female, censored
+  if (c!="Dead" & g=="Female") {return(s(t, b0+b1))}
+  # female, death
+  if (c=="Dead" & g=="Female")  {return(f(t, b0+b1))}
+}
+```
+
+Draw likelihood surface
+
+```{r surface, fig.width=4.5, fig.height=2.5}
+par(mar=c(0.6, 0.6, 0.6, 0.6))
+n0 <- 49
+n1 <- 49
+b0 <- seq(2.318-0.602, 2.318+0.602, length=n0)
+b1 <- seq(-2*0.602, 0, length=n1)
+l <- matrix(0, n0, n1)
+for (i0 in 1:n0) {
+  for (i1 in 1:n1) {
+    for (k in 1:100) {
+      l[i0, i1] <- l[i0, i1] +
+            li(whas100$time_yrs[k], 
+               whas100$fstat[k],
+               whas100$gender[k],
+               b0[i0], b1[i1])
+    }
+  }
+}
+persp(b0, b1, l, theta=45, phi=30)
+```
+
+Draw contour plot.
+
+```{r contour, fig.wdith=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+b0 <- seq(0, 2.318+0.602, length=n0)
+b1 <- seq(-2*0.602, 0, length=n1)
+l <- matrix(0, n0, n1)
+for (i0 in 1:n0) {
+  for (i1 in 1:n1) {
+    for (k in 1:100) {
+      l[i0, i1] <- l[i0, i1] +
+            li(whas100$time_yrs[k], 
+               whas100$fstat[k],
+               whas100$gender[k],
+               b0[i0], b1[i1])
+    }
+  }
+}
+lv <- -c(156:160, 162, 165, 170, 180, 190, 200, 250, 300, 350, 400, 600, 800)
+contour(b0, b1, l, levels=rev(lv))
+# abline(h=-0.602, lty="dotted")
+# abline(v=2.318, lty="dotted")
+m <- b0[which.max(l[ , n1])]
+m
+text(2.318, -0.602, round(max(l), 1), col="red")
+text(m, 0, round(max(l[ , n1]), 1), col="red")
+text(0, 0, round(l[1, n1], 1), col="red")
+max(l)
+max(l[ , n1])
+l[1, n1]
+```
+
+
+
+## Weibull model
+
+The standard Weibull distribution has a density
+
+$f(t, k)=k t^{k-1} e^{-t^k}$
+
+and a survival function
+
+$S(t, k)=e^{-t^k}$.
+
+You can add a scale parameter, $\theta$, to get 
+
+$f(t, k, \theta) = \frac {k} {\theta} \left( \frac {t} {\theta} \right)^{k-1} e^{-\left( \frac {t} {\theta} \right)^k}$
+
+and a survival function
+
+$S(t, k, \theta)=e^{-\left(\frac{t}{\theta}\right)^k}$.
+
+The value of k controls whether the Weibull distribution has an increasing hazard (k>1), constant hazard (k=1), or decreasing hazard (k<1).
+
+```{r standard-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dotted")
+plot(t, 1-pweibull(t, shape=0.5), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=1), lty="dotted")
+```
+
+The scale parameter, $\theta$, will stretch or squeeze the survival curve along the time axis.
+
+```{r scaled-weibulls, fig.width=4.5, fig.height=2.5}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+plot(t, 1-pweibull(t, shape=2, scale=2), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=2, scale=1), lty="dotted")
+plot(t, 1-pweibull(t, shape=2, scale=0.5), type="l", ylim=c(0,1))
+lines(t, 1-pweibull(t, shape=2, scale=1), lty="dotted")
+```
+
+You can fit an accelerated time model for the Weibull distribution as well.
+
+$S(t, k, X, \beta_0, \beta_1) = e^{-\left( \frac {t} {e^{\beta_0 + \beta_1 x}} \right)^k}$.
+
+
+```{r residuals}
+weibull_model <- survreg(
+  Surv(time_yrs, fstat=="Dead")~gender,
+  data=whas100,
+  dist="weibull")
+  
+r_response <- residuals(weibull_model, type="response")
+r_deviance <- residuals(weibull_model, type="deviance")
+r_dfbeta <- residuals(weibull_model, type="dfbeta")
+r_dfbetas <- residuals(weibull_model, type="dfbetas")
+r_working <- residuals(weibull_model, type="working")
+r_ldcase <- residuals(weibull_model, type="ldcase")
+r_ldresp <- residuals(weibull_model, type="ldresp")
+
+head(r_response)
+head(r_deviance)
+head(r_dfbeta)
+head(r_dfbetas)
+head(r_working)
+head(r_ldcase)
+head(r_ldresp)
+
+p_response <- predict(weibull_model, type="response")
+p_linear <- predict(weibull_model, type="linear")
+p_terms <- predict(weibull_model, type="terms")
+
+head(p_response)
+head(p_linear)
+exp(head(p_linear))
+head(p_terms)
+
+term_totals <- apply(p_terms, 1, sum)
+head(term_totals)
+```
+
+The hazard function for the Weibull distribution is
+
+$h(t, k) = k t^{k-1}$
+
+There is an alternate formulation for the Weibull regression model.
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/supplement-5.RData")
+```
