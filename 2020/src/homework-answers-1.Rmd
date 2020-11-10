@@ -1,0 +1,341 @@
+---
+title: "homework answers 1"
+author: "Steve Simon"
+date: "April 23, 2018"
+output: html_document
+---
+
+Preliminaries.
+
+```{r prelims}
+library(survival)
+```
+
+Read in the WHAS500 data set.
+
+```{r read}
+fn <- "~/survival-models/data/wiley/whas500.dat"
+whas500 <- read.table(fn, header=FALSE, as.is=TRUE)
+names(whas500) <- c(
+  "id",
+  "age", 
+  "gender",
+  "hr",
+  "sysbp",
+  "diasbp",
+  "bmi",
+  "cvd",
+  "afb",
+  "sho",
+  "chf",
+  "av3",
+  "miord",
+  "mitype",
+  "year",
+  "admitdate",
+  "disdate",
+  "fdate",
+  "los",
+  "dstat",
+  "lenfol",
+  "fstat")
+head(whas500)
+```
+
+Produce a table of counts for fstat.
+
+```{r counts}
+table(whas500$fstat)
+```
+
+Draw a Kaplan-Meier plot for overall survival.
+
+```{r overall-km, fig.width=5, fig.height=5}
+whas500_surv <- Surv(whas500$lenfol, whas500$fstat)
+whas500_km <- survfit(whas500_surv~1)
+plot(whas500_km, conf.int=FALSE)
+```
+
+Estimate the 25th, 50th, and 75th quantiles for overall survival.
+
+```{r quantiles}
+quantile(whas500_km)
+```
+
+Produce a crosstabulation of fstat and gender. Are you comfortable with the number of deaths in each group?
+
+```{r crosstab}
+table(whas500$gender, whas500$fstat)
+```
+
+Draw Kaplan-Meier curves for males and females.
+
+```{r km-by-gender}
+whas500_by_gender <- survfit(whas500_surv~whas500$gender)
+plot(whas500_by_gender)
+```
+
+Calculate median survival with confidence intervals
+for males and females.
+
+```{r q-by-gender}
+quantile(whas500_by_gender)
+```
+
+Calculate the log rank test for males versus females. Interpret your result.
+
+```{r logrank-by-gender}
+survdiff(whas500_surv~whas500$gender)
+```
+
+Interpretation: the p-value is less than 0.05, so you would reject the null hypothesis and conclude that the survival probabilities are different for women versus men.
+
+Produce age groups <60, 60-69, 70-79, and >=80. 
+Compute a crosstabulation of this variable with fstat.
+Are you comfortable with the number of deaths in each
+group?
+
+```{r cutpoints-for-age}
+library(broom)
+library(ggplot2)
+library(magrittr)
+library(tidyr)
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas500$age_group <- cut(whas500$age, age_breaks, age_labels)
+table(whas500$age_group, whas500$fstat)
+```
+
+Draw Kaplan Meier curves for each age group.
+
+```{r km-by-age}
+whas500_km_by_age <- survfit(whas500_surv~whas500$age_group)
+whas500_km_by_age    %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+```
+
+Calculate the median survival time with confidence intervals for each age group.
+
+```{r quantile-by-age}
+quantile(whas500_km_by_age)
+```
+
+Calculate the log rank test for age groups. Interpret your results.
+
+```{r logrank-by-age}
+survdiff(whas500_surv~whas500$age_group)
+```
+
+
+(Only for those who are brave) The following are 
+times for catheters in infants. A "+" means that the
+catheter was removed because it was no longer needed.
+Times without a + mean that the catheter was removed
+because it failed. Occlusion and infection were the 
+two major reasons for failure. Treating failures as
+an event and removal because it was no longer needed
+as a censored observation, estimate the Kaplan-Meier
+survival curve by hand, showing all your intermediate
+calculations.
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7, 
+10, 10, 12, 12, 13
+
+First, set up a data frame for the ten time points (1-7, 10, 12, 13)
+
+```{r set-up}
+km <- data.frame(
+  t=c(1:7, 10, 12, 13),
+  n=rep(-1, 10),
+  d=rep(-1, 10),
+  c=rep(-1, 10),
+  p=rep(-1, 10),
+  s=rep(-1, 10))
+```
+
+We will fill in these numbers soon enough. Here's the key:
+  t = time
+  n = number at risk
+  d = number of failures
+  c = number censored
+  p = conditional probability
+  s = survival probability
+  
+**1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1,** 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7, 
+10, 10, 12, 12, 13
+
+There are 34 observations total. At t1=1, there are d1=2 deaths and c1=8 ceonsored values. The survival probability is equal to the conditional probability.
+
+```{r t1}
+km$n[1] <- 34
+km$d[1] <-  2 
+km$c[1] <-  8
+km$p[1] <- 1-km$d[1]/km$n[1]
+km$s[1] <- km$p[1]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, **2+, 2+, 2, 2,** 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7, 
+10, 10, 12, 12, 13
+
+At t2=2, there are n2=24 at risk, and you have d2=2 failures and c2=2 censored observations. The survival probability is equal to the product of the first two conditional probabilities.
+
+```{r t2}
+km$n[2] <- 24
+km$d[2] <-  2 
+km$c[2] <-  2
+km$p[2] <- 1-km$d[2]/km$n[2]
+km$s[2] <- km$p[1]*km$p[2]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+**3+, 3,** 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7, 
+10, 10, 12, 12, 13
+
+At t3=3, there are n3=20 at risk, and you have d3=1 failure and c3=1 censored observation. The survival probability is equal to the product of the first three conditional probabilities.
+
+```{r t3}
+km$n[3] <- 20
+km$d[3] <-  1 
+km$c[3] <-  1
+km$p[3] <- 1-km$d[3]/km$n[3]
+km$s[3] <- km$p[1]*km$p[2]*km$p[3]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, **4+, 4,** 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7, 
+10, 10, 12, 12, 13
+
+At t4=4, there are n4=18 at risk, and you have d4=1 failure and c4=1 censored observations. The survival probability is equal to the product of the first four conditional probabilities.
+
+```{r t4}
+km$n[4] <- 18
+km$d[4] <-  1 
+km$c[4] <-  1
+km$p[4] <- 1-km$d[4]/km$n[4]
+km$s[4] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, **5+, 5+, 5+, 5+, 5+, 5, 5, 5,** 6, 6, 7, 
+10, 10, 12, 12, 13
+
+At t5=5, there are n5=16 at risk, and you have d5=3 failures and c5=5 censored observations. The survival probability is equal to the product of the first five conditional probabilities.
+
+```{r t5}
+km$n[5] <- 16
+km$d[5] <-  3 
+km$c[5] <-  5
+km$p[5] <- 1-km$d[5]/km$n[5]
+km$s[5] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, **6, 6,** 7, 
+10, 10, 12, 12, 13
+
+At t6=6, there are n6=8 at risk, and you have d6=2 failures and c6=0 censored observations. The survival probability is equal to the product of the first six conditional probabilities.
+
+```{r t6}
+km$n[6] <-  8
+km$d[6] <-  2 
+km$c[6] <-  0
+km$p[6] <- 1-km$d[6]/km$n[6]
+km$s[6] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]*km$p[6]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, **7,** 
+10, 10, 12, 12, 13
+
+At t7=7, there are n7=6 at risk, and you have d7=1 failure and c7=0 censored observations. The survival probability is equal to the product of the first seven conditional probabilities.
+
+```{r t7}
+km$n[7] <-  6
+km$d[7] <-  1 
+km$c[7] <-  0
+km$p[7] <- 1-km$d[7]/km$n[7]
+km$s[7] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]*km$p[6]*km$p[7]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7,
+**10, 10,** 12, 12, 13
+
+At t8=10, there are n8=5 at risk, and you have d8=2 failures and c8=0 censored observations. The survival probability is equal to the product of the first eight conditional probabilities.
+
+```{r t8}
+km$n[8] <-  5
+km$d[8] <-  2 
+km$c[8] <-  0
+km$p[8] <- 1-km$d[8]/km$n[8]
+km$s[8] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]*km$p[6]*km$p[7]*km$p[8]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7,
+10, 10, **12, 12,** 13
+
+At t9=12, there are n9=3 at risk, and you have d9=2 failures and c9=0 censored observations. The survival probability is equal to the product of the first nine conditional probabilities.
+
+```{r t9}
+km$n[9] <-  3
+km$d[9] <-  2 
+km$c[9] <-  0
+km$p[9] <- 1-km$d[9]/km$n[9]
+km$s[9] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]*km$p[6]*km$p[7]*km$p[8]*km$p[9]
+km
+```
+
+1+, 1+, 1+, 1+, 1+, 1+, 1+, 1+, 1, 1, 2+, 2+, 2, 2, 
+3+, 3, 4+, 4, 5+, 5+, 5+, 5+, 5+, 5, 5, 5, 6, 6, 7,
+10, 10, 12, 12, **13**
+
+At t10=12, there is n10=1 at risk, and you have d10=1 failure and c10=0 censored observations. The survival probability is equal to the product of all ten conditional probabilities.
+
+```{r t10}
+km$n[10] <-  1
+km$d[10] <-  1 
+km$c[10] <-  0
+km$p[10] <- 1-km$d[10]/km$n[10]
+km$s[10] <- km$p[1]*km$p[2]*km$p[3]*km$p[4]*km$p[5]*km$p[6]*km$p[7]*km$p[8]*km$p[9]* km$p[10]
+km
+```
+
+Well, that was a lot of work, but it was worth it.
+
+Let's input the data to check our work.
+
+```{r check}
+t <- c(1:7, 10, 12, 13)
+
+t <- c(
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 
+  3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6,
+  7, 10, 10, 12, 12, 13)
+
+i <- c(
+  0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 
+  0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1)
+
+catheter <- data.frame(t=t, i=i)
+catheter_surv <- Surv(catheter$t, catheter$i)
+catheter_km <- summary(survfit(catheter_surv~1))
+catheter_km
+data.frame(our.calc=km$s, r.calc=catheter_km$surv)
+```
+
+They match. Hooray!

@@ -1,0 +1,187 @@
+---
+title: "survival lecture 2"
+author: "Steve Simon"
+date: "April 8, 2018"
+output: html_document
+---
+
+Lecture 2: The hazard function and the Cox proportional hazards regression model. The Cox proportional hazard model allows you to examine how categorical and continuous predictor variables influence survival data. You’ll review the definition of a hazard function, and interpret the meaning of constant hazard versus an increasing hazard or a decreasing hazard. Then you’ll fit Cox regression models and interpret the model coefficients.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Cox regression for gender
+
+Recall that we ran a log rank test for gender using the WHAS100 data file. Let's calculate a Cox regression model for the same data and compare it to the log rank test.
+
+```{r read-whas100}
+fn <- "~/survival-models/bin/whas100.RData" 
+load(fn)
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+```
+
+Always start with an overall Kaplan-Meier curve.
+
+```{r overall, fig.width=4.5, fig.height=2}
+table(whas100$fstat)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+km_overall <- survfit(Surv(time_yrs, fstat=="Dead")~1, data=whas100)
+plot(km_overall, conf.int=FALSE)
+```
+
+Now compare the Kaplan-Meier curves for males and females.
+
+```{r km-by-gender, fig.width=4.5, fig.height=2}
+table(whas100$gender, whas100$fstat)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+km_by_gender <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~gender, data=whas100)
+plot(km_by_gender)
+```
+
+Recall that you can put labels on this graph or produce a legend.
+
+```{r km-with-labels, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+plot(km_by_gender)
+km_by_gender                            %>%
+  tidy                                  %>%
+  filter(time > 1.5)                    %>%
+  mutate(strata=sub(".*=", "", strata)) %>%
+  group_by(strata)                      %>%
+  summarize(y=first(estimate))          -> km_labels
+text(1.5, km_labels$y+0.1, km_labels$strata)
+```
+
+Calculate the log rank test.
+
+```{r logrank-by-gender}
+survdiff(Surv(time_yrs, fstat=="Dead")~gender, data=whas100)
+```
+
+Now you are ready for the Cox proportional hazards model.
+
+Use coxph function to fit this model.
+
+```{r cox-model-gender}
+cox_gender <- coxph(
+  Surv(time_yrs, fstat=="Dead")~gender, data=whas100)
+summary(cox_gender)
+```
+
+You can also export your Cox regression model to a data frame for further manipulation using the broom package. I am not using the augment function because it has issues with Cox regression.
+
+```{r cox-broom}
+glance(cox_gender)
+tidy(cox_gender)
+```
+
+Instead of using augment, you can get estimates for the survival curves and the cumulative hazard using the survfit function.
+
+```{r survfit, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+n <- data.frame(gender=factor(1:2, labels=c("Male", "Female")))
+cox_predict <- survfit(cox_gender, newdata=n)
+plot(
+  cox_predict$time,
+  cox_predict$surv[, 2], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$surv[, 1], 
+  type="s", lty="dotted")
+plot(
+  cox_predict$time,
+  cox_predict$cumhaz[, 2], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$cumhaz[, 1], 
+  type="s", lty="dotted")
+```
+
+## Cox regression for age groups
+
+Next let's look at the age groups. Re-run the Kaplan-Meier curves and the logrank test for age groups before running a Cox regression model on age groups.
+
+```{r km-age-groups, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas100$age_group <- cut(whas100$age, age_breaks, age_labels)
+table(whas100$age_group, whas100$fstat)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+km_by_age_group <- 
+  survfit(Surv(time_yrs, fstat=="Dead")~age_group, data=whas100)
+plot(km_by_age_group)
+survdiff(Surv(time_yrs, fstat=="Dead")~age_group, data=whas100)
+```
+
+Recall that if you want nice labels or a legend, you have to add a few things.
+
+Compare the results below to Table 4.6.
+
+```{r cox-model-age-groups}
+cox_age_group <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age_group, data=whas100)
+print(cox_age_group)
+summary(cox_age_group)
+```
+
+## Cox regression model for age as a continuous variable.
+
+A big advantage of the Cox regression model is that it can treat age as a continuous variable. Here's what that model produces. Compare the results below to Table 4.9.
+
+```{r cox-model-age}
+cox_age <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age, data=whas100)
+summary(cox_age)
+```
+
+When you include age as a continuous variable, the interpretation is similar to the interpretation of a continuous variable in linear regression.
+
+The hazard ratio, `r round(exp(tidy(cox_age)$estimate), 3)`, is the estimated relative change in the hazard when age increases by one unit. To get the relative change in the hazard when age increases by a decade, raise to the 10th power.
+
+`r round(exp(tidy(cox_age)$estimate),3)`^10 = 
+`r round(exp(tidy(cox_age)$estimate)^10,3)` 
+
+You can get the estimated survival probabilities and the estimated cumulative hazards at any value of age. Try doing this for ages 45, 65, and 85.
+
+```{r predict-age, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+n <- data.frame(age=c(45, 65, 85))
+cox_predict <- survfit(cox_age, newdata=n)
+plot(
+  cox_predict$time,
+  cox_predict$surv[, 3], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$surv[, 2], 
+  type="s", lty="dotted")
+lines(
+  cox_predict$time, 
+  cox_predict$surv[, 1], 
+  type="s", lty="dashed")
+plot(
+  cox_predict$time,
+  cox_predict$cumhaz[, 3], type="s")
+lines(
+  cox_predict$time, 
+  cox_predict$cumhaz[, 2], 
+  type="s", lty="dotted")
+lines(
+  cox_predict$time, 
+  cox_predict$cumhaz[, 1], 
+  type="s", lty="dashed")
+```
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-2.RData")
+```

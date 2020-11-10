@@ -1,0 +1,581 @@
+---
+title: "Survival lecture 4"
+author: "Steve Simon"
+date: "April 8, 2018"
+output: powerpoint_presentation
+---
+
+### Abstract
+
+Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you will work with more complex forms of the Cox model with multiple predictor variables. You'll include covariates in the Cox model to produce risk adjusted survival curves. You will also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
+
+<div class="notes">
+
+This program was written on 2018-04-08 and last modified on `r Sys.Date()`.
+
+This PowerPoint presentation was developed using R Markdown. The file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+</div>
+
+### Peek at the first few rows of whas500
+
+```{r load-libraries, echo=FALSE}
+suppressMessages(suppressWarnings(library(broom)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(ggplot2)))
+suppressMessages(suppressWarnings(library(knitr)))
+suppressMessages(suppressWarnings(library(magrittr)))
+suppressMessages(suppressWarnings(library(survival)))
+suppressMessages(suppressWarnings(library(tidyr)))
+knitr::opts_chunk$set(
+  echo=FALSE, 
+  comment="",
+  fig.width=4.5, 
+  fig.height=2.5)
+options(width=50)
+```
+
+```{r read}
+fn <- "../data/whas500.RData" 
+load(fn)
+whas500$time_yrs <- whas500$lenfol/365.25
+head(whas500, n=2)
+```
+
+<div class="notes">
+
+We will be using the WHAS500 dataset. Here are the first couple of rows.
+
+</div>
+
+### Univariate model for age
+
+```{r age}
+coxph(Surv(time_yrs, fstat=="Dead")~age, data=whas500) -> cm
+cm %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+rexp <- function(x) {round(exp(x), 2)}
+```
+
+<div class="notes">
+
+You should examine your independent variables one at a time before putting them all in a multivariate model.
+
+</div>
+
+### Hazard ratio and confidence interval for age
+
+```{r age-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+<div class="notes">
+
+The estimate is the log hazard ratio, and you compute the hazard ratio by using the exponential function. Calculations for the confidence interval are similar.
+
+</div>
+
+### Predicted survival at various ages
+
+```{r age-predict}
+n <- data.frame(age=c(45, 65, 85))
+coxph(Surv(time_yrs, fstat=="Dead")~age, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age45=estimate.1) %>%
+  rename(age65=estimate.2) %>%
+  rename(age85=estimate.3) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  )-> tm
+tm %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Univariate model for gender
+
+```{r gender}
+coxph(Surv(time_yrs, fstat=="Dead")~gender, data=whas500) %>%
+  tidy %>%
+  data.frame -> tm
+tm %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+<div class="notes">
+
+
+
+</div>
+
+### Hazard ratio and confidence interval for gender
+
+```{r gender-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+<div class="notes">
+
+
+
+</div>
+
+### Predicted survival for both genders
+
+```{r gender-predict}
+n <- data.frame(gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(male=estimate.1) %>%
+  rename(female=estimate.2) %>%
+  pivot_longer(
+    cols=c("male", "female"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Univariate model for bmi
+
+```{r bmi}
+coxph(Surv(time_yrs, fstat=="Dead")~bmi, data=whas500) %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+<div class="notes">
+
+
+
+</div>
+
+### Hazard ratio and confidence interval for bmi
+
+```{r bmi-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+
+<div class="notes">
+
+
+
+</div>
+
+### Predicted survival for at various bmi levels
+
+```{r bmi-predict}
+n <- data.frame(bmi=c(20, 30, 40))
+coxph(Surv(time_yrs, fstat=="Dead")~bmi, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(bmi20=estimate.1) %>%
+  rename(bmi30=estimate.2) %>%
+  rename(bmi40=estimate.3) %>%
+  pivot_longer(
+    cols=starts_with("bmi"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Multivariate model
+
+```{r mv-age-gender}
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age+gender,
+    data=whas500)  %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+
+### Multivariate model
+
+```{r mv-age-gender-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+### Covariate imbalance
+
+```{r boxplot}
+ggplot(whas500, aes(x=gender, y=age)) +
+  geom_boxplot()
+```
+
+### Covariate imbalance
+
+```{r show-imbalance}
+whas500 %>%
+  summarize(age=mean(age)) %>%
+  mutate(gender="Overall") -> overall_means
+
+whas500 %>%
+  group_by(gender) %>%
+  summarize(age=mean(age)) %>%
+  mutate(gender=as.character(gender)) %>%
+  bind_rows(overall_means) %>%
+  kable
+```
+
+### Unadjusted comparison
+
+```{r unadjusted}
+n <- data.frame(age=c(66.6, 74.7), gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age+gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age_66.6_male=estimate.1) %>%
+  rename(age_74.7_female=estimate.2) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Adjusted comparison
+
+```{r adjusted}
+n <- data.frame(age=c(69.8, 69.8), gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age+gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age_69.8_male=estimate.1) %>%
+  rename(age_69.8_female=estimate.2) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Adjustment for bmi analysis
+
+```{r mv-age-gender-bmi}
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age+gender+bmi,
+    data=whas500)  %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+### Adjustment for bmi analysis
+
+```{r mv-age-gender-bmi-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+### Only a a small covariate imbalance for gender
+
+
+```{r bmi-imbalance}
+ggplot(data=whas500) +
+  geom_boxplot(aes(x=gender, y=bmi))
+```
+
+### Only a small covariate imbalance for age
+
+```{r age-imbalance}
+ggplot(data=whas500) +
+  geom_point(aes(x=age, y=bmi))
+```
+
+### Unadjusted comparison
+
+```{r bmi-unadjusted}
+n <- data.frame(bmi=c(25, 35, 45))
+coxph(Surv(time_yrs, fstat=="Dead")~bmi, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(bmi_25=estimate.1) %>%
+  rename(bmi_35=estimate.2) %>%
+  rename(bmi_45=estimate.3) %>%
+  pivot_longer(
+    cols=starts_with("bmi"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Adjusted comparison, males
+
+```{r bmi-adjusted-males}
+n <- 
+  data.frame(
+    bmi=c(25, 35, 45),
+    age=rep(69.8, 3),
+    gender=factor(rep(1, 3), levels=1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age+gender+bmi, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(bmi_25_age_69.8_male=estimate.1) %>%
+  rename(bmi_35_age_69.8_male=estimate.2) %>%
+  rename(bmi_45_age_69.8_male=estimate.3) %>%
+  pivot_longer(
+    cols=starts_with("bmi"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Adjusted comparison, females
+
+```{r bmi-adjusted-females}
+n <- 
+  data.frame(
+    bmi=c(25, 35, 45),
+    age=rep(69.8, 3),
+    gender=factor(rep(2, 3), levels=1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age+gender+bmi, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(bmi_25_age_69.8_female=estimate.1) %>%
+  rename(bmi_35_age_69.8_female=estimate.2) %>%
+  rename(bmi_45_age_69.8_female=estimate.3) %>%
+  pivot_longer(
+    cols=starts_with("bmi"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Simple interaction
+
+```{r simple-interaction}
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age+gender+age:gender,
+    data=whas500)  %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+### Simple interaction
+
+```{r simple-interaction-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+### Centered interaction
+
+```{r centered-interaction}
+whas500$age_c <- whas500$age-mean(whas500$age)
+cox_mv <- 
+  coxph(Surv(time_yrs, fstat=="Dead")~age_c+gender+age_c:gender,
+    data=whas500)  %>%
+  tidy %>%
+  data.frame -> m
+m %>%
+  select(-conf.low, -conf.high) %>%
+  kable
+```
+
+### Simple interaction
+
+```{r centered-interaction-2}
+m %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, conf.low, conf.high) %>%
+  kable
+```
+
+### Interaction effect at age 45
+
+```{r interaction-45}
+n <- data.frame(age_c=rep(45-69.8, 2), gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age_c+gender+age_c:gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age_45_male=estimate.1) %>%
+  rename(age_45_female=estimate.2) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Interaction effect at age 65
+
+```{r interaction-65}
+n <- data.frame(age_c=rep(65-69.8, 2), gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age_c+gender+age_c:gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age_65_male=estimate.1) %>%
+  rename(age_65_female=estimate.2) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Interaction effect at age 85
+
+```{r interaction-85}
+n <- data.frame(age_c=rep(85-69.8, 2), gender=factor(1:2, labels=c("Male", "Female")))
+coxph(Surv(time_yrs, fstat=="Dead")~age_c+gender+age_c:gender, data=whas500) %>%
+  survfit(newdata=n) %>%
+  tidy(data=n) %>%
+  select(time, starts_with("estimate.")) %>%
+  rename(age_85_male=estimate.1) %>%
+  rename(age_85_female=estimate.2) %>%
+  pivot_longer(
+    cols=starts_with("age"),
+    names_to="group",
+    values_to="estimate"
+  ) %>%
+  ggplot(aes(x=time, y=estimate, color=group)) +
+    geom_step()
+```
+
+### Hazard ratio for the interaction model
+
+```{r hazard-ratio-plot}
+mn <- mean(whas500$age)
+r <- m$estimate[m$term=="genderFemale"]/m$estimate[m$term=="age_c:genderFemale"]
+hr <- data.frame(age=c(45, 65, mn, mn-r, 85))
+hr$estimate_f <- 
+  m$estimate[m$term=="age_c"]*(hr$age-mn) +
+  m$estimate[m$term=="genderFemale"] +
+  m$estimate[m$term=="age_c:genderFemale"]*(hr$age-mn)
+hr$estimate_m <- 
+  m$estimate[m$term=="age_c"]*(hr$age-mn)
+hr$hazard.ratio_f <- exp(hr$estimate_f)
+hr$hazard.ratio_m <- exp(hr$estimate_m)
+kable(hr)
+```
+
+<div class="notes">
+
+The interaction model with a centered value for age is easier to intepret, because the baseline hazard is computed at a realistic value (gender=M and age=69.8). The simple interaction model had a baseline hazard at a value (gender=M and age=0) that was impossible to interpret.
+
+</div>
+
+### Fit a sequence of models
+
+```{r gender-alone}
+coxph(Surv(time_yrs, fstat=="Dead")~gender, data=whas500) %>%
+  tidy %>%
+  data.frame -> tm
+tm %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, p.value, conf.low, conf.high) %>%
+  kable
+```
+
+### Fit a sequence of models
+
+```{r gender-age}
+coxph(Surv(time_yrs, fstat=="Dead")~gender+age, data=whas500) %>%
+  tidy %>%
+  data.frame -> tm
+tm %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, p.value, conf.low, conf.high) %>%
+  kable
+```
+
+### Fit a sequence of models
+
+```{r gender-age-bmi}
+coxph(Surv(time_yrs, fstat=="Dead")~gender+age+bmi, data=whas500) %>%
+  tidy %>%
+  data.frame -> tm
+tm %>%
+  mutate(hazard.ratio=exp(estimate)) %>%
+  mutate(conf.low=exp(conf.low)) %>%
+  mutate(conf.high=exp(conf.high)) %>%
+  select(term, hazard.ratio, p.value, conf.low, conf.high) %>%
+  kable
+```
+
+```{r save-everything}
+save.image("../data/class4.RData")
+```

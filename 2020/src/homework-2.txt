@@ -1,0 +1,15 @@
+../doc/homework-2.txt
+
+1. Open the WHAS500 data set in the software program of 
+your choice.
+
+a. Calculate a Cox regression model for males versus females.
+Interpret the confidence interval for the hazard ratio.
+
+b. Produce age groups <60, 60-69, 70-79, and >=80. 
+Calculate a Cox regression model for age groups. Interpret
+your results.
+
+c. Treat age as a continuous variable and calculate a Cox
+regression model. Interpret the hazard ratio. Recalculate 
+the hazard ratio for a change in 10 years rather than 1 year.
