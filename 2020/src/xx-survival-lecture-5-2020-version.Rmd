@@ -20,7 +20,7 @@ library(tidyr)
 
 
 ```{r read-whas100}
-fn <- "../bin/whas100.RData" 
+fn <- "~/survival-models/bin/whas100.RData" 
 load(fn)
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)

@@ -15,6 +15,7 @@ libname survival "../bin";
 
 proc print
     data=survival.whas100(obs=5);
+  title1 "First five rows of data";
 run;
 
 * The cres option on the output statement produces
@@ -30,53 +31,53 @@ run;
 ;
 
 proc lifereg
+    noprint
     data=survival.whas100;
   model time_yrs*fstat(0)= / d=exponential;
-  output out=exp cres=LAMBDA_exp;
+  output
+    out=exp
+    p=t_exp
+    quantile=0.01 to 0.99 by 0.01;
 run;
 
 * Let's calculate the estimated survival curve
-  for the exponential fit using the relationship
-  shown above.
+  for the exponential fit.
 ;
 
 data exp;
-  set exp(keep=time_yrs LAMBDA_exp);
-  S_exp = exp(-LAMBDA_exp);
+  set exp;
+  where t_exp <= 10 & ID=1;
+  S_exp = 1-_PROB_;
   model = "exp";
+  title1 "Exponential predictions";
 run;
 
-proc sort 
-    data=exp;
-  by time_yrs;
-run;
-
-proc print data=exp(obs=10);
+proc print data=exp;
 run;
 
 proc lifereg
+    noprint
     data=survival.whas100;
   model time_yrs*fstat(0)= / d=weibull;
-  output out=weib cres=LAMBDA_weib;
+  output
+    out=weib
+    p=t_weib
+    quantile=0.01 to 0.99 by 0.01;
 run;
 
 * Let's calculate the estimated survival curve
-  for the weibull fit using the relationship
-  shown above.
+  for the weibull fit.
 ;
 
 data weib;
-  set weib(keep=time_yrs LAMBDA_weib);
-  S_weib = exp(-LAMBDA_weib);
+  set weib;
+  where t_weib <= 10 & ID=1;
+  S_weib = 1-_PROB_;
   model = "weib";
 run;
 
-proc sort 
-    data=weib;
-  by time_yrs;
-run;
-
-proc print data=weib(obs=10);
+proc print data=weib;
+  title1 "Weibull predictions";
 run;
 
 * You've already seen how the lifetest procedure
@@ -86,26 +87,21 @@ run;
 ;
 
 proc lifetest
-     notable
+     noprint
 	 outsurv=km
      data=survival.whas100;
   time time_yrs*fstat(0);
-  title "Kaplan-Meier curve for WHAS100 data";
 run;
 
-* Let's calculate the cumulative hazard function
-  using the above equation.
-;
-
 data km;
-  set km(keep=time_yrs SURVIVAL);
-  LAMBDA_km = -log(SURVIVAL);
+  set km;
   rename SURVIVAL=S_km;
   model="km";
 run;
 
 proc print
     data=km(obs=10);
+  title1 "Kaplan-Meier predictions (first ten rows)";
 run;
 
 * Combine the three data sets so you can 
@@ -115,12 +111,9 @@ run;
 data ewk;
   set exp weib km;
   label 
-    s_km="Kaplan-Meier"
-    s_weib="Weibull"
-	s_exp="Exponential"
-    LAMBDA_km="Kaplan-Meier"
-    LAMBDA_weib="Weibull"
-	LAMBDA_exp="Exponential";
+    S_km="Kaplan-Meier"
+    S_weib="Weibull"
+	S_exp="Exponential";
 run;
 
 * The color_map data set allows you to adjust the
@@ -140,20 +133,11 @@ run;
 proc sgplot
     dattrmap=color_map
     data=ewk;
-  step x=time_yrs y=s_km / justify=right attrid=dist group=model;
-  series x=time_yrs y=s_exp / attrid=dist group=model;
-  series x=time_yrs y=s_weib / attrid=dist group=model;
+  step x=time_yrs y=S_km / justify=right attrid=dist group=model;
+  series x=t_exp y=S_exp / attrid=dist group=model;
+  series x=t_weib y=S_weib / attrid=dist group=model;
   yaxis values=(0 to 1 by 0.25);
   title1 "Comparison of survival functions";
-run;
-
-proc sgplot
-    dattrmap=color_map
-    data=ewk;
-  step x=time_yrs y=LAMBDA_km / justify=right attrid=dist group=model;
-  series x=time_yrs y=LAMBDA_exp / attrid=dist group=model;
-  series x=time_yrs y=LAMBDA_weib / attrid=dist group=model;
-  title1 "Comparison of cumulative hazards";
 run;
 
 * You've seen with the Cox regression model that
@@ -171,6 +155,51 @@ proc lifereg
     data=center;
   model time_yrs*fstat(0)=gender age_c bmi_c age_c*gender / d=weibull;
   title1 "Weibull model with covariates and interaction";
+run;
+
+proc import
+    datafile="../data/rats.csv"
+    out=survival.rats
+    dbms=csv
+    replace;
+  getnames=yes;
+run;
+
+proc print
+    data=survival.rats(obs=10);
+  title1 "First ten rows of rats file";
+run;
+
+proc freq
+    data=survival.rats;
+  table sex*status / norow nocol nopercent;
+  title1 "Event counts by gender";
+run;
+
+proc phreg
+    data=survival.rats;
+  model time*status(0)=rx;
+  where sex="f";
+  title1 "Naive model";
+run;
+
+proc phreg
+    data=survival.rats
+	covs(aggregate);
+  model time*status(0)=rx;
+  id litter;
+  where sex="f";
+  title1 "Cluster model";
+run;
+
+proc phreg
+    data=survival.rats
+	covs(aggregate);
+  class litter;
+  model time*status(0)=rx;
+  random litter;
+  where sex="f";
+  title1 "Frailty model";
 run;
 
 ods pdf close;
