@@ -1,16 +1,12 @@
-* class5.sas
+* survival-lecture-5-2020-version.sas
   written by Steve Simon
   May 15, 2018;
 
 ** preliminaries **;
 
-%let path=/folders/myfolders;
-%let xpath=c:/Users/simons/Documents/SASUniversityEdition/myfolders;
+ods pdf file="../results/survival-lecture-5-2020-version.pdf";
 
-ods pdf file="&path/survival-lecture5/sas/class5.pdf";
-
-libname survival
-  "&path/data";
+libname survival "../bin";
 
 * Before you start, peek at the data to refresh
   you memory about what variables you have and
