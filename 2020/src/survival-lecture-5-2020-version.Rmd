@@ -10,17 +10,17 @@ Lecture 5. Parametric models. Parametric models provide an alternative analysis 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
 ```{r load-libraries}
-library(broom)
-library(dplyr)
-library(ggplot2)
-library(magrittr)
-library(survival)
-library(tidyr)
+suppressMessages(suppressWarnings(library(broom)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(ggplot2)))
+suppressMessages(suppressWarnings(library(magrittr)))
+suppressMessages(suppressWarnings(library(survival)))
+suppressMessages(suppressWarnings(library(tidyr)))
 ```
 
 
 ```{r read-whas100}
-fn <- "~/survival-models/bin/whas100.RData" 
+fn <- "../bin/whas100.RData" 
 load(fn)
 whas100$time_yrs <- whas100$lenfol / 365.25
 head(whas100)
@@ -49,6 +49,7 @@ exp_null_model %>%
 
 km_overall                     %>%
   tidy                         %>%
+  filter(n.event > 0)          %>%
   mutate(estimate=1-estimate)  %>%
   mutate(grp="Kaplan-Meier")   %>%
   bind_rows(exp_survival)      -> combined_survivals
@@ -181,20 +182,21 @@ survfit(rats_surv~sex, data=rats)          %>%
   ggplot(aes(time, estimate, color=strata)) +
     geom_step()
 coxph(
+  rats_surv~rx,
+  data=rats,
+  subset=(sex=="f"))
+coxph(
   rats_surv~rx+cluster(litter),
   data=rats,
   subset=(sex=="f"))
-rats_random <- coxph(
+coxph(
   rats_surv~rx+frailty(litter),
   data=rats,
   subset=(sex=="f"))
-rats_random
 ```
 
 Save everything for possible later re-use.
 
-
-
 ```{r save-everything}
-save.image("~/survival-models/bin/survival-lecture-5.RData")
+save.image("../bin/survival-lecture-5.RData")
 ```
