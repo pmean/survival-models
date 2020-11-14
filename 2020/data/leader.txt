@@ -1,4 +1,4 @@
-years lost manner start military age conflict loginc growth   pop land literacy region
+years lost manner start military age conflict loginc growth pop land literacy region
 3 2 1 975 0 53 1 5.7990926545 -5.7 8 1247 20 1
 8 0 0 979 0 37 1 5.7990926545 -5.7 8 1247 20 1
 3 3 0 960 0 44 1 4.7004803658 1 4 112 11 1

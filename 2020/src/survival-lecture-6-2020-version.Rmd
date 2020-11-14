@@ -21,18 +21,34 @@ library(tidyr)
 ## The Kaplan-Meier plot and proportional hazards.
 
 ```{r read}
-fn <- "~/survival-models/bin/whas500.RData"
+fn <- "../bin/whas500.RData"
 load(fn)
-fn <- "~/survival-models/bin/heroin.RData"
-load(fn)
-head(heroin)
-table(heroin$status)
-summary(heroin)
+fn <- "../data/heroin.txt"
+heroin_rawdata <- read.delim(file=fn, sep="\t")
+head(heroin_rawdata)
+heroin_pt1 <- heroin_rawdata[ , 1:6]
+heroin_pt2 <- heroin_rawdata[ , 7:12]
+vnames <- c("id", "clinic", "status", "time", "prison_record", "dose")
+names(heroin_pt1) <- vnames
+names(heroin_pt2) <- vnames
+heroin <- bind_rows(heroin_pt1, heroin_pt2)
+heroin$dose_group <- 
+  (heroin$dose <=  40) +
+  (heroin$dose <=  50) +
+  (heroin$dose <=  60) +
+  (heroin$dose <=  70) +
+  (heroin$dose <= 110)
+table(heroin$dose, heroin$dose_group)
+heroin$time_yrs <- heroin$time / 365.25
+summary(heroin$time_yrs)
+heroin %>%
+  group_by(clinic, status) %>%
+  summarize(n=n())
 ```
 
 ```{r km-plots, fig.width=4.5, fig.height=2.5}
 heroin                                      %$%
-  Surv(time_yrs, status=="departed")        -> heroin_surv
+  Surv(time_yrs, status==1)                     -> heroin_surv
 
 heroin                                      %$%
   survfit(heroin_surv~clinic)               %>%
@@ -86,7 +102,7 @@ km_dose                               %>%
 ```{r schoenfeld, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 4.1, 0.6, 0.6))
 cox_mv <- coxph(
-  heroin_surv~clinic+i_prison+methadone_dose,
+  heroin_surv~clinic+prison_record+dose,
   data=heroin)
 cox_schoenfeld <- cox.zph(cox_mv)
 print(cox_schoenfeld)
@@ -101,17 +117,17 @@ If one of the variables in your model is a nuisance variable, but it could possi
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 cox_strata <- coxph(
   heroin_surv ~
-    i_prison +
-    methadone_dose +
+    prison_record +
+    dose +
   strata(clinic),
   data=heroin)
 print(cox_strata)
 summary(cox_strata)
 
 n <- data.frame(
-  methadone_dose=mean(heroin$methadone_dose),
+  dose=mean(heroin$dose),
   clinic=c(1, 1, 2, 2),
-  i_prison=c(0, 1, 0, 1))
+  prison_record=c(0, 1, 0, 1))
 
 cox_predict <- survfit(cox_strata, newdata=n)
 plot(
@@ -136,19 +152,20 @@ lines(
 
 ```{r time-transfer, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
+heroin$clinic <- heroin$clinic - 1
 tt_clinic <- coxph(
   heroin_surv~
     clinic +
     tt(clinic) +
-    i_prison +
-    methadone_dose,
+    prison_record +
+    dose,
   tt=function(x, t, ...) x*t,
   data=heroin)
 tt_clinic
 summary(tt_clinic)
 tt_coef <- tidy(tt_clinic)
-beta_clinic <- tt_coef[tt_coef$term=="clinic", "estimate"]
-beta_interaction <- tt_coef[tt_coef$term=="tt(clinic)", "estimate"]
+beta_clinic <- unlist(tt_coef[tt_coef$term=="clinic", "estimate"])
+beta_interaction <- unlist(tt_coef[tt_coef$term=="tt(clinic)", "estimate"])
 t <- seq(0, 2.5, by=0.5)
 log_hr <- beta_clinic+t*beta_interaction
 hr <- exp(log_hr)
@@ -333,9 +350,21 @@ plot(cox_schoenfeld)
 Read in the leader data set.
 
 ```{r read-leader}
-fn <- "~/survival-models/bin/leader.RData"
-load(fn)
+fn <- "../data/leader.txt"
+leader <- read.delim(fn, sep=" ", na.strings=".")
+str(leader)
 leader <- leader[is.finite(leader$age), ]
+lb <- c(
+  "still in power",
+  "constitutional exit",
+  "natural death",
+  "nonconstitutional exit"
+)
+leader$lost <- factor(leader$lost, levels=0:3, labels=lb)
+lb <- c(
+  "constitutional ascent",
+  "nonconstitutional ascent")
+leader$manner <- factor(leader$manner, levels=0:1, labels=lb)
 ```
 
 Calculate some simple descriptive statistics.
@@ -438,7 +467,7 @@ Take a look at the calculations involved.
 ```{r calculations-km}
 leader_tally <- table(leader$years, leader$lost)
 leader_tally
-fn <- "~/survival-models/data/leader_tally.csv"
+fn <- "../data/leader_tally.csv"
 write.csv(leader_tally, file=fn, row.names=FALSE)
 ```
 
@@ -456,7 +485,7 @@ draw_km <- function(v) {
 }
 
 draw_km("manner")
-draw_km("start_c")
+draw_km("start")
 draw_km("military")
 draw_km("age_c")
 draw_km("conflict")
@@ -523,7 +552,7 @@ ggplot(leader, aes(start, r))    +
   geom_point()                   +
   geom_smooth(se=TRUE)
 
-ggplot(leader, aes(conflict, r)) +
+ggplot(leader, aes(factor(conflict), r)) +
   geom_boxplot()
 
 ggplot(leader, aes(loginc, r))   +
@@ -550,7 +579,7 @@ ggplot(leader, aes(literacy, r)) +
   geom_point()                   +
   geom_smooth(se=TRUE)
 
-ggplot(leader, aes(region, r))   +
+ggplot(leader, aes(factor(region), r))   +
   geom_boxplot()
 ```
 
@@ -572,7 +601,7 @@ summary(binary_mv2)
 
 Computet the Schoenfeld residuals to look for non-proportional hazards.
 
-```{r schoenfeld, fig.width=4.5, fig.height=2.5}
+```{r schoenfeld-2, fig.width=4.5, fig.height=2.5}
 par(mar=c(2.6, 2.6, 0.6, 0.6))
 leader_residuals <- cox.zph(binary_mv2)
 plot(leader_residuals)
@@ -670,7 +699,13 @@ Let's look at a couple of subsets.
 
 ```{r subsets, fig.width=4.5, fig.height=2.5}
 sb1 <- leader$manner=="constitutional ascent"
-km_sb1 <- survfit(surv_object~1, subset=sb1)
+surv_object <- 
+  Surv(
+    leader$years[sb1], 
+    leader$lost[sb1],
+    type="mstate")
+
+km_sb1 <- survfit(surv_object~1)
 km_sb1 %>% tidy -> km_sb1_tidy
 km_sb1_tidy %>%
   filter(time==20) %>%
@@ -688,7 +723,12 @@ ggplot(
   expand_limits(x=27)              +
   geom_col(width=1)
 sb2 <- leader$manner=="nonconstitutional ascent"
-km_sb2 <- survfit(surv_object~1, subset=sb2)
+surv_object <- 
+  Surv(
+    leader$years[sb2], 
+    leader$lost[sb2],
+    type="mstate")
+km_sb2 <- survfit(surv_object~1)
 km_sb2 %>% tidy -> km_sb2_tidy
 for (i in 22:27) {
   km_sb2_tidy %>%
@@ -726,5 +766,5 @@ lines(km4$time, km4$estimate, col="purple", lty="dotted")
 Save everything for possible later re-use.
 
 ```{r save-everything}
-save.image("~/survival-models/bin/survival-lecture-6.RData")
+save.image("../bin/survival-lecture-6.RData")
 ```
