@@ -1,22 +1,19 @@
-* class6.sas
+* survival-lecture-6-2020-version.sas
   written by Steve Simon
   October 21, 2018;
 
 ** preliminaries **;
 
-%let path=/folders/myfolders;
-%let xpath=c:/Users/simons/Documents/SASUniversityEdition/myfolders;
-
-ods pdf file="&path/survival-lecture6/sas/class6.pdf";
+ods pdf file="../results/survival-lecture-6-2020-version.pdf";
 
 libname survival
-  "&path/data";
+  "../bin";
   
 filename heroin
-  "&path/data/heroin.txt";
+  "../data/heroin.txt";
   
 data survival.heroin;
-  infile "&path/data/heroin.txt" dlm='09'x firstobs=2;
+  infile "../data/heroin.txt" dlm='09'x firstobs=2;
   input id clinic status time prison dose @@;
   time_yrs = time / 365.25;
 run;
@@ -201,7 +198,7 @@ run;
  
 data survival.transplant1;
   infile
-    "&path/data/transplant1.csv" 
+    "../data/jasa.csv" 
     firstobs=2
     dlm=",";
   informat 
@@ -233,7 +230,7 @@ run;
 
 data survival.transplant2;
   infile
-    "&path/data/transplant2.csv" 
+    "&path/data/jasa1.csv" 
     firstobs=2
     dlm=",";
   input
