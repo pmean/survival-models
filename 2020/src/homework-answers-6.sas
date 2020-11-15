@@ -1,6 +1,6 @@
-* survival-exercises-6.sas
+* homework-answers-6.sas
   written by Steve Simon
-  May 15, 2018;
+  2020-11-15;
   
 ** Page **** Page **** Page **** Page **** Page **** Page **** Page **;
 
@@ -12,7 +12,7 @@
   footnote2 "of a dataset to orient yourself at the start.";
 
 options orientation=landscape;
-ods word file="survival-exercises-6.docx";
+ods pdf file="../results/homework-answers-6-sas.pdf";
 
 libname survival  "../bin";
 
@@ -29,17 +29,19 @@ run;
 
   title3 "a. Calculate and graph on the same graph a Kaplan-Meier curve";
   title4 "for the three cohorts associated with year. Does it appear as";
-  title5 "if these survival curves differ? If so, do they appear to
+  title5 "if these survival curves differ? If so, do they appear to";
   title6 "violate the assumption of proportional hazards?";
 
-  footnote1 "The survival curves ...";
+  footnote1 "The survival curves are reasonable, with the possible exception";
+  footnote2 "of year 3. The latter half of that curve (corresponing to about";
+  footnote3 "1.5 to 2 years appears to decline a bit too sharply";
 
 proc lifetest
     notable
     outsurv=km_by_year
     plots=survival
     data=time_recode;
-  time time_yrs*status(0);
+  time time_yrs*fstat(0);
   strata year;
 run;
 
@@ -47,11 +49,16 @@ run;
 
   title3 "b. Calculate and interpret the complementary log-log plots.";
 
-  footnote1 "These plots ...";
+  footnote1 "These plots show the same pattern. The plots are reasonably";
+  footnote2 "parallel with the possible exception of year 3."
+
+proc print
+    data=km_by_year(obs=10);
+run;
 
 data km_by_year;
   set km_by_year;
-  if survival > 0 and survival < 1 then cloglog = log(-log(SURVIVAL));
+  if survival > 0 and survival < 1 then cloglog = log(-log(survival));
 run;
 
 proc sgplot
@@ -69,7 +76,7 @@ run;
   
 proc phreg
     data=time_recode;
-  model time_yrs*status(0)=year;
+  model time_yrs*fstat(0)=year;
   output out=schoenfeld
     ressch=s_year;
 run;
@@ -83,16 +90,16 @@ run;
 ** Page **** Page **** Page **** Page **** Page **** Page **** Page **;
 
   title3 "d. Fit a Cox regression model with gender as an independent";
-  title4 "variable and include year as a strata. Create estimated 
+  title4 "variable and include year as a strata. Create estimated";
   title5 "survival plots for each strata comparing males to females.";
 
   footnote1 "The survival plots ...";
 
 data augment;
   set time_recode(keep=time_yrs);
-  do genderf=1 to 2;
+  do gender=0 to 1;
     do year=1 to 3;
-      status=.; output;
+      fstat=.; output;
     end;
   end;
 run;
@@ -108,21 +115,34 @@ run;
 
 proc phreg
     data=augment;
-  model time_yrs*status(0)=gender;
+  model time_yrs*fstat(0)=gender;
   strata year;
   output out=surv_data survival=s;
 run;
 
-proc print
-    data=surv_data(obs=5);
-run;
-
+footnote1 "Estimated survival curves comparing gender";
+footnote2 "when year is 1";
 proc sgplot
     data=surv_data;
-  where status=. and year=1;
+  where fstat=. and year=1;
   step x=time_yrs y=s / group=gender;
   yaxis min=0;
-  title1 "Survival comparison by prison for year=1";
 run;
 
-ods word close;
+footnote2 "when year is 2";
+proc sgplot
+    data=surv_data;
+  where fstat=. and year=2;
+  step x=time_yrs y=s / group=gender;
+  yaxis min=0;
+run;
+
+footnote2 "when year is 3";
+proc sgplot
+    data=surv_data;
+  where fstat=. and year=3;
+  step x=time_yrs y=s / group=gender;
+  yaxis min=0;
+run;
+
+ods pdf close;
