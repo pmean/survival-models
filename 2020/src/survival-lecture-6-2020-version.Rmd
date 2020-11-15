@@ -9,20 +9,18 @@ Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow
 
 This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
 
-```{r load-libraries}
-library(broom)
-library(dplyr)
-library(ggplot2)
-library(magrittr)
-library(survival)
-library(tidyr)
+```{r setup}
+suppressMessages(suppressWarnings(library(broom)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(ggplot2)))
+suppressMessages(suppressWarnings(library(magrittr)))
+suppressMessages(suppressWarnings(library(survival)))
+suppressMessages(suppressWarnings(library(tidyr)))
 ```
 
 ## The Kaplan-Meier plot and proportional hazards.
 
 ```{r read}
-fn <- "../bin/whas500.RData"
-load(fn)
 fn <- "../data/heroin.txt"
 heroin_rawdata <- read.delim(file=fn, sep="\t")
 head(heroin_rawdata)
@@ -33,17 +31,18 @@ names(heroin_pt1) <- vnames
 names(heroin_pt2) <- vnames
 heroin <- bind_rows(heroin_pt1, heroin_pt2)
 heroin$dose_group <- 
-  (heroin$dose <=  40) +
-  (heroin$dose <=  50) +
-  (heroin$dose <=  60) +
-  (heroin$dose <=  70) +
-  (heroin$dose <= 110)
+  (heroin$dose >=  40) +
+  (heroin$dose >=  50) +
+  (heroin$dose >=  60) +
+  (heroin$dose >=  70) +
+  (heroin$dose >= 110)
 table(heroin$dose, heroin$dose_group)
 heroin$time_yrs <- heroin$time / 365.25
 summary(heroin$time_yrs)
 heroin %>%
   group_by(clinic, status) %>%
   summarize(n=n())
+save(heroin, file="../bin/heroin.RData")
 ```
 
 ```{r km-plots, fig.width=4.5, fig.height=2.5}
@@ -185,6 +184,8 @@ plot(t, hr, ylim=c(0, 1.1))
 The Stanford Heart Transplant study has an interesting application of time-varying covariates.
 
 ```{r read-heart, fig.width=4.5, fig.height=2.5}
+save(jasa, file="../bin/transplant1.RData")
+save(jasa1, file="../bin/transplant2.RData")
 par(mar=c(2.6, 2.6, 0.6, 0.6), las=1)
 ids <- 21:30
 vlist <- c(
@@ -365,6 +366,7 @@ lb <- c(
   "constitutional ascent",
   "nonconstitutional ascent")
 leader$manner <- factor(leader$manner, levels=0:1, labels=lb)
+save(leader, file="../bin/leader.RData")
 ```
 
 Calculate some simple descriptive statistics.

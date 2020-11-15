@@ -20,6 +20,7 @@ run;
 
 proc print
     data=survival.heroin(obs=5);
+  title1 "List of heroin dataset (first five observations)";
 run;
 
 proc lifetest
@@ -29,7 +30,7 @@ proc lifetest
     data=survival.heroin;
   time time_yrs*status(0);
   strata clinic;
-  title "Comparison of survival by clinic";
+  title1 "Comparison of survival by clinic";
 run;
 
 proc lifetest
@@ -39,7 +40,7 @@ proc lifetest
     data=survival.heroin;
   time time_yrs*status(0);
   strata prison;
-  title "Comparison of survival by prison";
+  title1 "Comparison of survival by prison";
 run;
 
 proc lifetest
@@ -49,7 +50,7 @@ proc lifetest
     data=survival.heroin;
   time time_yrs*status(0);
   strata dose(40, 50, 60, 70);
-  title "Comparison of survival by dose groups";
+  title1 "Comparison of survival by dose groups";
 run;
 
 * Peek at one data set to orient yourself
@@ -198,7 +199,7 @@ run;
  
 data survival.transplant1;
   infile
-    "../data/jasa.csv" 
+    "../data/transplant1.csv" 
     firstobs=2
     dlm=",";
   informat 
@@ -215,12 +216,12 @@ data survival.transplant1;
     surgery
     age
     futime
-    wait_time
+    wait_time ??
     transplant
-    mismatch
-    hla_a2
-    mscore
-    reject;
+    mismatch ??
+    hla_a2 ??
+    mscore ??
+    reject ??;
 run;
 
 proc print
@@ -230,7 +231,7 @@ run;
 
 data survival.transplant2;
   infile
-    "&path/data/jasa1.csv" 
+    "../data/transplant2.csv" 
     firstobs=2
     dlm=",";
   input
@@ -296,8 +297,10 @@ proc phreg
   title1 "Start/Stop version of time varying model";
 run;
 
+* Analysis of leader data set;
+
 proc import
-    datafile="&path/data/leader1.csv"
+    datafile="../data/leader1.csv"
     dbms=dlm
     out=survival.leader;
   delimiter=",";
@@ -307,7 +310,7 @@ run;
 data survival.leader;
   set survival.leader;
   if age ^= .;
-  cens=(lost ^= "still in power");
+  cens=(lost ^= 0);
 run;
 
 proc print
@@ -542,27 +545,21 @@ run;
   
 proc sgplot
     data=schoenfeld_residuals; 
-  loess x=years y=r_region / clm smooth=0.5;
+  loess x=years y=r_region1 / clm smooth=0.5;
+run;
+  
+proc sgplot
+    data=schoenfeld_residuals; 
+  loess x=years y=r_region2 / clm smooth=0.5;
+run;
+  
+proc sgplot
+    data=schoenfeld_residuals; 
+  loess x=years y=r_region3 / clm smooth=0.5;
 run;
   
 * Competing risks analysis;
 
-data survival.leader;
-  set survival.leader;
-  outcome=
-    1*(lost="constitutional exit") +
-    2*(lost="natural death") +
-    3*(lost="nonconstitutional exit");
-run;
-
-proc freq
-    data=survival.leader;
-  tables lost*outcome /
-    norow nocol nopercent;
-  title2 "Competing risk analysis";
-  title3 "All observations";
-run;
-  
 * You could analyze the Kaplan Meier curve for
   each event separately and then consider
   alternative events as censored. But this
@@ -577,9 +574,15 @@ run;
   function.
 ;
 
+* Note that this code follows the code in
+  Example 74.4 Nonparametric Analysis of
+  Competing-Risks Data in the SAS 9.4
+  documentation.
+;
+
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=1;
+  model years*lost(0)= / eventcode=1;
   output out=cif1 cif=p1;
 run;
 
@@ -591,7 +594,7 @@ proc sort
 
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=2;
+  model years*lost(0)= / eventcode=2;
   output out=cif2 cif=p2;
 run;
 
@@ -603,7 +606,7 @@ proc sort
 
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=3;
+  model years*lost(0)= / eventcode=3;
   output out=cif3 cif=p3;
 run;
 
@@ -638,9 +641,9 @@ run;
 
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=1;
+  model years*lost(0)= / eventcode=1;
   output out=cif1 cif=p1;
-  where manner="nonconstitutional ascent";
+  where manner=1;
   title3 "Subgroup manner=nonconstitutional ascent";
 run;
 
@@ -652,9 +655,9 @@ proc sort
 
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=2;
+  model years*lost(0)= / eventcode=2;
   output out=cif2 cif=p2;
-  where manner="nonconstitutional ascent";
+  where manner=1;
 run;
 
 proc sort
@@ -665,9 +668,9 @@ proc sort
 
 proc phreg
     data=survival.leader;
-  model years*outcome(0)= / eventcode=3;
+  model years*lost(0)= / eventcode=3;
   output out=cif3 cif=p3;
-  where manner="nonconstitutional ascent";
+  where manner=1;
 run;
 
 proc sort
