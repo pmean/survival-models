@@ -1,0 +1,46 @@
+transplant-data-dictionary.txt
+
+This dataset shows information about heart transplant patients. Patients were accepted into a heart transplant program, but many had to wait months or even years before a suitable transplant organ was found. Some patients never got a heart transplant at all. It is useful for (among other things) illustrating start/stop coding for time varying covariates.
+
+This data is included in the survival package of the R programming language. This entire package, and therefore this dataset, is published under an open source license. It should be fine to use this data for individual educational purposes. If you do use it, it would be nice to acknowledge the original source, either
+
+Therneau T (2020). A Package for Survival Analysis in R. R package version
+3.1-12, <URL: https://CRAN.R-project.org/package=survival>.
+
+or
+
+Terry M. Therneau, Patricia M. Grambsch (2000). Modeling Survival Data:
+Extending the Cox Model. Springer, New York. ISBN 0-387-98784-3.
+
+The original source, however, is a book with the simple title "Data" written by D.F. Andrews and A.M. Herzberg. It was published in 1985, long before the World Wide Web made it so much easier to distribute data.
+
+There are 14 variables in this dataset:
+  birth.dt - date of birth
+  accept.dt	- date of accpetance into the transplant program
+  tx.date - date when transplant occured (NA if no transplant)
+  fu.date - date of last follow-up
+  fustat - follow up status
+    0 = still alive at last follow-up
+    1 = dided
+  surgery - prior bypass surgery
+    0 = no
+    1 = yes
+  age - age in years at time of qualification for transplant
+  futime - time in days until last follow-up
+  wait.time - time in days waiting for transplant, NA if no transplant
+  transplant - indicator for transplant
+    0 = no
+    1 = yes
+  mismatch - mismatch score (ordinal scale 1-4, NA if no transplant)
+  hla.a2 - Anther mismatch socre (binary 0-1, NA if no transplant)
+  mscore - Yet another mismatch score (continuous, NA if no transplant)
+  reject - indicator for rejection
+    0 = no
+    1 = yes
+    NA = no transplant
+
+Note that all dates are coded in a non-standard format (mm/dd/yyyy).
+
+The data is available as a tab delimited text file, transplant.txt, with variable names in the first row of data. There are 103 rows of data, not counting the row with variable names. There are two alternative formats for the data showing how to process the data using start/stop coding, transplant1.csv and transplant2.csv. Both are comma-delimited files with variable names in the first row. There are two versions of the data in SAS binary format, transplant1.sas7bdat and transplant2.sas7bdat.
+
+In R is it much easier, once you load the survival package with the library function. You then have access to these files under data frames named heart, jasa, and jasa1.

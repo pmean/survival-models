@@ -1,0 +1,15 @@
+heroin-data-dictionary.txt
+
+This dataset shows infrmation about heroin addicts who are treated at two rehabilitation clinics. It is useful for showing (among other things) how to identify and control for the clinic factor which does not meet the assumptions of proportional hazards needed by the standard Cox regression model.
+
+The data was originally found at lib.stat.cmu.edu/DASL/DataArchive.html, but this site no longer exists. I have no information about the copyright for this data set, but you should be able to use this data for individual educational purposes under the fair use guidelines of copyright laws.
+
+There are five variables in this dataset:
+  Clinic (1 or 2)
+  Status (0 if censored, 1 if not)
+  Time (number of days spent in the clinic)
+  Prison (1=prison record, 0=no record)
+  Dose (Methadone dosage in mg/day)
+  
+This data is available in a text format using tab delimiters. The first line of data lists the names of the variables. There are 119 rows of data (not counting the firstl ine of variable names) which corresponds to 238 observations on individual patients. This data file is a bit unusual in that there are records for two patients for each row of data. You can disentangle the two records in a variety of ways. The data is also available with one line per record in SAS binary format, heroin.sas7bdat, or in R binary format, heroin.RData.
+
