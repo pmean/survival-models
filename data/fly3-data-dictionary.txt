@@ -1,0 +1,27 @@
+~/survival-models/doc/data-dictionary-fly2.txt
+
+This data is a lightly modified subset of data
+from the Journal of Statistics Data Archive on
+survival time of fruit flies and is described
+in the article
+
+Hanley JA, Shapiro SH (1994) Sexual Activity
+and the Lifespan of Male Fruitflies: A Dataset
+That Gets Attention. Journal of Statistics 
+Education 2(1). Available at 
+http://ww2.amstat.org/publications/jse/v2n1/datasets.hanley.html.
+
+This data set is copyrighted, but is reproduced
+here under the fair use provisions of copyright
+law.
+
+It is used in ~/survival-models/src/survival-
+lecture-1.Rmd to illustrate computation of the
+Kaplan-Meier curve. 
+
+This is a text file with a two columns and 25 rows.
+
+The first column represents time of death or
+censoring in days.
+
+The second column is 1 for death and 0 for censored.

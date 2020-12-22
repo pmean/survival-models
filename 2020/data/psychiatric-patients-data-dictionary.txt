@@ -1,0 +1,36 @@
+psychiatric-patients-data-dictionary.txt
+
+This data set shows how long political leaders of various countries stayed in power and is useful for (among other things) illustrating how to fit competing risk models based on the manner in which each leader lost power. It is described and analyzed in detail in the Paul Allison book, Survival Analysis Using SAS. A Practical Guide. It is a subset of the data analyzed in a 1991 book by Henry Bienen and Nicolas van de Walle, Of Time and Power.
+
+There is no information in Allison's book about copyright restrictions, but you should be able to use this data for individual educational purposes under the fair use guidelines of copyright laws.
+
+There is a text file, leaders.txt, using blanks as delimiters. The names of the variables are on the first line of the file. There are 472 rows of data in the text file, not counting the first line of variable names. There is also a file in SAS binary format, leader.sas7bdat, and in R binary format, leader.RData.
+
+There are 13 variables in this dataset:
+  years - the number of years in power
+  lost - how the leader lost power
+    0 = still in power at the end of the study
+    1 = constitutional exit 
+    2 = natural death
+    3 = nonconstitutional exit
+  manner - how the leader reached power
+    0 = constitutional ascent
+    1 = nonconstitutional ascent
+  start - year that the leader ascended into power
+  military - indicator for previous military experience
+    0 = no
+    1 = yes
+  age - age of the leader, in years, at the time of ascent
+  conflict - level of ethnic conflict
+    0 = low
+    1 = medium or high
+  loginc - natural logarithm of GNP per capita (dollar equivalent)
+  growth - average annual rate of per capita GNP growth
+  pop - population, in millions
+  land - land area, in thousands of square kilometers
+  literacy - literacy rate (percentage)
+  region - location of leader's country
+    0 = Middle East
+    1 = Africa
+    2 = Asia
+    3 = Latin America
