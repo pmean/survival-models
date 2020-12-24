@@ -1,0 +1,207 @@
+---
+title: "supplement1"
+author: "Steve Simon"
+date: "March 24, 2018"
+output: html_document
+---
+
+This file creates various formulas and graphs needed to illustrate the underlying theory behind the data analyses in survival-lecture-1.Rmd. I am sharing this for those who are curious, but you are not responsible for learning or using the code shown in this supplement.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Fruit fly data (round 1)
+
+The fly1 data set is intended to illustrate how easy it would be for you to estimate a survival curve if you had no censoring. For a brief overview of this data, refer to data-dictionary-fly1in the doc folder.
+
+To get the program to work properly, you need a variable that equals one for every observation, since every observation represents a time at death rather than a censoring time.
+
+```{r read-fly1}
+fn <- "../../data/fly1.txt"
+fly1 <- read.table(fn, header=FALSE)
+names(fly1) <- "time"
+print(fly1)
+fly1$censor <- 1
+fly1_surv <- Surv(fly1$time, fly1$censor)
+fly1_km <- survfit(fly1_surv~1)
+print(fly1_km)
+plot(fly1_km, conf.int=FALSE)
+```
+
+## Fruit fly data (round 2)
+
+The fly2 data set illustrates what happens to the data if a scientist accidentally let all the flies still alive at day 70 escape.
+
+```{r read-fly2}
+fn <- "../../data/fly2.txt"
+fly2 <- read.table(fn, header=FALSE)
+names(fly2) <- c("time", "censor")
+print(fly2)
+fly2_surv <- Surv(fly2$time, fly2$censor)
+fly2_km <- survfit(fly2_surv~1)
+print(fly2_km)
+plot(fly2_km, conf.int=FALSE)
+```
+
+## Fruit fly data (round 3)
+
+The fly3 data set illustrates what happens to the data if a scientist accidentally let some (but not all) of the flies escape at day 70.
+
+```{r read-fly3}
+fn <- "../../data/fly3.txt"
+fly3 <- read.table(fn, header=FALSE)
+names(fly3) <- c("time", "censor")
+print(fly3)
+fly3_surv <- Surv(fly3$time, fly3$censor)
+fly3_km <- survfit(fly3_surv~1)
+print(fly3_km)
+plot(fly3_km, conf.int=FALSE)
+```
+
+## Hand calculation of Kaplan-Meier curve
+
+Table 2.1 of Hosmer, Lemeshow, and May has a very small data set that you can use to calculate the Kaplan-Meier curve by hand. This code shows how R software would generate the graph, just so you can double check your work.
+
+In R, you create a survival object with the Surv function. This object displays itself with every time listed, but with censored times followed with a plus sign. This is fairly standard shorthand.
+
+The survfit function takes a survival object and produces information needed to draw one or more Kaplan-Meier curve. Using ~1 tells R that you want a single curve for all of the data.
+
+```{r read-table21}
+fn <- "../../data/table21.txt"
+table21 <- read.csv(fn, header=TRUE)
+print(table21)
+table21_surv <- Surv(table21$time, table21$censor)
+print(table21_surv)
+table21_fit <- survfit(table21_surv~1)
+print(table21_fit)
+summary(table21_fit)
+plot(table21_fit, conf.int=FALSE)
+```
+
+## Kaplan-Meier curve using WHAS100 data
+
+Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
+
+Out of respect for the book's copyright, I am not reproducing the whas100.txt file in the git repository. See README.md in the main folder or the data dictionary file mentioned above for details about how to download this file.
+
+The dotted lines in this graph show how to calculated the confidence limits for one of the quantiles.
+
+```{r plot-with-quartile, fig.height=2, fig.width=4.5}
+fn <- "../../data/wiley/whas100.dat" 
+whas100 <- read.table(fn, header = FALSE) 
+names(whas100) <- 
+  c("id", "admitdate", "foldate",
+    "los", "lenfol", "fstat",
+    "age", "gender", "bmi")
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+whas100_km <- survfit(whas100_surv~1)
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+q <- quantile(whas100_km)
+print(q)
+plot(whas100_km, conf.int=TRUE, axes=FALSE)
+axis(side=1)
+axis(side=2, at=c(0, 0.25, 0.5, 0.75, 1))
+segments(q$quantile[1], 0, q$quantile[1], 0.75)
+segments(q$lower[1], 0, q$lower[1], 0.75, lty="dotted")
+segments(q$upper[1], 0, q$upper[1], 0.75, lty="dotted")
+segments(q$upper[1], 0.75, 0, 0.75, lty="dotted")
+```
+
+In my Powerpoint lecture, I had a few problems with notation and produced some confusion on how the logrank test actually works. Let me try again with this program. 
+
+This file does not need any special libraries other than the ones listed below.
+
+Consider a small data set with the following survival times:
+
+Male 6, 44+, 98, 114
+Female 14, 44, 89+, 98, 104
+
+To compare this properly, you need to create a table with the number of deaths, the number of censored values, and the number at risk, both overall and for the two groups.
+
+First list the times in order. You can exclude times with only censored values, if you like.
+
+```{r table1, echo=FALSE}
+ti <- c(6, 14, 44, 89, 98, 104, 114)
+```
+
+`r kable(data.frame())`
+
+Count the deaths in each group . d1i is deaths among the women, and d0i is deaths among the men.
+
+```{r table2, echo=FALSE}
+d1i <- c(0, 1, 1, 0, 1, 1, 0)
+d0i <- c(1, 0, 0, 0, 1, 0, 1)
+```
+
+`r kable(data.frame(ti, d1i, d0i))`
+
+Count the censored values in each group. This is not really necessary for computation, but it makes it a bit easier to follow the results.
+
+```{r table3, echo=FALSE}
+c1i <- c(0, 0, 0, 1, 0, 0, 0)
+c0i <- c(0, 0, 1, 0, 0, 0, 0)
+```
+
+
+Calculate the number at risk in each group.
+
+```{r table4, echo=FALSE}
+n1i <- c(5, 5, 4, 3, 2, 1, 0)
+n0i <- c(4, 3, 3, 2, 2, 1, 1)
+```
+
+`r kable(data.frame(ti, d1i, c1i, n1i, d0i, c0i, n0i))`
+
+Now calculate totals for both groups. You can drop group 0 and the censored values. Also drop the time point 89, which had only one censored value and no deaths.
+
+```{r table5, echo=FALSE}
+di <- d1i+d0i
+ci <- c1i+c0i
+ni <- n1i+n0i
+df <- data.frame(ti, d1i, n1i, di, ni)[ -4, ]
+
+```
+
+`r kable(df)`
+
+So far, the only thing you have done is count, subtract, and add. Here's where it gets a bit tricky.
+
+If the two groups had equal survival probabilities, then you can estimate the conditional probability of death at $t_i$ as $p_i=\frac{d_i}{n_i}$. The expected number of deaths in the females is $n_{1i} p_i$. Calculate the observed number of deaths among the females minus the expected number of deaths.
+
+```{r table6, echo=FALSE}
+df$pi <- df$di/df$ni
+df$e1i <- round(df$n1i*df$pi, 3)
+df$o_minus_e <- df$d1i-df$e1i
+```
+
+`r kable(df)`
+
+Notice that there is a mix of positive and negative numbers for the observed minus expected, but slightly more positive values. The total observed minus expected is `r sum(df$o_minus_e)`.
+
+If the death count were binomial, the variance at each time point would be $n_{1i} p_i (1-p_i)$ but you also have to adjust for the small sample sizes with a finite population correction factor, $\frac{n_i-n_{1i}}{n_i-1}$. 
+
+```{r table7, echo=FALSE}
+df$vi <- round(df$n1i*df$pi*(1-df$pi)*(df$ni-df$n1i)/(df$ni-1), 3)
+df$vi[6] <- 0
+```
+
+`r kable(df)`
+
+The sum of the variances is `r sum(df$vi)` and you compare that to the square of the sum of observed minus expected `r sum(df$o_minus_e)^2`.
+
+Save everything for possible re-use.
+
+```{r save-everything}
+save.image("../../data/supplement1.RData")
+```

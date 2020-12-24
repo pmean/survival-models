@@ -1,0 +1,27 @@
+“Models for time-to-event data (survival models)” Abstract: Many data sets contain information about the time until a certain event occurs. Often the event is death, but it could represent another adverse event like relapse or re-hospitalization. It could also represent the time to a positive event like pregnancy. The analysis of these data is often called survival analysis, but time-to-event models is a more general time. A complication of time-to-event models is how to handle subjects with censoring, where the event does not occur, at least not during the time frame in which you are following this subject. This workshop will cover the Kaplan-Meier curve and the planning and data management issues associated with time-to-event data. It will present the Cox proportional hazards model, including model diagnostics, as well as parametric alternatives to this model. Finally, this workshop will discuss extensions to the Cox model including time varying covariates and frailty models. You will see examples of these models in SAS, R, SPSS, and Stata.
+
+A recommended textbook for this workshop is “Applied Survival Models” by Hosmer, Lemeshow, and May. For R and SAS programmers, you may also consider the texts “Applied Survival Analysis Using R” by Moore and “Survival Analysis Using SAS” by Allison.
+
+The workshop will consist of eight two hour lectures, each  followed with homework exercises and a review session. Here is a breakdown of the lectures.
+
+Lecture 1: The Kaplan-Meier curve. The Kaplan-Meier curve is a quick and simple graphical tool to help you visualize the trend in survival data when you have censored data. You’ll review the concept of censoring, including the assumptions that are important for censored data. You’ll construct a Kaplan-Meier curve for a simple example, and the produce a basic interpretation of this curve. Then, you’ll also compare the trend across two or more subgroups using the log rank test.
+
+Lecture 2: The hazard function and the Cox proportional hazards regression model. The Cox proportional hazard model allows you to examine how categorical and continuous predictor variables influence survival data. You’ll review the definition of a hazard function, and interpret the meaning of constant hazard versus an increasing hazard or a decreasing hazard. Then you’ll fit Cox regression models and interpret the model coefficients.
+
+Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. You’ll compute power for hypothetical studies and compare power across different research designs. Then you’ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.
+
+Lecture 4. Model fitting and diagnostics for the Cox model. In this lecture, you’ll work with more complex forms of the Cox model with multiple predictor variables. You’ll include covariates in the Cox model to produce risk adjusted survival curves. You’ll also assess the underlying assumptions of the Cox model, particularly the assumption of proportional hazards.
+
+Lecture 5. Parametric models. Parametric models provide an alternative analysis to the Cox proportional hazards model. You’ll compare the hazard function for various popular survival distributions and understand the advantages and disadvantages of a parametric approach to survival. You’ll fit parametric models and interpret the coefficients.
+
+Lecture 6. Time varying covariates in a Cox model. Time varying covariates allow you to account for non-proportional hazards and can model settings where patients switch from one therapy to another. You will learn how to spot the need for time-varying covariates, and use a stratified model to account for differing hazards. You will code data for time-varying covariates, fit time-varying models, and interpret the results.
+
+Lecture 7. Frailty models. You can incorporate mutliple events per patient and account for center effects using frailty models, the survival data analysis equivalent to mixed models in linear regression. You’ll see how to define random effects and how to fit and interpret these models.
+
+Lecture 8. Competing risk models.
+
+Resources:
+
+The Institute for Digital Research and Education at UCLA has a nice set of code for all the textbook examples found in Hosmer, Lemeshow, and May. They include code for R, SAS, SPSS, and Stata, except for a few advanced examples which can only be run in one of two of these four programs. Available at https://stats.idre.ucla.edu/other/examples/asa2/.
+
+I will be developing my own R and SAS code because I have several examples that I have developed on my own that I want to share. I am just starting coding (March 2018), but you can peek at what I am working on at my github site. Available at https://github.com/pmean/survival-models.

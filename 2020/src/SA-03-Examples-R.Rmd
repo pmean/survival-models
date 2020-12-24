@@ -1,0 +1,239 @@
+---
+title: "survival lecture 3"
+author: "Steve Simon"
+date: "May 5, 2018"
+output: html_document
+---
+
+Lecture 3. Planning and data management issues for survival data. Planning a study with a survival outcome requires you to specify both the number of patients and the duration of follow-up time. You’ll compute power for hypothetical studies and compare power across different research designs. Then you’ll review the data management needs of a survival study, with a special emphasis on the problems associated with date variables.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+## Power calculations
+
+You can find a brief explanation of power in section 9.7 of Hosmer, Lemeshow, and May.
+
+The total number of deaths to achieve a specified power, $\beta$, is
+
+$m = \frac{(z_{\alpha/2}+z_\beta)^2}{\theta^2 \pi(1-\pi)}$
+
+where $\pi$ is the proportion of deaths in the first group and $\theta$ is the log of the hazard ratio.
+
+If you wish to use a two-sided test at an alpha level of 0.05, then
+
+$z_{\alpha/2}=z_{0.025}=1.96$.
+
+If you want to have at least 80% power, then
+
+$z_\beta=z_{0.20}= 0.84$.
+
+If you consider a doubling of the hazard rate as the minimum clinically important difference, then
+
+$\theta=ln(2)=0.693$.
+
+You expect to see half as many deaths in the treatment group compared to the control group, so
+
+$\pi=0.33$
+
+Then the number of deaths total, across both groups is
+
+$m = \frac{(z_{\alpha/2}+z_\beta)^2}{\theta^2 \pi(1-\pi)} = \frac{(1.96+0.84)^2}{0.693^2 0.33(1-0.33)}= 73.5$.
+
+Round this up to 75, with 25 deaths in the treatment group and 50 deaths in the control group.
+
+```{r power-example}
+pi <- 1/3
+theta <- log(2)
+(qnorm(0.975)+qnorm(0.80))^2/(theta^2*pi*(1-pi))
+```
+
+Let's round that up to 75, with 25 deaths in the first group and 50 deaths in the second group.
+
+So, how many patients do you need to follow and for how long in order to get 75 deaths total?
+
+You need to account for deaths that you never see
+
+* because they occur after your study ends, or
+* becuase of early dropouts.
+
+You need to start making assumptions. In this example, assume that 
+
+* you follow the average patient for three years, and
+* you will have a 20% early dropout rate,
+* deaths follow an exponential distribution, and
+* the baseline hazard rate is 0.4.
+
+You can (and should) modify these assumptions to check sensitivity.
+
+The survival function for the exponential distribution is
+
+$S(t)=e^{-\lambda t}$
+
+This produces two adjustment factors.
+
+$e^{-1.2}=$ `r round(exp(-1.2), 2)` in the first group and $e^{-2.4}=$ `r round(exp(-2.4), 2)` in the second group.
+
+Note that the probability of survival/death is not halved/doubled when you double the hazard rate.
+
+Divide the number of deaths by 1 - the probability of survival and by 1 - the probability of early dropout to get the total number studied in each group.
+
+$n_1 =$ 25 / ((1-0.2)(1-`r round(exp(-1.2), 2)`)) 
+= `r round(25 / (0.8*(1-exp(-1.2))), 1)`.
+
+$n_2 =$ 50 / ((1-0.2)(1-`r round(exp(-2.4), 2)`)) 
+= `r round(50 / (0.8*(1-exp(-2.4))), 1)`.
+
+To keep things simple, you might wish to use the larger of the two sample sizes in both groups.
+
+## What does a hazard ratio of 2 mean in a clinical sense?
+
+It is hard to get a practical understanding of how big a hazard ratio of 2 really is. You should draw a pair of survival curves to better understand what is going on.
+
+```{r draw-survival-curves, fig.width=4.5, fig.height=2}
+lambda <- 0.4
+t <- seq(0, 3, length=100)
+s1 <- exp(-lambda*t)
+s2 <- exp(-2*lambda*t)
+par(mar=c(2.6, 2.7, 0.6, 0.6))
+plot(t, s1, type="l", ylim=c(0, 1), axes=FALSE)
+axis(side=1, at=c(0:3, round(log(2)/c(0.4, 0.8), 2)))
+axis(side=2, at=(0:4)/4)
+lines(t, s2)
+segments(0, 0.5, log(2)/lambda, 0.5, lty="dotted")
+segments(log(2)/lambda, 0.5, log(2)/lambda, 0, lty="dotted")
+segments(0.5*log(2)/lambda, 0.5, 0.5*log(2)/lambda, 0, lty="dotted")
+
+par(las=1)
+plot(t, s1, type="l", ylim=c(0, 1), axes=FALSE)
+axis(side=1, at=0:3)
+axis(side=2, at=c(0, 1, round(exp(-c(0.8, 1.6)), 2)))
+lines(t, s2)
+segments(0, exp(-0.8), 2, exp(-0.8), lty="dotted")
+segments(0, exp(-1.6), 2, exp(-1.6), lty="dotted")
+segments(2, exp(-0.8), 2, 0, lty="dotted")
+```
+
+## Simulation
+
+You should consider running a computer simulation of your study instead of some of the formulas and adjustments shown above. Here's an example of how this might be done.
+
+Generate a random set of starting times for each patient.
+
+```{r starting-times, fig.width=4.5, fig.height=2}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+x <- 0.5
+n_total <- 22
+set.seed <- 222543
+t <- rexp(n_total, 0.02*365)
+co <- sample(c("darkred", "darkgreen"), n_total, replace=TRUE)
+start_times <- cumsum(t)
+plot(start_times, 1:n_total, 
+  type="n", 
+  xlab="Time", ylab="Patient")
+text(start_times, 1:n_total, "S", col=co, adj=1, cex=x)
+```
+
+Generate a random death for each patient.
+
+```{r random-death, fig.width=4.5, fig.height=2}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+set.seed <- 222543
+baseline_hazard <- 0.05
+hazard_ratio <- 2
+lambda <- ifelse(co=="darkgreen",
+  baseline_hazard,
+  baseline_hazard*hazard_ratio)
+death_times <- start_times + rexp(n_total, lambda)
+plot(start_times, 1:n_total, 
+  type="n", xlim=c(0, max(death_times)),
+  xlab="Time", ylab="Patient")
+text(start_times, 1:n_total, "S", col=co, adj=1, cex=x)
+text(death_times, 1:n_total, "D", col=co, adj=0, cex=x)
+segments(
+  start_times, 1:n_total,
+  death_times, 1:n_total,
+  col=co)
+```
+
+Replace any deaths after study duration as censored.
+
+```{r censored-times, fig.width=4.5, fig.height=2}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+trial_duration <- 10
+observed_times <- pmin(death_times, trial_duration)
+marker <- ifelse(observed_times==death_times, "D", "C")
+plot(start_times, 1:n_total, 
+  type="n", xlim=c(0, max(observed_times)),
+  xlab="Time", ylab="Patient")
+text(start_times, 1:n_total, "S", col=co, adj=1, cex=x)
+text(observed_times, 1:n_total, marker, col=co, adj=0, cex=x)
+segments(
+  start_times, 1:n_total,
+  observed_times, 1:n_total,
+  col=co)
+```
+
+Simulate a random process for early dropouts.
+
+```{r dropout-times, fig.width=4.5, fig.height=2}
+par(mar=c(2.6, 2.6, 0.6, 0.6))
+set.seed <- 222543
+dropout_rate <- 0.06
+dropout_times <- start_times + rexp(n_total, dropout_rate)
+observed_times <- pmin(observed_times, dropout_times)
+marker <- ifelse(observed_times==death_times, "D", "C")
+plot(start_times, 1:n_total, 
+  type="n", xlim=c(0, max(observed_times)),
+  xlab="Time", ylab="Patient")
+text(start_times, 1:n_total, "S", col=co, adj=1, cex=x)
+text(observed_times, 1:n_total, marker, col=co, adj=0,cex=x)
+segments(
+  start_times, 1:n_total,
+  observed_times, 1:n_total,
+  col=co)
+```
+
+Analyze these values. Repeat 1,000 times. The proportion of times that you reject the null hypothesis is an estimated power.
+
+Vary some of the parameters in your study to see how sensitive your estimated power is to some of the underlying assumptions.
+
+## Date manipulations in R
+
+R stores dates as the number of days since January 1, 1970.
+
+```{r date-manipulations}
+baseline <- as.Date("1/1/1970", format="%m/%d/%Y")
+print(baseline)
+print(as.numeric(baseline))
+```
+
+## Date differences
+
+Start date: when therapy was initiated or when disease first appeared. This can be tricky.
+
+Death date or event date: This will be missing values for any censored observation.
+
+Date of last follow up.
+
+Choose maximum of death/last followup. Set censor to 0 if death date is missing, 1 otherwise.
+
+## Sample size justification
+
+Hosmer, Lemeshow, and May discuss power calculations starting on page 340.
+
+Also mention how number of events dominates power calculation and how you want 25 to 50 events in each group.
+
+Save everything for possible later re-use.
+
+```{r save-everything}
+save.image("survival-lecture-3.RData")
+```
