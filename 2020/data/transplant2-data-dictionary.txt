@@ -1,0 +1,23 @@
+transplant2-data-dictionary.txt
+
+This dataset is identical to heart.csv, except that it uses a slightly different format.
+
+For the background about this data, please refer to transplant-data-dictionary.txt.
+
+There are 8 variables in this dataset:
+  id - numeric id
+  start - time in days when patient started with a fixed covariate set
+  stop - time in days when patient stopped with a fixed covariate set
+  event - follow up status
+    0 = still alive
+    1 = death
+  age - age in years at time of qualification for transplant
+  year - year recruited into the study
+  surgery - prior bypass surgery
+    0 = no
+    1 = yes
+  transplant - indicator for transplant
+    0 = no
+    1 = yes
+
+The data is available as a comma-separated text file, heart.txt, with variable names in the first row of data. There are 172 rows of data, not counting the row with variable names. 
