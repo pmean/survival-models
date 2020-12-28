@@ -14,8 +14,9 @@ suppressMessages(suppressWarnings(library(stringr)))
 ```
 
 ```{r fly1}
-text_name <- "sa2020-d-fly1.txt"
-bin_name  <- str_replace(text_name, "txt", "RData")
+data_name <- "fly1"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
 fly1 <- data.frame(read_table2(text_name, col_names=FALSE))
 names(fly1) <- "day"
 save(fly1, file=bin_name)
@@ -25,8 +26,9 @@ head(fly1)
 ```
 
 ```{r fly2}
-text_name <- "sa2020-d-fly2.txt"
-bin_name  <- str_replace(text_name, "txt", "RData")
+data_name <- "fly2"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
 fly2 <- data.frame(read_table2(text_name, col_names=FALSE))
 names(fly2) <- c("day", "cens")
 save(fly2, file=bin_name)
@@ -36,8 +38,9 @@ head(fly2)
 ```
 
 ```{r fly3}
-text_name <- "sa2020-d-fly3.txt"
-bin_name  <- str_replace(text_name, "txt", "RData")
+data_name <- "fly3"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
 fly3 <- data.frame(read_table2(text_name, col_names=FALSE))
 names(fly3) <- c("day", "cens")
 save(fly3, file=bin_name)
@@ -47,8 +50,9 @@ head(fly3)
 ```
 
 ```{r rats}
-text_name <- "sa2020-d-rats.csv"
-bin_name  <- str_replace(text_name, "csv", "RData")
+data_name <- "rats"
+text_name <- paste0(data_name, ".csv")
+bin_name  <- paste0(data_name, ".RData")
 rats <- data.frame(read_csv(text_name, col_names=TRUE))
 save(rats, file=bin_name)
 rm(list="rats")
