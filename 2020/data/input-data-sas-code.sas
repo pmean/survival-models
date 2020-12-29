@@ -110,11 +110,68 @@ run;
 
 ** Import heroin.txt **;
 
+filename heroin
+  "heroin.txt";
+
+title1 "Creating SAS binary file for heroin";
+
+data survival.heroin;
+  infile heroin delimiter='09'x firstobs=2;
+  input
+    id
+	clinic
+	status
+	time
+	prison
+	dose @@
+;
+run;
+
+proc print
+    data=survival.heroin(obs=5);
+run;
+
 ** Import leader.txt **;
 
-** Import psychiatric **;
+filename leader
+  "leader.txt";
 
-** Import rats **;
+title1 "Creating SAS binary file for leader";
+
+proc import 
+  datafile=leader
+        out=survival.leader
+        dbms=dlm
+        replace;
+     delimiter=" ";
+     getnames=yes;
+run;
+
+proc print
+    data=survival.leader(obs=5);
+run;
+
+** Import psychiatric-patients.txt **;
+
+filename psych
+  "psychiatric-patients.txt";
+
+title1 "Creating SAS binary file for psychiatric";
+
+proc import 
+  datafile=psych
+        out=survival.psychiatric
+        dbms=tab
+        replace;
+     getnames=yes;
+run;
+
+proc print
+    data=survival.psychiatric(obs=5);
+run;
+
+
+** Import rats.csv **;
 
 filename rats
   "rats.csv";
@@ -133,7 +190,24 @@ proc print
     data=survival.rats(obs=5);
 run;
 
-** Import transplant **;
+** Import transplant.txt **;
+
+filename trans
+  "transplant.txt";
+
+title1 "Creating SAS binary file for transplant";
+
+proc import 
+  datafile=trans
+        out=survival.transplant
+        dbms=tab
+        replace;
+     getnames=yes;
+run;
+
+proc print
+    data=survival.transplant(obs=5);
+run;
 
 ** Import transplant1.csv **;
 
