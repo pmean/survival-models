@@ -1,0 +1,156 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  e:\git\survival-models\2020\data\input-data-stata-output.log
+  log type:  text
+ opened on:  28 Dec 2020, 18:15:56
+
+. * create fly1.dta from txt file
+. clear
+
+. import delimited fly1.txt, varnames(nonames) delimiters(" ")
+(1 var, 25 obs)
+
+. rename v1 day
+
+. list in 1/5
+
+     +-----+
+     | day |
+     |-----|
+  1. |  37 |
+  2. |  40 |
+  3. |  43 |
+  4. |  44 |
+  5. |  45 |
+     +-----+
+
+. save fly1, replace
+file fly1.dta saved
+
+. * create fly2.dta from txt file
+. clear
+
+. import delimited fly2.txt, varnames(nonames) delimiters(" ")
+(2 vars, 25 obs)
+
+. rename v1 day
+
+. rename v2 cens
+
+. list in 1/5
+
+     +------------+
+     | day   cens |
+     |------------|
+  1. |  37      1 |
+  2. |  40      1 |
+  3. |  43      1 |
+  4. |  44      1 |
+  5. |  45      1 |
+     +------------+
+
+. save fly2, replace
+file fly2.dta saved
+
+. * create fly3.dta from txt file
+. clear
+
+. import delimited fly3.txt, varnames(nonames) delimiters(" ")
+(2 vars, 25 obs)
+
+. rename v1 day
+
+. rename v2 cens
+
+. list in 1/5
+
+     +------------+
+     | day   cens |
+     |------------|
+  1. |  37      1 |
+  2. |  40      1 |
+  3. |  43      1 |
+  4. |  44      1 |
+  5. |  45      1 |
+     +------------+
+
+. save fly3, replace
+file fly3.dta saved
+
+. * create heart.dta from csv file
+. clear
+
+. import delimited heart.csv
+(8 vars, 172 obs)
+
+. list in 1/5
+
+     +-----------------------------------------------------------------------+
+     | start   stop   event         age       year   surgery   transp~t   id |
+     |-----------------------------------------------------------------------|
+  1. |     0     50       1   -17.15537   .1232033         0          0    1 |
+  2. |     0      6       1    3.835729   .2546201         0          0    2 |
+  3. |     0      1       0    6.297057   .2655715         0          0    3 |
+  4. |     1     16       1    6.297057   .2655715         0          1    3 |
+  5. |     0     36       0   -7.737166   .4900753         0          0    4 |
+     +-----------------------------------------------------------------------+
+
+. save heart, replace
+file heart.dta saved
+
+. * create heroin.dta from csv file
+. clear
+
+. import delimited heroin.txt, varnames(1) delimiters("\t") colrange(1:6) 
+(6 vars, 119 obs)
+
+. list in 1/5
+
+     +---------------------------------------------+
+     | id   clinic   status   time   prison   dose |
+     |---------------------------------------------|
+  1. |  1        1        1    428        0     50 |
+  2. |  2        1        1    275        1     55 |
+  3. |  3        1        1    262        0     55 |
+  4. |  4        1        1    183        0     30 |
+  5. |  5        1        1    259        1     65 |
+     +---------------------------------------------+
+
+. save heroin1, replace
+file heroin1.dta saved
+
+. clear
+
+. import delimited heroin.txt, varnames(1) delimiters("\t") colrange(7:12) 
+(6 vars, 119 obs)
+
+. list in 1/5
+
+     +----------------------------------------------+
+     |  id   clinic   status   time   prison   dose |
+     |----------------------------------------------|
+  1. | 132        2        0    633        0     70 |
+  2. | 133        2        1    661        0     40 |
+  3. | 134        2        1    232        1     70 |
+  4. | 135        2        1     13        1     60 |
+  5. | 137        2        0    563        0     70 |
+     +----------------------------------------------+
+
+. save heroin2, replace
+file heroin2.dta saved
+
+. clear
+
+. use heroin1
+
+. append using heroin2
+
+. save heroin, replace
+file heroin.dta saved
+
+. log close
+      name:  <unnamed>
+       log:  e:\git\survival-models\2020\data\input-data-stata-output.log
+  log type:  text
+ closed on:  28 Dec 2020, 18:15:56
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
