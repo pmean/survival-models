@@ -11,7 +11,7 @@ There are 14 variables in this dataset:
   fu.date - date of last follow-up
   fustat - follow up status
     0 = still alive at last follow-up
-    1 = dided
+    1 = died
   surgery - prior bypass surgery
     0 = no
     1 = yes
