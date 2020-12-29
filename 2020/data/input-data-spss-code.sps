@@ -49,26 +49,30 @@ DATASET NAME fly3 WINDOW=FRONT.
 SAVE OUTFILE='E:\git\survival-models\2020\data\fly3.sav'
   /COMPRESSED.
 
-*rats.
+*grace1000.
 GET DATA  /TYPE=TXT
-  /FILE="E:\git\survival-models\2020\data\rats.csv"
+  /FILE="E:\git\survival-models\2020\data\grace1000.dat"
   /ENCODING='UTF8'
-  /DELIMITERS=","
-  /QUALIFIER='"'
+  /DELCASE=LINE
+  /DELIMITERS=" "
   /ARRANGEMENT=DELIMITED
-  /FIRSTCASE=2
+  /FIRSTCASE=1
+  /LEADINGSPACES IGNORE=YES
   /DATATYPEMIN PERCENTAGE=95.0
   /VARIABLES=
-  litter AUTO
-  rx AUTO
-  time AUTO
-  status AUTO
-  sex AUTO
+  id F3.0
+  days F3.0
+  death F1.0
+  revasc F1.0
+  revascdays F3.0
+  los F2.0
+  age F2.0
+  sysbp F3.0
+  stchange F1.0
   /MAP.
+DATASET NAME grace1000 WINDOW=FRONT.
 
-DATASET NAME rats WINDOW=FRONT.
-
-SAVE OUTFILE='E:\git\survival-models\2020\data\rats.sav'
+SAVE OUTFILE='E:\git\survival-models\2020\data\grace1000.sav'
   /COMPRESSED.
 
 *heart.
@@ -170,6 +174,28 @@ DATASET NAME psychiatric WINDOW=FRONT.
 SAVE OUTFILE='E:\git\survival-models\2020\data\psychiatric.sav'
   /COMPRESSED.
 
+*rats.
+GET DATA  /TYPE=TXT
+  /FILE="E:\git\survival-models\2020\data\rats.csv"
+  /ENCODING='UTF8'
+  /DELIMITERS=","
+  /QUALIFIER='"'
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /DATATYPEMIN PERCENTAGE=95.0
+  /VARIABLES=
+  litter AUTO
+  rx AUTO
+  time AUTO
+  status AUTO
+  sex AUTO
+  /MAP.
+
+DATASET NAME rats WINDOW=FRONT.
+
+SAVE OUTFILE='E:\git\survival-models\2020\data\rats.sav'
+  /COMPRESSED.
+
 *transplant.
 GET DATA  /TYPE=TXT
   /FILE="E:\git\survival-models\2020\data\transplant.txt"
@@ -224,9 +250,11 @@ DATASET NAME transplant2 WINDOW=FRONT.
 SAVE OUTFILE='E:\git\survival-models\2020\data\transplant2.sav'
   /COMPRESSED.
 
+*whas100.
+
+*whas500.
+
 *save output.
 OUTPUT SAVE NAME=Document1
   OUTFILE='E:\git\survival-models\2020\data\input-data-spss-output.spv'
   LOCK=NO.
-
-
