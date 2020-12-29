@@ -226,6 +226,36 @@ DATASET NAME transplant WINDOW=FRONT.
 SAVE OUTFILE='E:\git\survival-models\2020\data\transplant.sav'
   /COMPRESSED.
 
+*transplant1.
+GET DATA  /TYPE=TXT
+  /FILE="E:\git\survival-models\2020\data\transplant1.csv"
+  /ENCODING='UTF8'
+  /DELIMITERS=","
+  /QUALIFIER='"'
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /DATATYPEMIN PERCENTAGE=95.0
+  /VARIABLES=
+  birth.dt AUTO
+  accept.dt AUTO
+  tx.date AUTO
+  fu.date AUTO
+  fustat AUTO
+  surgery AUTO
+  age AUTO
+  futime AUTO
+  wait.time AUTO
+  transplant AUTO
+  mismatch AUTO
+  hla.a2 AUTO
+  mscore AUTO
+  reject AUTO
+  /MAP.
+DATASET NAME transplant1 WINDOW=FRONT.
+
+SAVE OUTFILE='E:\git\survival-models\2020\data\transplant1.sav'
+  /COMPRESSED.
+
 * transplant2.
 GET DATA  /TYPE=TXT
   /FILE="E:\git\survival-models\2020\data\transplant2.csv"
@@ -251,8 +281,69 @@ SAVE OUTFILE='E:\git\survival-models\2020\data\transplant2.sav'
   /COMPRESSED.
 
 *whas100.
+GET DATA  /TYPE=TXT
+  /FILE="E:\git\survival-models\2020\data\whas100.dat"
+  /ENCODING='UTF8'
+  /DELCASE=LINE
+  /DELIMITERS=" "
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=1
+  /LEADINGSPACES IGNORE=YES
+  /DATATYPEMIN PERCENTAGE=95.0
+  /VARIABLES=
+  id AUTO
+  admitdate ADATE10
+  foldate ADATE10
+  los F2.0
+  lenfol F4.0
+  fstat F1.0
+  age F2.0
+  gender F1.0
+  bmi F8.5
+  /MAP.
+DATASET NAME whas100 WINDOW=FRONT.
+
+SAVE OUTFILE='E:\git\survival-models\2020\data\whas100.sav'
+  /COMPRESSED.
 
 *whas500.
+GET DATA  /TYPE=TXT
+  /FILE="E:\git\survival-models\2020\data\whas500.dat"
+  /ENCODING='UTF8'
+  /DELCASE=LINE
+  /DELIMITERS=" "
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=1
+  /LEADINGSPACES IGNORE=YES
+  /DATATYPEMIN PERCENTAGE=95.0
+  /VARIABLES=
+  id F3.0
+  age F2.0
+  gender F1.0
+  hr F3.0
+  sysbp F3.0
+  diasbp F3.0
+  bmi F8.5
+  cvd F1.0
+  afb F1.0
+  sho F1.0
+  chf F1.0
+  av3 F1.0
+  miord F1.0
+  mitype F1.0
+  year F1.0
+  admitdate ADATE10
+  disdate ADATE10
+  fdate ADATE10
+  los F2.0
+  dstat F1.0
+  lenfol F4.0
+  fstat F1.0
+  /MAP.
+DATASET NAME whas500 WINDOW=FRONT.
+
+SAVE OUTFILE='E:\git\survival-models\2020\data\whas500.sav'
+  /COMPRESSED.
 
 *save output.
 OUTPUT SAVE NAME=Document1
