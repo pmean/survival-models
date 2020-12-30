@@ -13,6 +13,8 @@ suppressMessages(suppressWarnings(library(readr)))
 suppressMessages(suppressWarnings(library(stringr)))
 ```
 
+### fly1.txt
+
 ```{r fly1}
 data_name <- "fly1"
 text_name <- paste0(data_name, ".txt")
@@ -24,6 +26,8 @@ rm(list="fly1")
 load(file=bin_name)
 head(fly1)
 ```
+
+### fly2.txt
 
 ```{r fly2}
 data_name <- "fly2"
@@ -37,6 +41,8 @@ load(file=bin_name)
 head(fly2)
 ```
 
+### fly3.txt
+
 ```{r fly3}
 data_name <- "fly3"
 text_name <- paste0(data_name, ".txt")
@@ -49,6 +55,27 @@ load(file=bin_name)
 head(fly3)
 ```
 
+### grace1000.dat
+
+### heart.csv
+
+```{r heart}
+data_name <- "heart"
+text_name <- paste0(data_name, ".csv")
+bin_name  <- paste0(data_name, ".RData")
+heart <- data.frame(read_csv(text_name, col_names=TRUE))
+save(heart, file=bin_name)
+rm(list="heart")
+load(file=bin_name)
+head(heart)
+```
+
+### heroin.txt
+
+### leader.txt
+
+### psychiatric-patients.txt
+
 ```{r rats}
 data_name <- "rats"
 text_name <- paste0(data_name, ".csv")
@@ -58,4 +85,102 @@ save(rats, file=bin_name)
 rm(list="rats")
 load(file=bin_name)
 head(rats)
+```
+
+### transplant.txt
+
+```{r transplant}
+data_name <- "transplant"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
+transplant <- data.frame(read_tsv(text_name, col_names=TRUE))
+save(transplant, file=bin_name)
+rm(list="transplant")
+load(file=bin_name)
+head(transplant)
+```
+
+### transplant1.csv
+
+```{r transplant1}
+data_name <- "transplant1"
+text_name <- paste0(data_name, ".csv")
+bin_name  <- paste0(data_name, ".RData")
+transplant1 <- data.frame(read_csv(text_name, col_names=TRUE))
+save(transplant1, file=bin_name)
+rm(list="transplant1")
+load(file=bin_name)
+head(transplant1)
+```
+
+### transplant2.csv
+
+```{r transplant2}
+data_name <- "transplant2"
+text_name <- paste0(data_name, ".csv")
+bin_name  <- paste0(data_name, ".RData")
+transplant2 <- data.frame(read_csv(text_name, col_names=TRUE))
+save(transplant2, file=bin_name)
+rm(list="transplant2")
+load(file=bin_name)
+head(transplant2)
+```
+
+### whas100.dat
+
+```{r whas100}
+data_name <- "whas100"
+text_name <- paste0(data_name, ".dat")
+bin_name  <- paste0(data_name, ".RData")
+whas100 <- data.frame(read_table2(text_name, col_names=FALSE))[ , -10]
+names(whas100) <- c(
+  "id", 
+  "admitdate",
+  "foldate",
+  "los",
+  "lenfol",
+  "fstat",
+  "age",
+  "gender",
+  "bmi")
+save(whas100, file=bin_name)
+rm(list="whas100")
+load(file=bin_name)
+head(whas100)
+```
+
+### whas500.dat
+
+```{r whas500}
+data_name <- "whas500"
+text_name <- paste0(data_name, ".dat")
+bin_name  <- paste0(data_name, ".RData")
+whas500 <- data.frame(read_table2(text_name, col_names=FALSE))[ , -23]
+names(whas500) <- c(
+  "id", 
+  "age",
+  "gender",
+  "hr",
+  "sysbp",
+  "diasbp",
+  "bmi",
+  "cvd",
+  "afb",
+  "sho",
+  "chf",
+  "av3",
+  "miord",
+  "mitype",
+  "year",
+  "admitdate",
+  "disdate",
+  "fdate",
+  "los",
+  "dstat",
+  "lenfol",
+  "fstat")
+save(whas500, file=bin_name)
+rm(list="whas500")
+load(file=bin_name)
+head(whas500)
 ```
