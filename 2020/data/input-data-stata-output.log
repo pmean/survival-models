@@ -1,8 +1,8 @@
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  e:\git\survival-models\2020\data\input-data-stata-output.log
   log type:  text
- opened on:  28 Dec 2020, 18:15:56
+ opened on:  30 Dec 2020, 11:28:42
 
 . * create fly1.dta from txt file
 . clear
@@ -77,6 +77,49 @@ file fly2.dta saved
 . save fly3, replace
 file fly3.dta saved
 
+. * create grace1000 from dat file
+. clear
+
+. import delimited grace1000.dat, delimiters(" ", collapse)
+(11 vars, 1,000 obs)
+
+. drop v1
+
+. rename v2 id
+
+. rename v3 days
+
+. rename v4 death
+
+. rename v5 revasc
+
+. rename v6 revascdays
+
+. rename v7 los
+
+. rename v8 age
+
+. rename v9 sysbp
+
+. rename v10 stchange
+
+. drop v11
+
+. list in 1/5
+
+     +----------------------------------------------------------------------+
+     | id   days   death   revasc   revasc~s   los   age   sysbp   stchange |
+     |----------------------------------------------------------------------|
+  1. |  1    180       0        0        180     9    28     107          1 |
+  2. |  2      5       0        1          0     5    32     121          1 |
+  3. |  3      2       0        0          2     2    33     150          0 |
+  4. |  4      5       0        1          2     5    35     172          0 |
+  5. |  5    180       0        1          9    10    35     106          0 |
+     +----------------------------------------------------------------------+
+
+. save grace1000, replace
+file grace1000.dta saved
+
 . * create heart.dta from csv file
 . clear
 
@@ -117,6 +160,7 @@ file heart.dta saved
      +---------------------------------------------+
 
 . save heroin1, replace
+(note: file heroin1.dta not found)
 file heroin1.dta saved
 
 . clear
@@ -137,6 +181,7 @@ file heroin1.dta saved
      +----------------------------------------------+
 
 . save heroin2, replace
+(note: file heroin2.dta not found)
 file heroin2.dta saved
 
 . clear
@@ -148,9 +193,254 @@ file heroin2.dta saved
 . save heroin, replace
 file heroin.dta saved
 
+. erase heroin1.dta
+
+. erase heroin2.dta
+
+. * create leader.dta from txt file
+. clear
+
+. import delimited leader.txt, varnames(1) delimiters(" ", collapse)
+(13 vars, 472 obs)
+
+. replace start=start+1000
+(472 real changes made)
+
+. list in 1/5
+
+     +----------------------------------------------------------------------------------------------------------------+
+     | years   lost   manner   start   military   age   conflict     loginc   growth   pop   land   literacy   region |
+     |----------------------------------------------------------------------------------------------------------------|
+  1. |     3      2        1    1975          0    53          1   5.799093     -5.7     8   1247         20        1 |
+  2. |     8      0        0    1979          0    37          1   5.799093     -5.7     8   1247         20        1 |
+  3. |     3      3        0    1960          0    44          1    4.70048        1     4    112         11        1 |
+  4. |     1      3        0    1964          0    51          1    4.70048        1     4    112         11        1 |
+  5. |     1      3        1    1965          1    56          1    4.70048        1     4    112         11        1 |
+     +----------------------------------------------------------------------------------------------------------------+
+
+. save leader, replace
+file leader.dta saved
+
+. * create psychiatric from txt file
+. clear
+
+. import delimited psychiatric-patients.txt, varnames(1) delimiters("\t")
+(4 vars, 25 obs)
+
+. list in 1/5
+
+     +--------------------------+
+     | sex   age   time   death |
+     |--------------------------|
+  1. |   2    51      1       1 |
+  2. |   2    58      1       1 |
+  3. |   2    55      2       1 |
+  4. |   2    28     22       1 |
+  5. |   1    21     30       0 |
+     +--------------------------+
+
+. save psychiatric, replace
+file psychiatric.dta saved
+
+. * create rats.dta from csv file
+. clear
+
+. import delimited rats.csv, varnames(1) delimiters(",")
+(5 vars, 300 obs)
+
+. list in 1/5
+
+     +-----------------------------------+
+     | litter   rx   time   status   sex |
+     |-----------------------------------|
+  1. |      1    1    101        0     f |
+  2. |      1    0     49        1     f |
+  3. |      1    0    104        0     f |
+  4. |      2    1     91        0     m |
+  5. |      2    0    104        0     m |
+     +-----------------------------------+
+
+. save rats, replace
+file rats.dta saved
+
+. * create transplant.dta from txt file
+. clear
+
+. import delimited transplant.txt, varnames(1) delimiters("\t")
+(14 vars, 103 obs)
+
+. list in 1/5
+
+     +--------------------------------------------------------------------------------------------------------------------------------------------------+
+     |    birthdt     acceptdt     txdate      fudate   fustat   surgery        age   futime   waittime   transp~t   mismatch   hlaa2   mscore   reject |
+     |--------------------------------------------------------------------------------------------------------------------------------------------------|
+  1. |  1/10/1937   11/15/1967         NA    1/3/1968        1         0   30.84463       49         NA          0         NA      NA       NA       NA |
+  2. |   3/2/1916     1/2/1968         NA    1/7/1968        1         0   51.83573        5         NA          0         NA      NA       NA       NA |
+  3. |  9/19/1913     1/6/1968   1/6/1968   1/21/1968        1         0   54.29706       15          0          1          2       0     1.11        0 |
+  4. | 12/23/1927    3/28/1968   5/2/1968    5/5/1968        1         0   40.26283       38         35          1          3       0     1.66        0 |
+  5. |  7/28/1947    5/10/1968         NA   5/27/1968        1         0   20.78576       17         NA          0         NA      NA       NA       NA |
+     +--------------------------------------------------------------------------------------------------------------------------------------------------+
+
+. save transplant, replace
+file transplant.dta saved
+
+. * create transplant1.dta from csv file
+. clear
+
+. import delimited transplant1.csv, varnames(1) delimiters(",")
+(14 vars, 103 obs)
+
+. list in 1/5
+
+     +-----------------------------------------------------------------------------------------------------------------------------------------------------+
+     |    birthdt     acceptdt       txdate       fudate   fustat   surgery        age   futime   waittime   transp~t   mismatch   hlaa2   mscore   reject |
+     |-----------------------------------------------------------------------------------------------------------------------------------------------------|
+  1. | 1937-01-10   1967-11-15           NA   1968-01-03        1         0   30.84463       49         NA          0         NA      NA       NA       NA |
+  2. | 1916-03-02   1968-01-02           NA   1968-01-07        1         0   51.83573        5         NA          0         NA      NA       NA       NA |
+  3. | 1913-09-19   1968-01-06   1968-01-06   1968-01-21        1         0   54.29706       15          0          1          2       0     1.11        0 |
+  4. | 1927-12-23   1968-03-28   1968-05-02   1968-05-05        1         0   40.26283       38         35          1          3       0     1.66        0 |
+  5. | 1947-07-28   1968-05-10           NA   1968-05-27        1         0   20.78576       17         NA          0         NA      NA       NA       NA |
+     +-----------------------------------------------------------------------------------------------------------------------------------------------------+
+
+. save transplant1, replace
+file transplant1.dta saved
+
+. * create transplant2.dta from csv file
+. clear
+
+. import delimited transplant2.csv, varnames(1) delimiters(",")
+(8 vars, 170 obs)
+
+. list in 1/5
+
+     +-----------------------------------------------------------------------+
+     | id   start   stop   event   transp~t         age       year   surgery |
+     |-----------------------------------------------------------------------|
+  1. |  1       0     49       1          0   -17.15537   .1232033         0 |
+  2. |  2       0      5       1          0    3.835729   .2546201         0 |
+  3. |  3       0     15       1          1    6.297057   .2655715         0 |
+  4. |  4       0     35       0          0   -7.737166   .4900753         0 |
+  5. |  4      35     38       1          1   -7.737166   .4900753         0 |
+     +-----------------------------------------------------------------------+
+
+. save transplant2, replace
+file transplant2.dta saved
+
+. * create whas100.dta from dat file
+. clear
+
+. import delimited whas100.dat, delimiters(" ", collapse)
+(11 vars, 100 obs)
+
+. drop v1
+
+. rename v2 id
+
+. rename v3 admitdate
+
+. rename v4 foldate
+
+. rename v5 los
+
+. rename v6 lenfol
+
+. rename v7 fstat
+
+. rename v8 age
+
+. rename v9 gender
+
+. rename v10 bmi
+
+. drop v11
+
+. list in 1/5
+
+     +-------------------------------------------------------------------------------+
+     | id    admitdate      foldate   los   lenfol   fstat   age   gender        bmi |
+     |-------------------------------------------------------------------------------|
+  1. |  1   03/13/1995   03/19/1995     4        6       1    65        0   31.38134 |
+  2. |  2   01/14/1995   01/23/1996     5      374       1    88        1    22.6579 |
+  3. |  3   02/17/1995   10/04/2001     5     2421       1    77        0   27.87892 |
+  4. |  4   04/07/1995   07/14/1995     9       98       1    81        1   21.47878 |
+  5. |  5   02/09/1995   05/29/1998     4     1205       1    78        0   30.70601 |
+     +-------------------------------------------------------------------------------+
+
+. save whas100, replace
+file whas100.dta saved
+
+. * create whas500.dta from dat file
+. clear
+
+. import delimited whas500.dat, delimiters(" ", collapse)
+(24 vars, 500 obs)
+
+. drop v1
+
+. rename v2 id
+
+. rename v3 age
+
+. rename v4 gender
+
+. rename v5 hr
+
+. rename v6 sysbp
+
+. rename v7 diasbp
+
+. rename v8 bmi
+
+. rename v9 cvd
+
+. rename v10 afb
+
+. rename v11 sho
+
+. rename v12 chf
+
+. rename v13 av3
+
+. rename v14 miord
+
+. rename v15 mitype
+
+. rename v16 year
+
+. rename v17 admitdate
+
+. rename v18 disdate
+
+. rename v19 fdate
+
+. rename v20 los
+
+. rename v21 dstat
+
+. rename v22 lenfol
+
+. rename v23 fstat
+
+. drop v24
+
+. list in 1/5
+
+     +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+     | id   age   gender   hr   sysbp   diasbp        bmi   cvd   afb   sho   chf   av3   miord   mitype   year    admitdate      disdate        fdate   los   dstat   lenfol   fstat |
+     |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  1. |  1    83        0   89     152       78   25.54051     1     1     0     0     0       1        0      1   01/13/1997   01/18/1997   12/31/2002     5       0     2178       0 |
+  2. |  2    49        0   84     120       60   24.02398     1     0     0     0     0       0        1      1   01/19/1997   01/24/1997   12/31/2002     5       0     2172       0 |
+  3. |  3    70        1   83     147       88    22.1429     0     0     0     0     0       0        1      1   01/01/1997   01/06/1997   12/31/2002     5       0     2190       0 |
+  4. |  4    70        0   65     123       76   26.63187     1     0     0     1     0       0        1      1   02/17/1997   02/27/1997   12/11/1997    10       0      297       1 |
+  5. |  5    70        0   63     135       85   24.41255     1     0     0     0     0       0        1      1   03/01/1997   03/07/1997   12/31/2002     6       0     2131       0 |
+     +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+. save whas500, replace
+file whas500.dta saved
+
 . log close
       name:  <unnamed>
        log:  e:\git\survival-models\2020\data\input-data-stata-output.log
   log type:  text
- closed on:  28 Dec 2020, 18:15:56
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ closed on:  30 Dec 2020, 11:28:43
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
