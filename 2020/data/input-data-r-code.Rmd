@@ -8,6 +8,7 @@ output: html_document
 This program reads a variety of different text files and produces binary files in R format.
 
 ```{r setup}
+suppressMessages(suppressWarnings(library(dplyr)))
 suppressMessages(suppressWarnings(library(magrittr)))
 suppressMessages(suppressWarnings(library(readr)))
 suppressMessages(suppressWarnings(library(stringr)))
@@ -25,6 +26,7 @@ save(fly1, file=bin_name)
 rm(list="fly1")
 load(file=bin_name)
 head(fly1)
+str(fly1)
 ```
 
 ### fly2.txt
@@ -39,6 +41,7 @@ save(fly2, file=bin_name)
 rm(list="fly2")
 load(file=bin_name)
 head(fly2)
+str(fly2)
 ```
 
 ### fly3.txt
@@ -53,9 +56,33 @@ save(fly3, file=bin_name)
 rm(list="fly3")
 load(file=bin_name)
 head(fly3)
+str(fly3)
 ```
 
 ### grace1000.dat
+
+```{r grace1000}
+data_name <- "grace1000"
+text_name <- paste0(data_name, ".dat")
+bin_name  <- paste0(data_name, ".RData")
+grace1000 <- data.frame(read_table2(text_name, col_names=FALSE))[ , -10]
+names(grace1000) <- c(
+  "id",
+  "days",
+  "death",
+  "revasc",
+  "revascdays",
+  "los",
+  "age",
+  "sysbp",
+  "stchange"
+)
+save(grace1000, file=bin_name)
+rm(list="grace1000")
+load(file=bin_name)
+head(grace1000)
+str(grace1000)
+```
 
 ### heart.csv
 
@@ -68,13 +95,64 @@ save(heart, file=bin_name)
 rm(list="heart")
 load(file=bin_name)
 head(heart)
+str(heart)
 ```
 
 ### heroin.txt
 
+```{r heroin}
+data_name <- "heroin"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
+heroin_two_up <- data.frame(read_table2(text_name, col_names=FALSE, skip=1))
+heroin1 <- heroin_two_up[ , 1:5]
+heroin2 <- heroin_two_up[ , 6:10]
+names_heroin <- c(
+  "clinic",
+  "status",
+  "time",
+  "prison",
+  "dose"
+)
+names(heroin1) <- names_heroin
+names(heroin2) <- names_heroin
+heroin <- bind_rows(heroin1, heroin2)
+save(heroin, file=bin_name)
+rm(list="heroin")
+load(file=bin_name)
+head(heroin)
+str(heroin)
+```
+
 ### leader.txt
 
+```{r leader}
+data_name <- "leader"
+text_name <- paste0(data_name, ".txt")
+bin_name  <- paste0(data_name, ".RData")
+leader <- data.frame(read_table2(text_name, col_names=TRUE))
+save(leader, file=bin_name)
+rm(list="leader")
+load(file=bin_name)
+head(leader)
+str(leader)
+```
+
 ### psychiatric-patients.txt
+
+```{r psychiatric}
+data_name <- "psychiatric"
+text_name <- paste0(data_name, "-patients.txt")
+bin_name  <- paste0(data_name, ".RData")
+psychiatric <- data.frame(read_table2(text_name, col_names=TRUE))
+save(psychiatric, file=bin_name)
+rm(list="psychiatric")
+load(file=bin_name)
+head(psychiatric)
+str(psychiatric)
+```
+
+### rats.csv
 
 ```{r rats}
 data_name <- "rats"
@@ -85,6 +163,7 @@ save(rats, file=bin_name)
 rm(list="rats")
 load(file=bin_name)
 head(rats)
+str(rats)
 ```
 
 ### transplant.txt
@@ -98,6 +177,7 @@ save(transplant, file=bin_name)
 rm(list="transplant")
 load(file=bin_name)
 head(transplant)
+str(transplant)
 ```
 
 ### transplant1.csv
@@ -111,6 +191,7 @@ save(transplant1, file=bin_name)
 rm(list="transplant1")
 load(file=bin_name)
 head(transplant1)
+str(transplant1)
 ```
 
 ### transplant2.csv
@@ -124,6 +205,7 @@ save(transplant2, file=bin_name)
 rm(list="transplant2")
 load(file=bin_name)
 head(transplant2)
+str(transplant2)
 ```
 
 ### whas100.dat
@@ -147,6 +229,7 @@ save(whas100, file=bin_name)
 rm(list="whas100")
 load(file=bin_name)
 head(whas100)
+str(whas100)
 ```
 
 ### whas500.dat
@@ -183,4 +266,5 @@ save(whas500, file=bin_name)
 rm(list="whas500")
 load(file=bin_name)
 head(whas500)
+str(whas500)
 ```

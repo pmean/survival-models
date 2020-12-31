@@ -25,6 +25,11 @@ proc print
     data=survival.fly1(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.fly1;
+run;
+
 ** Import fly2.txt **;
 
 filename fly2
@@ -44,6 +49,11 @@ proc print
     data=survival.fly2(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.fly2;
+run;
+
 ** Import fly3.txt **;
 
 filename fly3
@@ -61,6 +71,11 @@ run;
 
 proc print
     data=survival.fly3(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.fly3;
 run;
 
 ** Import grace1000.dat **;
@@ -89,6 +104,11 @@ proc print
     data=survival.grace1000(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.grace1000;
+run;
+
 ** Import heart.csv **;
 
 filename heart
@@ -106,6 +126,11 @@ run;
 
 proc print
     data=survival.heart(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.heart;
 run;
 
 ** Import heroin.txt **;
@@ -131,6 +156,11 @@ proc print
     data=survival.heroin(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.heroin;
+run;
+
 ** Import leader.txt **;
 
 filename leader
@@ -149,6 +179,11 @@ run;
 
 proc print
     data=survival.leader(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.leader;
 run;
 
 ** Import psychiatric-patients.txt **;
@@ -170,6 +205,10 @@ proc print
     data=survival.psychiatric(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.psychiatric;
+run;
 
 ** Import rats.csv **;
 
@@ -188,6 +227,11 @@ run;
 
 proc print
     data=survival.rats(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.rats;
 run;
 
 ** Import transplant.txt **;
@@ -209,6 +253,11 @@ proc print
     data=survival.transplant(obs=5);
 run;
 
+proc contents
+    varnum
+    data=survival.transplant;
+run;
+
 ** Import transplant1.csv **;
 
 filename trans1
@@ -228,7 +277,10 @@ proc print
     data=survival.transplant1(obs=5);
 run;
 
-
+proc contents
+    varnum
+    data=survival.transplant1;
+run;
 
 ** Import transplant2.csv **;
 
@@ -247,6 +299,11 @@ run;
 
 proc print
     data=survival.transplant2(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.transplant2;
 run;
 
 ** Import whas100.dat **;
@@ -274,6 +331,11 @@ run;
 
 proc print
     data=survival.whas100(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.whas100;
 run;
 
 ** Import whas500.dat **;
@@ -313,6 +375,11 @@ run;
 
 proc print
     data=survival.whas500(obs=5);
+run;
+
+proc contents
+    varnum
+    data=survival.whas500;
 run;
 
 ods pdf close;
