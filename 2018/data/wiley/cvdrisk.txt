@@ -1,0 +1,20 @@
+Description of the variables in the CVD Risk competing risk example
+in Section 9.6 of Hosmer, D.W. and Lemeshow, S. and May, S. (2008)
+Applied Survival Analysis: Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Data are in the file cvdrisk.dat
+
+n = 65
+
+
+Variable    Description             Codes/Values
+id          Study ID                1 - 65
+age         Age                     Years
+bmi         Body Mass Index         kg/m^2
+gender      Gender                  0 = Male, 1 = Female
+time        Follow Up Time          Days
+ev_typ      Event Type              1 = CVD
+                                    2 = Other Cause
+                                    0 = Censor

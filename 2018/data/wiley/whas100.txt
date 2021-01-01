@@ -1,0 +1,21 @@
+Description of the variables in the WHAS100 dataset shown in Table 1.1
+of Hosmer, D.W. and Lemeshow, S. and May, S. (2008) Applied Survival Analysis:
+Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Data are in file whas100.dat
+n = 100
+
+Variable      Description                 Codes / Units
+id            ID Code                     1 - 100
+admitdate     Admission Date              mm/dd/yyyy
+foldate       Follow Up Date              mm/dd/yyyy
+los           Length of Hospital Stay     Days
+lenfol        Follow Up Time              Days
+fstat         Vital Satus                 1 = Dead,
+                                          0 = Alive
+age           Age at Admission            years
+gender        Gender                      0 = Male
+                                          1= Female
+bmi           Body Mass Index             kg/m^2

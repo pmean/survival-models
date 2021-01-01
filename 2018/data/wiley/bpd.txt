@@ -1,0 +1,17 @@
+Description of the variables in the BPD Data used in chapter 2 of Hosmer,
+D.W. and Lemeshow, S. and May, S. (2008) Applied Survival Analysis: Regression Modeling
+ of Time to Event Data: Second Edition, John Wiley and Sons Inc., New York, NY
+
+
+Data are in file bpd.dat
+n = 78
+
+Variables in the data set are:
+
+Variable   Description              Codes/Values
+id         Study ID                 1 - 78
+surfact    Surfactant use           0 = No, 1 = Yes
+ondays     Days in Oxygen           Days
+censor     Censoring Indicator      1 = Off Oxygen
+                                    0 = Still on Oxygen
+                                        at Study End

@@ -27,6 +27,7 @@ rm(list="fly1")
 load(file=bin_name)
 head(fly1)
 str(fly1)
+list.files(pattern=data_name)
 ```
 
 ### fly2.txt
@@ -42,6 +43,7 @@ rm(list="fly2")
 load(file=bin_name)
 head(fly2)
 str(fly2)
+list.files(pattern=data_name)
 ```
 
 ### fly3.txt
@@ -57,6 +59,7 @@ rm(list="fly3")
 load(file=bin_name)
 head(fly3)
 str(fly3)
+list.files(pattern=data_name)
 ```
 
 ### grace1000.dat
@@ -82,6 +85,7 @@ rm(list="grace1000")
 load(file=bin_name)
 head(grace1000)
 str(grace1000)
+list.files(pattern=data_name)
 ```
 
 ### heart.csv
@@ -96,6 +100,7 @@ rm(list="heart")
 load(file=bin_name)
 head(heart)
 str(heart)
+list.files(pattern=data_name)
 ```
 
 ### heroin.txt
@@ -122,6 +127,7 @@ rm(list="heroin")
 load(file=bin_name)
 head(heroin)
 str(heroin)
+list.files(pattern=data_name)
 ```
 
 ### leader.txt
@@ -136,6 +142,7 @@ rm(list="leader")
 load(file=bin_name)
 head(leader)
 str(leader)
+list.files(pattern=data_name)
 ```
 
 ### psychiatric-patients.txt
@@ -150,6 +157,7 @@ rm(list="psychiatric")
 load(file=bin_name)
 head(psychiatric)
 str(psychiatric)
+list.files(pattern=data_name)
 ```
 
 ### rats.csv
@@ -164,6 +172,7 @@ rm(list="rats")
 load(file=bin_name)
 head(rats)
 str(rats)
+list.files(pattern=data_name)
 ```
 
 ### transplant.txt
@@ -178,6 +187,7 @@ rm(list="transplant")
 load(file=bin_name)
 head(transplant)
 str(transplant)
+list.files(pattern=data_name)
 ```
 
 ### transplant1.csv
@@ -192,6 +202,7 @@ rm(list="transplant1")
 load(file=bin_name)
 head(transplant1)
 str(transplant1)
+list.files(pattern=data_name)
 ```
 
 ### transplant2.csv
@@ -206,6 +217,7 @@ rm(list="transplant2")
 load(file=bin_name)
 head(transplant2)
 str(transplant2)
+list.files(pattern=data_name)
 ```
 
 ### whas100.dat
@@ -230,6 +242,7 @@ rm(list="whas100")
 load(file=bin_name)
 head(whas100)
 str(whas100)
+list.files(pattern=data_name)
 ```
 
 ### whas500.dat
@@ -267,4 +280,5 @@ rm(list="whas500")
 load(file=bin_name)
 head(whas500)
 str(whas500)
+list.files(pattern=data_name)
 ```

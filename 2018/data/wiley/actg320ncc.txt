@@ -1,0 +1,21 @@
+Description of the variables in the ACTG320 nested case-control example in Section 9.4
+of Hosmer, D.W. and Lemeshow, S. and May, S. (2008) Applied Survival Analysis: Regression
+Modeling of Time to Event Data: Second Edition, John Wiley and Sons Inc., New York, NY
+
+
+Data are in the file actg320ncc.dat
+
+n = 576
+
+
+Variable    Description              Codes/Values
+set         Case-Control Set         1 - 96
+case        Case-Control Indicator   1 = Case 0 = Control
+id          Study ID
+time        Follow Up Time           Days*
+tx          Treatment                1 = Treatment includes IDV
+                                     0 = Control (without IDV)
+Age         Age at Enrollment        Years
+cd4         Baseline CD4 count       Cells/Milliliter
+
+* Time is jittered for case to break ties

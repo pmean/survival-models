@@ -1,0 +1,27 @@
+Description of the variables in the recurrent event exercise in the Exercises
+ at the end of Chapter 9 of Hosmer, D.W. and Lemeshow, S. and May, S. (2008)
+Applied Survival Analysis: Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Up to four possible recurrent events are possible.  Data are set out
+in counting process format where each event is described by the time
+the previous event or censoring took place and the time of the next
+event or censoring took place.
+
+Data file recur.dat
+
+n = 400 subjects
+
+Variable    Description                   Codes / values
+ID          Subject Identification        1 - 400
+AGE         Age                           years
+TREAT       Treatment Assignment          0 = New
+                                          1 = Old
+TIME0       Day of Previous Episode       Days
+TIME1       Day of New Episode            Days
+              or censoring
+CENSOR      Indicator for Soreness        1 = Episode Occurred
+              Episode or Censoring            at TIME1
+                                          0 = Censored
+EVENT       Soreness Episode Number       0 to at most 4

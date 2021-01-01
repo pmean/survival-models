@@ -1,0 +1,42 @@
+Description of the variables in the WHAS500 dataset shown in Table 1.2
+of Hosmer, D.W. and Lemeshow, S. and May, S. (2008) Applied Survival
+Analysis: Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Data are in file whas500.dat
+n = 500
+
+Variable          Description                     Codes / Values
+id                Identification Code             1 - 500
+age               Age at Hospital Admission       Years
+gender            Gender                          0 = Male, 1 = Female
+hr                Initial Heart Rate              Beats per minute
+sysbp             Initial Systolic Blood          mmHg
+                    Pressure
+diasbp            Initial Diastolic Blood         mmHg
+                    Pressure
+bmi               Body Mass Index                 kg/m^2
+cvd               History of Cardiovascular       0 = No, 1 = Yes
+                    Disease
+afb               Atrial Fibrillation             0 = No, 1 = Yes
+sho               Cardiogenic Shock               0 = No, 1 = Yes
+chf               Congestive Heart                0 = No, 1 = Yes
+                     Complications
+av3               Complete Heart Block            0 = No, 1 = Yes
+miord             MI Order                        0 = First, 1 = Recurrent
+mitype            MI Type                         0 = non Q-wave, 1 = Q-wave
+year              Cohort Year                     1 = 1997, 2 = 1999, 3 = 2001
+admitdate         Hospital Admission Date         mm/dd/yyyy
+disdate           Hospital Discharge Date         mm/dd/yyyy
+fdate             Date of last Follow Up          mm/dd/yyyy
+los               Length of Hospital Stay         Days between Hospital
+                                                    Discharge and Hospital
+                                                    Admission
+dstat             Discharge Status from           0 = Alive, 1 = Dead
+                    Hospital
+lenfol            Total Length of Follow-up       Days between Date of Last
+                                                    Follow-up and Hospital
+                                                    Admission Date
+fstat             Vital Status at Last            0 = Alive 1 = Dead
+                     Follow-up

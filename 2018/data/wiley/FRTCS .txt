@@ -1,0 +1,39 @@
+Description of the variables in the French Tree Cities Study used in exercise 6
+ of Chapter 7 Data used in Chapter 7 of Hosmer, D.W. and Lemeshow, S. and May, S. (2008)
+Applied Survival Analysis: Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Data are in file FRTCS.dat
+n = 697
+
+Variable    Description                         Codes / Values
+id          ID Code                             1 - 697
+age         Age at enrollment                   years
+sex         Gender                              1 = male
+                                                2 = female
+date0       Date of Baseline                    ddmmmyy
+sbp0        Systolic Blood Pressure             mmHg
+              at Baseline
+dbp0        Diastolic Blood Pressure            mmHg
+              at Baseline
+antihyp0    Use of Antihypertensive Drugs       0 = No
+              at First Follow Up                1 = Yes
+date1       Date of Baseline                    ddmmmyy
+sbp1        Systolic Blood Pressure             mmHg
+              at First Follow Up
+dbp1        Diastolic Blood Pressure            mmHg
+              at First Follow Up
+antihyp1    Use of Antihypertensive Drugs       0 = No
+              at First Follow Up                1 = Yes
+date2       Date of Second Follow Up            ddmmmyy
+sbp2        Systolic Blood Pressure             mmHg
+              at Second Follow Up
+dbp2        Diastolic Blood Pressure            mmHg
+              at Second Follow Up
+antihyp2    Use of Antihypertensive Drugs       0 = No
+              at Second Follow Up               1 = Yes
+date_event  Date of Event or                    ddmmmyy
+            End of Follow Up
+censor      Event Indicator                     1 = Event
+                                                0 = Censor

@@ -1,0 +1,33 @@
+Description of the variables in the German Breast Cancer Study GBCS) dataset shown
+in Table 1.4 of Hosmer, D.W. and Lemeshow, S. and May, S. (2008) Applied Survival
+Analysis: Regression Modeling of Time to Event Data: Second Edition, John Wiley
+and Sons Inc., New York, NY
+
+
+Data are in file gbcs.dat
+n = 686
+
+
+Variable      Description                 Codes/Values/ Range
+id            Study ID                    1 - 686
+diagdate      Date of Diagnosis           ddmmmyyyy
+recdate       Date of Recurrence Free     ddmmmyyyy
+              Survival
+deathdate     Date of Death               ddmmmyyyy
+age           Age at Diagnosis            Years
+menopause     Menopausal Status           0 = No, 1 = Yes
+hormone       Hormone Therapy             0 = No, 1 = Yes
+size          Tumor Size                  mm
+grade         Tumor Grade                 1 - 3
+nodes         Number of Nodes             1-51
+                involved
+prog_recp     Number of Progesterone      1 - 2380
+                Receptors
+estrg_recp    Number of Estrogen          1 - 1144
+                Receptors
+rectime       Time to Recurrence          Days
+censrec       Recurrence Censoring        0 = Censored
+                                          1 = Recurrence
+survtime      Time to Death               Days
+censdead      Death Censoring             0 = Censored
+                                          1 = Death

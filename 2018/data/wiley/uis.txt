@@ -1,0 +1,38 @@
+Description of the variables in the UIS Study described in Table 1.3
+ of Hosmer, D.W. and Lemeshow, S. and May, S. (2008) Applied Survival
+ Analysis: Regression Modeling of Time to Event Data: Second Edition,
+John Wiley and Sons Inc., New York, NY
+
+
+Data are in the file uis.dat
+
+n = 628
+
+
+Variable      Description                       Codes/Values
+id            Identification Code               1 - 628
+age           Age at Enrollment                 Years
+beck          Beck Depression Score             0.000 - 54.000
+                at Admission
+hercoc        Heroin/Cocaine Use During         1 = Heroin & Cocaine
+                3 Months Prior to Admission     2 = Heroin Only
+                                                3 = Cocaine Only
+                                                4 = Neither Heroin
+                                                    nor Cocaine
+ivhx          IV Drug Use History at            1 = Never
+                Admission                       2 = Previous
+                                                3 = Recent
+ndrugtx       Number of Prior Drug              0 - 40
+                Treatments
+race          Subject's Race                    0 = White
+                                                1 = Other
+treat         Treatment Randomization           0 = Short
+                Assignment                      1 = Long
+site          Treatment Site                    0 = A
+                                                1 = B
+los           Length of Treatment               Days
+                (Measured from Admission)
+time          Time to Return to Drug Use        Days
+                (Measured from Admission)
+censor        Returned to Drug Use              1 = Returned to Drug Use
+                                                0 = Otherwise

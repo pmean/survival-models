@@ -400,6 +400,10 @@ head(fly1)</code></pre>
 <pre class="r"><code>str(fly1)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    25 obs. of  1 variable:
 ##  $ day: num  37 40 43 44 45 47 49 54 56 58 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;fly1-data-dictionary.yaml&quot; &quot;fly1.dta&quot;                 
+## [3] &quot;fly1.RData&quot;                &quot;fly1.sas7bdat&quot;            
+## [5] &quot;fly1.sav&quot;                  &quot;fly1.txt&quot;</code></pre>
 </div>
 <div id="fly2.txt" class="section level3">
 <h3>fly2.txt</h3>
@@ -428,6 +432,10 @@ head(fly2)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    25 obs. of  2 variables:
 ##  $ day : num  37 40 43 44 45 47 49 54 56 58 ...
 ##  $ cens: num  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;fly2-data-dictionary.yaml&quot; &quot;fly2.dta&quot;                 
+## [3] &quot;fly2.RData&quot;                &quot;fly2.sas7bdat&quot;            
+## [5] &quot;fly2.sav&quot;                  &quot;fly2.txt&quot;</code></pre>
 </div>
 <div id="fly3.txt" class="section level3">
 <h3>fly3.txt</h3>
@@ -456,6 +464,10 @@ head(fly3)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    25 obs. of  2 variables:
 ##  $ day : num  37 40 43 44 45 47 49 54 56 58 ...
 ##  $ cens: num  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;fly3-data-dictionary.yaml&quot; &quot;fly3.dta&quot;                 
+## [3] &quot;fly3.RData&quot;                &quot;fly3.sas7bdat&quot;            
+## [5] &quot;fly3.sav&quot;                  &quot;fly3.txt&quot;</code></pre>
 </div>
 <div id="grace1000.dat" class="section level3">
 <h3>grace1000.dat</h3>
@@ -509,6 +521,10 @@ head(grace1000)</code></pre>
 ##  $ age       : num  28 32 33 35 35 34 35 35 37 38 ...
 ##  $ sysbp     : num  107 121 150 172 106 120 121 112 151 161 ...
 ##  $ stchange  : num  1 1 0 0 0 0 0 1 1 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;grace1000-data-dictionary.yaml&quot; &quot;grace1000.dat&quot;                 
+## [3] &quot;grace1000.dta&quot;                  &quot;grace1000.RData&quot;               
+## [5] &quot;grace1000.sas7bdat&quot;             &quot;grace1000.sav&quot;</code></pre>
 </div>
 <div id="heart.csv" class="section level3">
 <h3>heart.csv</h3>
@@ -548,6 +564,10 @@ head(heart)</code></pre>
 ##  $ surgery   : num  0 0 0 0 0 0 0 0 0 0 ...
 ##  $ transplant: num  0 0 0 1 0 1 0 0 0 1 ...
 ##  $ id        : num  1 2 3 3 4 4 5 6 7 7 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;heart-data-dictionary.yaml&quot; &quot;heart.csv&quot;                 
+## [3] &quot;heart.dta&quot;                  &quot;heart.RData&quot;               
+## [5] &quot;heart.sas7bdat&quot;             &quot;heart.sav&quot;</code></pre>
 </div>
 <div id="heroin.txt" class="section level3">
 <h3>heroin.txt</h3>
@@ -600,6 +620,10 @@ head(heroin)</code></pre>
 ##  $ time  : num  1 1 1 1 1 1 1 0 1 1 ...
 ##  $ prison: num  428 275 262 183 259 714 438 796 892 393 ...
 ##  $ dose  : num  0 1 0 0 1 0 1 1 0 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;heroin-data-dictionary.yaml&quot; &quot;heroin.dta&quot;                 
+## [3] &quot;heroin.RData&quot;                &quot;heroin.sas7bdat&quot;            
+## [5] &quot;heroin.sav&quot;                  &quot;heroin.txt&quot;</code></pre>
 </div>
 <div id="leader.txt" class="section level3">
 <h3>leader.txt</h3>
@@ -656,6 +680,10 @@ head(leader)</code></pre>
 ##  $ land    : num  1247 1247 112 112 112 ...
 ##  $ literacy: num  20 20 11 11 11 11 11 11 30 30 ...
 ##  $ region  : num  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;leader-data-dictionary.yaml&quot; &quot;leader.dta&quot;                 
+## [3] &quot;leader.RData&quot;                &quot;leader.sas7bdat&quot;            
+## [5] &quot;leader.sav&quot;                  &quot;leader.txt&quot;</code></pre>
 </div>
 <div id="psychiatric-patients.txt" class="section level3">
 <h3>psychiatric-patients.txt</h3>
@@ -687,6 +715,13 @@ head(psychiatric)</code></pre>
 ##  $ age  : num  51 58 55 28 21 19 25 48 47 25 ...
 ##  $ time : num  1 1 2 22 30 28 32 11 14 36 ...
 ##  $ death: num  1 1 1 1 0 1 1 1 1 0 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;psychiatric-patients-data-dictionary.yaml&quot;
+## [2] &quot;psychiatric-patients.txt&quot;                 
+## [3] &quot;psychiatric.dta&quot;                          
+## [4] &quot;psychiatric.RData&quot;                        
+## [5] &quot;psychiatric.sas7bdat&quot;                     
+## [6] &quot;psychiatric.sav&quot;</code></pre>
 </div>
 <div id="rats.csv" class="section level3">
 <h3>rats.csv</h3>
@@ -720,6 +755,10 @@ head(rats)</code></pre>
 ##  $ time  : num  101 49 104 91 104 102 104 102 104 91 ...
 ##  $ status: num  0 1 0 0 0 0 0 0 0 0 ...
 ##  $ sex   : chr  &quot;f&quot; &quot;f&quot; &quot;f&quot; &quot;m&quot; ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;rats-data-dictonary.yaml&quot; &quot;rats.csv&quot;                
+## [3] &quot;rats.dta&quot;                 &quot;rats.RData&quot;              
+## [5] &quot;rats.sas7bdat&quot;            &quot;rats.sav&quot;</code></pre>
 </div>
 <div id="transplant.txt" class="section level3">
 <h3>transplant.txt</h3>
@@ -778,6 +817,16 @@ head(transplant)</code></pre>
 ##  $ hla.a2    : num  NA NA 0 0 NA NA 0 NA NA 0 ...
 ##  $ mscore    : num  NA NA 1.11 1.66 NA NA 1.32 NA NA 0.61 ...
 ##  $ reject    : num  NA NA 0 0 NA NA 1 NA NA 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>##  [1] &quot;transplant-data-dictionary.yaml&quot;  &quot;transplant.dta&quot;                  
+##  [3] &quot;transplant.RData&quot;                 &quot;transplant.sas7bdat&quot;             
+##  [5] &quot;transplant.sav&quot;                   &quot;transplant.txt&quot;                  
+##  [7] &quot;transplant1-data-dictionary.yaml&quot; &quot;transplant1.csv&quot;                 
+##  [9] &quot;transplant1.dta&quot;                  &quot;transplant1.RData&quot;               
+## [11] &quot;transplant1.sas7bdat&quot;             &quot;transplant1.sav&quot;                 
+## [13] &quot;transplant2-data-dictionary.yaml&quot; &quot;transplant2.csv&quot;                 
+## [15] &quot;transplant2.dta&quot;                  &quot;transplant2.RData&quot;               
+## [17] &quot;transplant2.sas7bdat&quot;             &quot;transplant2.sav&quot;</code></pre>
 </div>
 <div id="transplant1.csv" class="section level3">
 <h3>transplant1.csv</h3>
@@ -836,6 +885,10 @@ head(transplant1)</code></pre>
 ##  $ hla.a2    : num  NA NA 0 0 NA NA 0 NA NA 0 ...
 ##  $ mscore    : num  NA NA 1.11 1.66 NA NA 1.32 NA NA 0.61 ...
 ##  $ reject    : num  NA NA 0 0 NA NA 1 NA NA 1 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;transplant1-data-dictionary.yaml&quot; &quot;transplant1.csv&quot;                 
+## [3] &quot;transplant1.dta&quot;                  &quot;transplant1.RData&quot;               
+## [5] &quot;transplant1.sas7bdat&quot;             &quot;transplant1.sav&quot;</code></pre>
 </div>
 <div id="transplant2.csv" class="section level3">
 <h3>transplant2.csv</h3>
@@ -875,6 +928,10 @@ head(transplant2)</code></pre>
 ##  $ age       : num  -17.16 3.84 6.3 -7.74 -7.74 ...
 ##  $ year      : num  0.123 0.255 0.266 0.49 0.49 ...
 ##  $ surgery   : num  0 0 0 0 0 0 0 0 0 0 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;transplant2-data-dictionary.yaml&quot; &quot;transplant2.csv&quot;                 
+## [3] &quot;transplant2.dta&quot;                  &quot;transplant2.RData&quot;               
+## [5] &quot;transplant2.sas7bdat&quot;             &quot;transplant2.sav&quot;</code></pre>
 </div>
 <div id="whas100.dat" class="section level3">
 <h3>whas100.dat</h3>
@@ -927,6 +984,10 @@ head(whas100)</code></pre>
 ##  $ age      : num  65 88 77 81 78 82 66 81 76 40 ...
 ##  $ gender   : num  0 1 0 1 0 1 1 1 0 0 ...
 ##  $ bmi      : num  31.4 22.7 27.9 21.5 30.7 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;whas100-data-dictionary.yaml&quot; &quot;whas100.dat&quot;                 
+## [3] &quot;whas100.dta&quot;                  &quot;whas100.RData&quot;               
+## [5] &quot;whas100.sas7bdat&quot;             &quot;whas100.sav&quot;</code></pre>
 </div>
 <div id="whas500.dat" class="section level3">
 <h3>whas500.dat</h3>
@@ -1008,6 +1069,10 @@ head(whas500)</code></pre>
 ##  $ dstat    : num  0 0 0 0 0 1 0 0 0 0 ...
 ##  $ lenfol   : num  2178 2172 2190 297 2131 ...
 ##  $ fstat    : num  0 0 0 1 0 1 0 1 1 0 ...</code></pre>
+<pre class="r"><code>list.files(pattern=data_name)</code></pre>
+<pre><code>## [1] &quot;whas500-data-dictionary.yaml&quot; &quot;whas500.dat&quot;                 
+## [3] &quot;whas500.dta&quot;                  &quot;whas500.RData&quot;               
+## [5] &quot;whas500.sas7bdat&quot;             &quot;whas500.sav&quot;</code></pre>
 </div>
 
 

@@ -1,0 +1,33 @@
+Description of the variables in the nested case-control exercise
+ in the Exercises at the end of Chapter 9 of Hosmer, D.W. and Lemeshow, S.
+and May, S. (2008) Applied Survival Analysis: Regression Modeling of Time
+to Event Data: Second Edition, John Wiley and Sons Inc., New York, NY
+
+
+Five controls per case were selected.
+
+Data are in file whasncc.dat
+
+n = 1638
+
+Variable    Description                         Codes / Units
+SET         Case-Control Set                    1 - 273
+CASE        Case-Control Status                 0 = Control
+                                                1 = Case
+T           Ties Broken LENFOL                  T = LENFOL if FSTAT = 0
+                                                T = LENFOL - U(0,1)
+                                                    if FSTAT = 1
+LENFOL      Total Length of Follow-up           Days
+              from Hospital Admission
+FSTAT       Status as of Last                   0 = Alive
+              Follow-up                         1 = Dead
+AGE         Age (per chart)                     years
+SEX         Gender                              0 = Male
+                                                1 = Female
+BMI         Body Mass Index                     kg/m^2
+CHF         Left Heart Failure                  0 = No
+              Complications                     1 = Yes
+MIORD       MI Order                            0 = First
+                                                1 = Recurrent
+NR          Number of Subjects                  81 - 645
+            in the Sampled Risk Set

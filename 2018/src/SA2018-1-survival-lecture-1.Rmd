@@ -1,0 +1,178 @@
+---
+title: "survival lecture 1"
+author: "Steve Simon"
+date: "March 24, 2018"
+output: html_document
+---
+
+Lecture 1: The Kaplan-Meier curve. The Kaplan-Meier curve is a quick and simple graphical tool to help you visualize the trend in survival data when you have censored data. You'll review the concept of censoring, including the assumptions that are important for censored data. You'll construct a Kaplan-Meier curve for a simple example, and the produce a basic interpretation of this curve. Then, you'll also compare the trend across two or more subgroups using the log rank test.
+
+This file does not need any special libraries other than the ones listed below. Many of the data sets in this program use data from Hosmer, Lemeshow, and May. I made one minor change, however, which was to force all the variable names to lower case.
+
+```{r load-libraries}
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(survival)
+library(tidyr)
+```
+
+
+## Kaplan-Meier curve using WHAS100 data
+
+Let's look at, WHAS100, a data set first described in Chapter 1 of Hosmer, Lemeshow, and May. Read the data-dictionary-whas100.txt file in the doc subdirectory for information about this data set.
+
+```{r read-whas100}
+fn <- "~/survival-models/data/wiley/whas100.dat" 
+whas100 <- read.table(fn, header = FALSE) 
+names(whas100) <- 
+  c("id", "admitdate", "foldate",
+    "los", "lenfol", "fstat",
+    "age", "gender", "bmi")
+whas100$time_yrs <- whas100$lenfol / 365.25
+head(whas100)
+```
+
+Use the same functions, Surv and survfit to create a Kaplan-Meier curve. This plot is the same as Figure 2.2 in Hosmer, Lemeshow, and May.
+
+```{r plot-overall-whas100, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+whas100_surv <- Surv(whas100$time_yrs, whas100$fstat)
+whas100_km <- survfit(whas100_surv~1)
+plot(whas100_km, conf.int=FALSE)
+```
+
+You can easily get confidence intervals (like the ones shown in Figure 2.5 of Hosmer, Lemeshow, and May) and quantile estimates for the Kaplan-Meier curve (like the ones shown in Table 2.5) easily. The mean is not easily computed in R, but there are many reasons why you should not rely on the mean as a summary statistic for survival data. See https://cran.r-project.org/web/packages/survRM2/vignettes/survRM2-vignette3-2.html if you are interested in calculating a mean.
+
+The formula for the estimated variance of a survival curve is
+
+$Var(S(t_i))=S(t_i)^2\sum_{j \leq i}{\frac{d_j}{n_j(n_j-d_j)}}$
+
+```{r plot-with-cis, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+q <- quantile(whas100_km)
+print(q)
+plot(whas100_km, conf.int=TRUE, axes=FALSE)
+axis(side=1)
+axis(side=2, at=c(0, 0.25, 0.5, 0.75, 1))
+```
+
+The dotted lines in this graph show how to calculated the confidence limits for one of the quantiles.
+
+```{r plot-with-quartile, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+q <- quantile(whas100_km)
+print(q)
+plot(whas100_km, conf.int=TRUE, axes=FALSE)
+axis(side=1)
+axis(side=2, at=c(0, 0.25, 0.5, 0.75, 1))
+segments(q$quantile[1], 0, q$quantile[1], 0.75)
+segments(q$lower[1], 0, q$lower[1], 0.75, lty="dotted")
+segments(q$upper[1], 0, q$upper[1], 0.75, lty="dotted")
+segments(q$upper[1], 0.75, 0, 0.75, lty="dotted")
+```
+
+## Kaplan-Meier curves for two or more groups
+
+You can get Kaplan-Meier curves for two or more groups by changing the ~1 in the survfit function. Here's how you would plot survival curves for males and females for the whas100 data set.
+
+As a general recommendation, try to avoid ploting confidence intervals when you have two or more Kaplan-Meier curves because they become very confusing.
+
+Compare the plot shown below with Figure 2.9 of Hosmer, Lemeshow, and May.
+
+```{r plot-by-gender, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+plot(whas100_km_by_gender, conf.int=FALSE)
+```
+
+There is no legend by default in R. While you can put in a legend, I generally recommend that you place labels directly on the graph instead. It's a bit more work, but it makes the graph look nicer.
+
+```{r plot-with-labels, fig.width=4.5, fig.height=2}
+par(mar=c(2.1, 2.1, 0.6, 0.6))
+whas100_km_by_gender <-
+  survfit(whas100_surv~whas100$gender)
+whas100_km_by_gender %>%
+  tidy               %>%
+  group_by(strata)   %>%
+  slice(n())         -> km_labels
+print(km_labels)
+plot(whas100_km_by_gender, conf.int=FALSE, xlim=c(0,12))
+text(
+  km_labels$time, 
+  km_labels$estimate, 
+  km_labels$strata, adj=0)
+```
+
+You should also consider plotting with the ggplot2 library. The ggplot2 library will produce a reasonable legend, but you can also get ggplot2 to produce labels like the graph above, if you prefer.
+
+```{r plot-with-ggplot2, fig.width=4.5, fig.height=2}
+whas100_km_by_gender <- survfit(whas100_surv~whas100$gender)
+whas100_km_by_gender %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+```
+
+## The log rank test
+
+Note: put the data from Table 2.9 in here.
+
+The standard test for comparing two or more Kaplan-Meier curves is the log rank test. You use the survdiff function to get this.
+
+The formulas given in Hosmer, Lemeshow, and May are a bit confusling
+
+$e_{1i}=\frac{n_{1i}d_i}{n_i}$
+
+$v_{1i}=\frac{n_{1i}n_{0i}d_i(n_i-d_i)}{n_i^2(n_i-1)}$
+
+$Q=\frac{(\sum_i{(d_{1i}-e_i)})^2}{\sum_i{V_i}}$
+
+It helps if you compute the estimated probability of death at time i, under the assumption that the two groups are comparable, you get
+
+$p_i=\frac{d_i}{n_i}$
+
+Then $e_{1i}$ becomes the expected number of deaths in the first group at time i, 
+
+$e_{1i}=n_{1i}p_i$
+
+and $v_{1i}$ becomes the estimated binomial variance with a finite population correction factor.
+
+$v_{1i}=n_{1i}p_i(1-p_i)\frac{n_i-n_{1i}}{n_i-1}$
+
+You can also think of this as the variance of a hypergeometric random variable. See https://en.wikipedia.org/wiki/Hypergeometric_distribution.
+
+```{r logrank-test}
+survdiff(whas100_surv~whas100$gender)
+```
+
+You cannot use a continuous variable like age with the log rank test. When you need to see how a continuous variable affects survival, split the continuous variable into discrete intervals.
+
+```{r age-groups, fig.width=4.5, fig.height=2}
+age_breaks <- c(0, 59, 69, 79, 99)
+age_labels <- c("<60", "60-69", "70-79", ">=80")
+whas100$age_group <- cut(whas100$age, age_breaks, age_labels)
+table(whas100$age_group, whas100$fstat)
+whas100_km_by_age <- survfit(whas100_surv~whas100$age_group)
+whas100_km_by_age    %>%
+  tidy               %>%
+  ggplot(aes(time, estimate, color=strata)) +
+    geom_step()
+survdiff(whas100_surv~whas100$age_group)
+```
+
+For data like this, a test for trend would be better. You can find such a test in the survMisc package.
+
+```{r read-bpd}
+fn <- "~/survival-models/data/wiley/bpd.dat" 
+bpd <- read.table(fn, header = FALSE) 
+names(bpd) <- c("id", "surfact", "ondays", "censor")
+head(bpd)
+```
+
+Save everything for possible re-use.
+
+```{r save-everything}
+save.image("~/survival-models/bin/survival-lecture-1.RData")
+```
