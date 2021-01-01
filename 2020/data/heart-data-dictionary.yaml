@@ -1,0 +1,64 @@
+---
+data-dictionary: transplant2.csv
+
+source:
+  This dataset is identical to transplant2.csv, 
+  except that it uses a slightly different
+  format.
+  
+  For the background about this data, please
+  refer to transplant-data-dictionary.yaml.
+ 
+download:
+  Please refer to transplant-data-dictionary.yaml
+  
+description:
+  Please refer to transplant-data-dictionary.yaml
+  
+copyright:
+  Please refer to transplant-data-dictionary.yaml
+
+format: 
+  delimiter: comma
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 172
+  columns: 8
+
+vars:
+  id:
+    label: id
+
+  start:
+    label: time when patient started with a fixed covariate set
+    unit: days
+  
+  stop:
+    label: time when patient stopped with a fixed covariate set
+    unit: days
+    
+  event:
+    label: follow up status
+    values:
+      still alive: 0
+      death: 1
+  
+  age:
+    label: age at time of qualification for transplant
+    unit: Years
+
+  year:
+    label: year recruited into the study
+     
+  surgery:
+    label: prior bypass surgery
+    value:
+      no: 0
+      yes: 1
+      
+  transplant:
+    label: indicator for transplant
+    value:
+      no: 0
+      yes: 1
+---

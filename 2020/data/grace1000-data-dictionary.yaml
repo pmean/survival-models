@@ -1,0 +1,73 @@
+---
+data-dictionary: grace1000.dat
+
+source: 
+  This dataset is described and used in Chapter 7 of
+  
+  Hosmer, D.W. and Lemeshow, S. and May, S. (2008)
+  Applied Survival Analysis. Regression Modeling 
+  of Time to Event Data. Second Edition, John Wiley
+  and Sons Inc., New York, NY
+
+description:
+  This dataset illustrates the use of time-varying
+  covariates.
+
+download:
+  text-format: ftp://ftp.wiley.com/public/sci_tech_med/survival/
+  sas-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_sas.zip
+  spss-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_spss.zip
+
+format: 
+  delimiter: one or more spaces
+  varnames: not included in the first row of data
+  missing-value-code: Not needed
+  rows: 1000
+  columns: 9
+
+vars:
+  id:
+    label: Patient Identification Number
+    days:
+      label: Follow Up Time
+      unit: days
+      special notes: 
+        Patients discharged on same day assigned
+        a value of 0.5.
+
+  death:
+    label: Death During Follow Up
+    value:
+     Death: 1
+     Censored: 0
+
+  revasc:
+    label: Revascularization Performed
+    value:
+       Yes: 1
+       No: 0
+
+  revascdays:
+    label: Time to Revascularization After Admission
+    unit: days
+    special note:
+      Set to follow up time if no revascularization
+
+  los:
+    label: Length of Hospital Stay
+    unit: days
+    
+  age:
+    label: Age at Admission
+    unit: years
+    
+  sysbp:
+    label: Systolic Blood Pressure on Admission
+    unit: mm Hg
+
+  stchange:
+    label: ST-segment deviation on index ECG
+    value:
+      Yes: 1
+      No: 0
+---

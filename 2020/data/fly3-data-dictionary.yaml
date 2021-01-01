@@ -1,0 +1,30 @@
+---
+data-dictionary: fly.txt
+
+source:
+  See fly1-data-dictionary.yaml
+  
+description:
+  See fly1-data-dictionary.yaml
+  
+copyright:  
+  See fly1-data-dictionary.yaml
+
+format: 
+  delimiter: space
+  varnames: not included in the first row of data
+  missing-value-code: Not needed
+  rows: 25
+  columns: 2
+    Two observations on each line of text.
+
+vars:
+  day:
+    label: Time until death or escape
+    unit: days
+  censor:
+    label: Indicator for death or escape
+    value:
+      Escaped: 0
+      Died: 1
+---

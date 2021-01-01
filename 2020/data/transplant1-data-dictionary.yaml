@@ -1,0 +1,91 @@
+---
+data-dictionary: transplant1.csv
+
+source:
+  This dataset is identical to transplant.txt, 
+  except that it uses a slightly different
+  format.
+  
+  For the background about this data, please
+  refer to transplant-data-dictionary.yaml.
+ 
+download:
+  Please refer to transplant-data-dictionary.yaml
+  
+description:
+  Please refer to transplant-data-dictionary.yaml
+  
+copyright:
+  Please refer to transplant-data-dictionary.yaml
+
+format: 
+  delimiter: comma
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 103
+  columns: 14
+
+vars:
+  birth.dt:
+    label: date of birth
+    format: mm/dd/yyyy
+    
+  accept.dt:
+    label: date of accpetance into the transplant program
+  
+  tx.date:
+    label: date when transplant occured
+    format: mm/dd/yyyy, NA if no transplant
+    
+  fu.date:
+    label: date of last follow-up
+  
+  fustat:
+    label: follow up status
+    value:
+      still alive at last follow-up: 0
+      died: 1
+  
+  surgery:
+    label: prior bypass surgery
+    value: 
+      no: 0
+      yes: 1
+      
+  age:
+    label: ageat time of qualification for transplant
+    unit: years
+    
+  futime:
+    label: time until last follow-up
+    unit: days
+    
+  wait.time:
+    label: time waiting for transplant
+    unit: days, NA if no transplant
+    
+  transplant:
+    label: indicator for transplant
+    value:
+      no: 0
+      yes: 1
+  
+  mismatch:
+    label: mismatch score
+    scale: ordinal 1-4, NA if no transplant
+    
+  hla.a2:
+    label: Another mismatch score
+    unit: binary 0-1, NA if no transplant
+    
+  mscore:
+    label: Yet another mismatch score
+    scale: continuous, NA if no transplant
+    
+  reject:
+    label: indicator for rejection
+    value:
+      no: 0
+      yes: 1
+      no transplant: NA
+---

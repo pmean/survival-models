@@ -1,0 +1,144 @@
+---
+data-dictionary: whas500.dat
+
+source: 
+  This data set is very similar to whas100. It is a
+  larger subset with more variables. For a 
+  description of the context of this file and where
+  you can find it, please refer to 
+  data-dictionary-whas100.yaml.
+
+download:
+  text-format: ftp://ftp.wiley.com/public/sci_tech_med/survival/
+  sas-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_sas.zip
+  spss-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_spss.zip
+
+description:
+  The data represents survival times for a 500 patient 
+  subset of data from the Worcester Heart Attack
+  Study. You can find more information about this
+  data set in Chapter 1 of Hosmer, Lemeshow, and
+  May.
+
+copyright: 
+  There is no explicit license for when and how you
+  can use this data, but it is presented here under
+  the Fair Use provisions of U.S. Copyright law.
+
+format: 
+  delimiter: one or more spaces
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 500
+  columns: 22
+
+vars:
+  id: 
+    label: a sequential code from 1 to 100
+
+  age:
+    label: Age at Admission
+    unit: years
+
+  gender:
+    value:
+      Male: 0
+      Female: 1
+
+  hr:
+    label: Initial Heart Rate
+    unit: Beats per minute
+
+  sysbp:
+    label: Initial Systolic Blood Pressure
+    unit: mmHg
+
+  diasbp:
+    label: Initial Diastolic Blood Pressure
+    unit: mmHg
+
+  bmi:
+    label: Body Mass Index
+    unit: kg/m^2
+
+  cvd:
+    label: History of Cardiovascular Disease
+    value:
+      No: 0
+      Yes: 1
+
+  afb:
+    label: Atrial Fibrillation
+    value:
+      No: 0
+      Yes: 1
+
+  sho:
+    label: Cardiogenic Shock
+    value:
+      No: 0
+      Yes: 1
+
+  chf:
+    label: Congestive Heart Complications
+    value:
+      No: 0
+      Yes: 1
+
+  av3:
+    label: Complete Heart Block
+    value:
+      No: 0
+      Yes: 1
+
+  miord:
+    label: MI Order
+    value:
+      First: 0
+      Recurrent: 1
+
+  mitype:
+    label: MI Type
+    value:
+      non Q-wave: 0
+      Q-wave: 1
+
+  year:
+    label: Cohort Year
+    value:
+      yr1997: 1
+      yr1999: 2
+      yr2001: 3
+
+  admitdate:
+    label: Admission Date
+    format: mm/dd/yyyy
+
+  disdate:
+    label: Hospital Discharge Date
+    format: mm/dd/yyyy
+
+  fdate:
+    label: Date of last Follow Up
+
+  los:
+    label: Length of Hospital Stay
+    unit: Days
+
+  dstat:
+    label: Discharge Status from Hospital
+    value:
+      Alive: 0
+      Dead: 1
+
+  lenfol: 
+    label: Follow Up Time
+    unit: days
+
+  fstat: 
+    label: Vital Satus
+    value:
+      Alive: 0
+      Dead: 1
+
+---

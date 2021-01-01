@@ -1,0 +1,58 @@
+---
+data-dictionary: heroin.txt
+
+source:
+  The data was originally found at 
+  lib.stat.cmu.edu/DASL/DataArchive.html, 
+  but this site no longer exists. 
+
+description:
+  This dataset shows information about heroin
+  addicts who are treated at two rehabilitation
+  clinics. It is useful for showing (among other
+  things) how to identify and control for the
+  clinic factor which does not meet the assumptions
+  of proportional hazards needed by the standard
+  Cox regression model.
+
+copyright:
+  Unknown. You should be able to use this data for
+  individual educational purposes under the Fair Use
+  guidelines of U.S. copyright law.
+
+format: 
+  delimiter: tab
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 119
+  columns: 5
+  special-notes:
+    Two observations on each line of text.
+    
+vars:
+  Clinic:
+    label:Numeric code for clinic
+    value:
+      Clinic 1: 1
+      Clinic 2: 2
+      
+  Status:
+    label: discharge status
+    value:
+      Censored: 0
+      Discharged: 1
+      
+  Time:
+    label: time spent in the clinic  (number of days spent in the clinic)
+    unit: days
+    
+  Prison:
+    label: Prison record?
+    value:
+      No record: 0
+      Prison record: 1
+      
+  Dose:
+    label: Methadone dosage
+    unit: mg/day
+ ---

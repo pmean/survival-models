@@ -1,0 +1,71 @@
+---
+data-dictionary: whas100.dat
+
+source:
+  This data comes from Table 2.1 of 
+  Hosmer DW, Lemeshow S, May S. Applied Survival
+  Analysis. 2008. John Wiley and Sons, Hoboken, NJ.
+
+download:
+  text-format: ftp://ftp.wiley.com/public/sci_tech_med/survival/
+  sas-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_sas.zip
+  spss-format: https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_spss.zip
+
+description:
+  The data represents survival times for a 100 patient 
+  subset of data from the Worcester Heart Attack
+  Study. You can find more information about this
+  data set in Chapter 1 of Hosmer, Lemeshow, and
+  May.
+  
+copyright: 
+  There is no explicit license for when and how you
+  can use this data, but it is presented here under
+  the Fair Use provisions of U.S. Copyright law.
+
+format: 
+  delimiter: one or more spaces
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 100
+  columns: 9
+
+vars:
+  id: 
+    label: a sequential code from 1 to 100
+
+  admitdate:
+    label: Admission Date
+    format: mm/dd/yyyy
+
+  foldate: 
+    label: Follow Up Date
+    format: mm/dd/yyyy
+
+  los:
+    label: Length of Hospital Stay
+    unit: days
+
+  lenfol: 
+    label: Follow Up Time
+    unit: days
+
+  fstat: 
+    label: Vital Satus
+    value:
+      Alive: 0
+      Dead: 1
+
+  age:
+    label: Age at Admission
+    unit: years
+
+  gender:
+    value:
+      Male: 0
+      Female: 1
+
+  bmi:
+    label: Body Mass Index
+    unit: kg/m^2
+---

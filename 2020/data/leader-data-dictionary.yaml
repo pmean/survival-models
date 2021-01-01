@@ -1,0 +1,95 @@
+---
+data-dictionary: psychiatric-patients.txt
+
+source: 
+  This dataset is found in the Paul Allison book, 
+  Survival Analysis Using SAS. A Practical Guide. 
+  It is a subset of the data analyzed in a 1991 
+  book by Henry Bienen and Nicolas van de Walle, 
+  Of Time and Power.
+
+description:
+  This data set shows how long political leaders 
+  of various countries stayed in power and is useful
+  for (among other things) illustrating how to fit
+  competing risk models based on the manner in which
+  each leader lost power.
+  
+copyright:
+  There is no information in Allison's book about 
+  copyright restrictions, but you should be able to
+  use this data for individual educational purposes 
+  under the fair use guidelines of copyright laws.
+
+format: 
+  delimiter: tab
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 472
+  columns: 13
+
+vars:
+  years:
+    label: time in power
+    unit: years
+
+  lost:
+    label: how the leader lost power
+    value: 
+      still in power at the end of the study: 0
+      constitutional exit: 1
+      natural death: 2
+      nonconstitutional exit: 3
+      
+  manner:
+    label: how the leader reached power
+    value:
+      constitutional ascent: 0
+      nonconstitutional ascent: 1
+      
+  start:
+    label: year that the leader ascended into power
+    
+  military:
+    label: indicator for previous military experience
+    value:
+      no: 0
+      yes: 1
+      
+  age:
+    label: age of the leader at the time of ascent
+    unit: years
+    
+  conflict:
+    label: level of ethnic conflict
+    value:
+      low: 0
+      medium or high: 1
+      
+  loginc:
+    label: natural logarithm of GNP per capita
+    unit: dollar equivalent
+    
+  growth:
+    label: average annual rate of per capita GNP growth
+    
+  pop:
+    label: population
+    unit: millions
+    
+  land:
+    label: land area
+    unit: thousands of square kilometers
+    
+  literacy:
+    label: literacy rate
+    unit: percentage
+    
+  region:
+    label: location of leader's country
+    value:
+      Middle East: 0
+      Africa: 1
+      Asia: 2
+      Latin America: 3
+---

@@ -1,0 +1,110 @@
+---
+data-dictionary: transplant.txt
+
+source:
+  This dataset is available though the survival
+  package of the R programming language.
+  
+description:
+  Please refer to transplant-data-dictionary.yaml
+  
+copyright:
+  Because this data is included in the 
+  survival package of the R programming language,
+  this dataset is free to use with just a few
+  restrictions. For details, see
+  
+  www.r-project.org/Licenses/
+  
+  It should be fine to use this data for
+  individual educational purposes. If you do 
+  use it in a publicaiton, it would be nice 
+  to acknowledge the original source, either
+
+  Therneau T (2020). A Package for Survival 
+  Analysis in R. R package version 3.1-12, 
+  CRAN.R-project.org/package=survival.
+
+  or
+
+  Terry M. Therneau, Patricia M. Grambsch (2000).
+  Modeling Survival Data, Extending the Cox Model.
+  Springer, New York. ISBN 0-387-98784-3.
+
+  The true original source, however, is a book with
+  the simple title "Data" written by D.F. Andrews
+  and A.M. Herzberg. It was published in 1985, long
+  before the World Wide Web made it so much easier 
+  to distribute data.
+
+format: 
+  delimiter: tab
+  varnames: first row of data
+  missing-value-code: NA
+  rows: 103
+  columns: 14
+
+vars:
+  birth.dt:
+    label: date of birth
+    format: mm/dd/yyyy
+    
+  accept.dt:
+    label: date of accpetance into the transplant program
+  
+  tx.date:
+    label: date when transplant occured
+    format: mm/dd/yyyy, NA if no transplant
+    
+  fu.date:
+    label: date of last follow-up
+  
+  fustat:
+    label: follow up status
+    value:
+      still alive at last follow-up: 0
+      died: 1
+  
+  surgery:
+    label: prior bypass surgery
+    value: 
+      no: 0
+      yes: 1
+      
+  age:
+    label: ageat time of qualification for transplant
+    unit: years
+    
+  futime:
+    label: time until last follow-up
+    unit: days
+    
+  wait.time:
+    label: time waiting for transplant
+    unit: days, NA if no transplant
+    
+  transplant:
+    label: indicator for transplant
+    value:
+      no: 0
+      yes: 1
+  
+  mismatch:
+    label: mismatch score
+    scale: ordinal 1-4, NA if no transplant
+    
+  hla.a2:
+    label: Another mismatch score
+    scale: binary 0-1, NA if no transplant
+    
+  mscore:
+    label: Yet another mismatch score
+    scale: continuous, NA if no transplant
+    
+  reject:
+    label: indicator for rejection
+    value:
+      no: 0
+      yes: 1
+      no transplant: NA
+---
