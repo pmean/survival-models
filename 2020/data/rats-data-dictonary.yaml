@@ -1,0 +1,78 @@
+---
+data-dictionary: rats.csv
+
+  This dataset is available though the survival
+  package of the R programming language.
+  
+description:
+  This dataset shows survival times for rats 
+  provided an unspecified medical treatment 
+  or a placebo. The experiment randomized three
+  pups within an individual litter, one to the
+  treatment group and two to the control group.
+  This data is useful for (among other things)
+  showing how to account for a litter effect
+  in a Cox proportional hazards model.
+  
+copyright:
+  Because this data is included in the 
+  survival package of the R programming language,
+  this dataset is free to use with just a few
+  restrictions. For details, see
+  
+  www.r-project.org/Licenses/
+  
+  It should be fine to use this data for
+  individual educational purposes. If you do 
+  use it in a publicaiton, it would be nice 
+  to acknowledge the original source, either
+
+  Therneau T (2020). A Package for Survival 
+  Analysis in R. R package version 3.1-12, 
+  CRAN.R-project.org/package=survival.
+
+  or
+
+  Terry M. Therneau, Patricia M. Grambsch (2000).
+  Modeling Survival Data, Extending the Cox Model.
+  Springer, New York. ISBN 0-387-98784-3.
+
+  The true original source, however, is a book with
+  the simple title "Data" written by D.F. Andrews
+  and A.M. Herzberg. It was published in 1985, long
+  before the World Wide Web made it so much easier 
+  to distribute data.
+
+format: 
+  delimiter: comma
+  varnames: first row of data
+  missing-value-code: Not needed
+  rows: 300
+  columns: 5
+
+vars:
+  litter:
+    label: consecutive numbers from 1 to 100 identifying specific litters
+
+  rx:
+    label: indicator variable for treatment
+    value:
+      placebo: 0
+      treatment: 1
+      
+  time:
+    label: time until survival or censoring
+    unit: days
+    
+  status:
+    label: code for death
+    value:
+      alive at last evalation (censored): 0
+      died: 1
+  
+  sex:
+    label: sex
+    value:
+      female: f
+      male: m
+---

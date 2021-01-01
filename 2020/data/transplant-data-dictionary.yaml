@@ -6,7 +6,26 @@ source:
   package of the R programming language.
   
 description:
-  Please refer to transplant-data-dictionary.yaml
+  This data dictionary provides information about
+  a dataset that for a variety of reasons, comes
+  in four different files. Two files of the files
+  (transplant.txt and transplant1.csv) are identical
+  except for formatting and are represented with one
+  row per patient. Another two files (heart.csv and
+  transplant2.csv) are also identical except for 
+  formatting and are represented using start-stop 
+  coding. For these two data sets, an extra row is
+  needed for patients who switch the covariate pattern
+  in the middle of the study.
+
+  This dataset shows information about heart transplant
+  patients. Patients were accepted into a heart 
+  transplant program, but many had to wait months
+  or even years before a suitable transplant organ
+  was found. Some patients never got a heart transplant
+  at all. It is useful for (among other things) 
+  illustrating start/stop coding for time varying
+  covariates.
   
 copyright:
   Because this data is included in the 
