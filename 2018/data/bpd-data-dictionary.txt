@@ -1,0 +1,30 @@
+~/survival-models/doc/data-dictionary-bpd.txt
+
+This data comes from Chapter 2 of 
+
+Hosmer DW, Lemeshow S, May S. Applied Survival
+Analysis. 2008. John Wiley and Sons: Hoboken, NJ.
+
+This data set is copyrighted, but is available
+for free download at
+
+ftp://ftp.wiley.com/public/sci_tech_med/survival/
+
+and in SAS format at
+
+https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_sas.zip
+
+and in SPSS format at
+
+https://stats.idre.ucla.edu/wp-content/uploads/2016/02/asa2_spss.zip
+
+This data set is a study of a treatment for 
+pre-term infants with bronchopulmonary displasia.
+
+This data set has 78 rows and 4 columns.
+
+id, a sequential id from 1 to 78
+surfact, Surfactant use, 0 = No, 1 = Yes
+ondays, Days in Oxygen
+censor, Censoring Indicator,
+  1 = Off Oxygen, 0 = Still on Oxygen at Study End
